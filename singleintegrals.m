@@ -1,5 +1,6 @@
 //freeze;
 
+//Use Qp instwad K for p-adic fields, since p is split.
 import "auxpolys.m": auxpolys, genus, is_integral, log, smooth;
 import "coho.m": ord_0_mat, ord_inf_mat, mat_W0, mat_Winf, con_mat, ddx_mat, jordan_inf, jordan_0, ram, basis_coho;
 import "reductions.m": convert_to_Kxzzinvd, reduce_with_fs, red_lists;
@@ -1485,7 +1486,7 @@ tiny_integrals_on_basis:=function(P1,P2,data:prec:=0,P:=0);
   // residue disk as P1 has to be specified.
 
   x1:=P1`x; x2:=P2`x; b1:=P1`b; b2:=P2`b; Q:=data`Q; p:=data`p; N:=data`N; W0:=data`W0; Winf:=data`Winf; r:=data`r; basis:=data`basis; N:=data`N;
-  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x1); K:=BaseRing(BaseRing(r));
+  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x1); K:=BaseRing(BaseRing(Q));
 
   if not lie_in_same_disk(P1,P2,data) then
     error "the points do not lie in the same residue disk";
@@ -1604,7 +1605,7 @@ tiny_integrals_on_basis_to_z:=function(P,data:prec:=0);
   // local parameter are also returned.
 
   x0:=P`x; b:=P`b; Q:=data`Q; p:=data`p; N:=data`N; basis:=data`basis; r:=data`r; W0:=data`W0; Winf:=data`Winf;
-  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x0); K:=BaseRing(BaseRing(r));
+  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x0); K:=BaseRing(BaseRing(Q));
 
   if is_bad(P,data) and not is_very_bad(P,data) then // on a bad disk P needs to be very bad
     P1:=find_bad_point_in_disk(P,data);  
@@ -1619,53 +1620,54 @@ tiny_integrals_on_basis_to_z:=function(P,data:prec:=0);
     prec:=tadicprec(data,1);
   end if;
 
+  Qpt<t>:=LaurentSeriesRing(Qp,prec);
   Kt<t>:=LaurentSeriesRing(K,prec);
-  OK:=RingOfIntegers(K);
-  OKt:=LaurentSeriesRing(OK,prec);
+  Zp:=RingOfIntegers(Qp);
+  Zpt:=LaurentSeriesRing(Zp,prec);
 
   xt,bt,index:=local_coord(P1,prec,data);
 
   xtold:=xt;
   btold:=bt;
 
-  Kt<t>:=LaurentSeriesRing(RationalField(),prec);
-  xt:=Qt!xt;
-  btnew:=[Qt|];
+  Qp<t>:=LaurentSeriesRing(Qp,prec);
+  xt:=Qpt!xt;
+  btnew:=[Qpt|];
   for i:=1 to d do
-    btnew[i]:=Qt!bt[i];
+    btnew[i]:=Kt!bt[i];
   end for;
   bt:=Vector(btnew);
 
   if P1`inf then
     xt:=1/xt;
-    xt:=Qt!Kt!xt; 
+    xt:=Kt!Qpt!xt; 
     Winv:=W0*Winf^(-1);          
     bt:=bt*Transpose(Evaluate(Winv,xt));
     for i:=1 to d do
-      bt[i]:=Qt!(Kt!bt[i]);
+      bt[i]:=Kt!(Qpt!bt[i]);
     end for; 
   end if;
 
   if P1`inf or not is_bad(P1,data) then 
-    denom:=Qt!Kt!(1/Evaluate(r,xt));
+    denom:=Kt!Qpt!(1/Evaluate(r,xt));
   else
     Qp:=pAdicField(p,N);
     Qpx:=PolynomialRing(Qp);
     rQp:=Qpx!r;
     zero:=HenselLift(rQp,x1);
     sQp:=rQp div (Qpx.1-zero);
-    denom:=Qt!Kt!((Qt!OKt!(xt-Coefficient(xt,0)))^(-1)*(Qt!Kt!(1/Evaluate(sQp,xt))));
+    denom:=Kt!Qpt!((Kt!Zpt!(xt-Coefficient(xt,0)))^(-1)*(Kt!Qpt!(1/Evaluate(sQp,xt))));
   end if;
 
-  derxt:=Qt!Kt!Derivative(xt); 
+  derxt:=Kt!Qpt!Derivative(xt); 
   diffs:=[];
   for i:=1 to #basis do
     basisxt:=Evaluate(basis[i],xt);
     for j:=1 to d do
-      basisxt[1][j]:=Qt!Kt!basisxt[1][j];
+      basisxt[1][j]:=Kt!Qpt!basisxt[1][j];
     end for;
     diffs[i]:=InnerProduct(Vector(basisxt*derxt*lc_r*denom),bt);
-    diffs[i]:=Qt!Kt!diffs[i];
+    diffs[i]:=Kt!Qpt!diffs[i];
     if Coefficient(diffs[i],-1) ne 0 then
       diffs[i]:=diffs[i]-Coefficient(diffs[i],-1)*t^(-1); // temporary, TODO deal with logs later, important for double integrals
     end if;
