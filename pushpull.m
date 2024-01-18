@@ -1,41 +1,91 @@
 declare verbose LocalHeights, 3;
 
-intrinsic ChangeCoordinatesHyp(f::RngUPolElt) -> RngUPolElt, RngUPolElt
-  {input: a monic polynomial of even degree f defining a hyperelliptic curve y^2=f(x)
-  outut: two polynomials h, g such that the curve y^2+hy=g is isomorphic to the above}
-  assert IsEven(Degree(f));
-  require IsSquare(LeadingCoefficient(f)) : "Non-square leading coefficients not yet supported";
-  R<x>:=Parent(f);
+intrinsic ChangeCoordinatesHyp(X::CrvHyp) -> RngUPolElt, RngUPolElt, MapSch
+  {input: a monic polynomial of even degree f defining a hyperelliptic curve X:y^2=f(x)
+  outut: two polynomials h, g such that the curve Xp:y^2+hy=g is isomorphic to the above.
+  Also returns the isomorphism X -> Xp}
+  f,hh := HyperellipticPolynomials(X);
+  assert IsEven(Degree(f)) and IsZero(hh);
+  require IsMonic(f) : "Non-monic polynomials not yet supported";
+  //could change to square leading coeffs easily, but for now we will leave it at monic
+  R<x> := Parent(f);
   _<yy> := PolynomialRing(Parent(f));
   mon := x^(Degree(f) div 2);
+  adding := mon;
   yPrime := yy+mon;
   g := f - R!Evaluate(yPrime^2,0);
   while Degree(g) ge Degree(mon) do
     yPrime +:= LeadingCoefficient(g)*x^(Degree(g)-Degree(mon))/2;
+    adding +:= LeadingCoefficient(g)*x^(Degree(g)-Degree(mon))/2;
     g := f - R!Evaluate(yPrime^2,0);
   end while;
   h := R!Coefficient(yPrime^2,1);
-  return h,g;
+  Xp := HyperellipticCurve(g,h);
+
+  changeOfY := X.2 - &+[Coefficient(adding,i)*X.1^i : i in [0..Degree(adding)]];
+  coefs, mons := CoefficientsAndMonomials(changeOfY);
+  deg := Degree(changeOfY);
+  changeOfY := &+[coefs[i]*mons[i]*X.3^(deg-Degree(mons[i])) : i in [1..#mons]];
+  rho := map< X -> Xp | [X.1, changeOfY, X.3]>;
+  _, rho := IsIsomorphism(rho);
+  return Xp,rho;
 end intrinsic;
 
-intrinsic FindEndoMatrix(X::CrvHyp) -> AlgMatElt
-    {Tries to return a nontrival endomorphism}
+intrinsic FindEndoMatrix(X::CrvHyp : tracezero := true) -> AlgMatElt
+    {Tries to return a nontrival trace 0 endomorphism, given as Z_* on H^0.}
+    g := Genus(X);
     Per := PeriodMatrix(CurveExtra(X));
-    G := GeometricEndomorphismRepresentation(Per, RationalsExtra());
-    require #G gt 1 : "Not GL2 type";
-    return G[2][1];
+    G,m := GeometricEndomorphismRepresentation(Per, RationalsExtra());
+    E := EndomorphismRepresentation(G,RationalsExtra(),m);
+
+    g := Genus(X);
+    require #E gt 1 : "Neron-Severi rank is not large enough.";
+    n := #E;
+    for i in [1..n] do
+      if E[i][1] eq IdentityMatrix(Rationals(),g) then
+        continue;
+      else
+        Z := E[i][1];
+        if IsNilpotent(Z) then
+          continue;
+        end if;
+        break;
+      end if;
+    end for;
+
+    if tracezero then
+      tr := Integers()!Trace(Z);
+      if IsZero(tr) then
+        vprintf LocalHeights, 1: "Choosing %o with minimal polynomial %o.\n", Z, MinimalPolynomial(Z);
+        return Transpose(Z);
+      else
+        m := LCM(tr,Ncols(Z));
+        newZ := Transpose((m div tr)*Z- (m div Ncols(Z))*IdentityMatrix(Rationals(),Ncols(Z)));
+        assert IsZero(Trace(newZ));
+        vprintf LocalHeights, 1: "Choosing %o with minimal polynomial %o.\n", newZ, MinimalPolynomial(newZ);
+        return newZ;
+      end if;
+    end if;
+    return Transpose(Z);
 end intrinsic;
 
 intrinsic AnyRationalPoint(X::CrvHyp) -> PtHyp
     {Any rational point}
     C, pi := SimplifiedModel(X);
-    pts := RationalPoints(C : Bound := 1000);
-    finitepts := [(pi^(-1))(pt) : pt in pts | (pi^(-1))(pt)[3] ne 0];
-    return Random(finitepts);
+    f := HyperellipticPolynomials(C);
+    d := LCM([Denominator(c): c in Coefficients(f)]);
+    Xprime := HyperellipticCurve(f* d^2);
+    b, phi := IsIsomorphic(Xprime, X);
+    pts := RationalPoints(Xprime : Bound := 1000);
+    finitepts := [phi(pt) : pt in pts | phi(pt)[3] ne 0];
+    finiteptsNotWeierstrass := [p: p in finitepts | not IsWeierstrassPlace(Place(X!p))];
+    require not #finiteptsNotWeierstrass eq 0 : "There are no rational finite non-Weierstrass points.";
+    return finiteptsNotWeierstrass[1];
 end intrinsic;
 
 intrinsic ConstructCorrespondence(Xp::CrvHyp, P0::PtHyp, T::AlgMatElt) -> SeqEnum, Crv
     {Construct the correspondence associated to T}
+    T := Transpose(T);
     vprintf LocalHeights, 1: "Constructing Correspondence.\n";
     _, D := DivisorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T : LowerBound := 1);
     U := Xp`U;
@@ -44,9 +94,28 @@ intrinsic ConstructCorrespondence(Xp::CrvHyp, P0::PtHyp, T::AlgMatElt) -> SeqEnu
     vprintf LocalHeights, 1: "Computing irreducible components.\n";
     comps := IrreducibleComponents(D);
     Zi := [c : c in comps | Dimension(c) gt 0 ];
-    swap_Zi := [Scheme(AmbientSpace(Z), [Evaluate(z, [y1, y2, x1, x2]) : z in Equations(Z)]) : Z in Zi];
     Ci := [Curve(Z) : Z in Zi];
     return Ci, U;
+end intrinsic;
+
+intrinsic ConstructCorrespondenceByCantor(Xp::CrvHyp, P0::PtHyp, T::AlgMatElt) -> SeqEnum, Crv
+  {Construct the correspondence associated to T}
+  T := Transpose(T);
+  vprintf LocalHeights, 1: "Constructing Correspondence using Cantor representation.\n";
+  _, cant := CantorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T : LowerBound := 1);
+  vprintf LocalHeights, 1: "Constructing Correspondence from divisor.\n";
+  _, D := DivisorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T: LowerBound := 1);
+  U := Xp`U;
+  eqs := DefiningEquations(D);
+  R<y2,y1,x2,x1> := Parent(eqs[1]);
+  I := DefiningIdeal(D);
+  vprintf LocalHeights, 1: "Saturating ideal.\n";
+  J := Saturation(I,Evaluate(Denominator(cant[1]),[x1,y1]));
+  vprintf LocalHeights, 1: "Computing irreducible components.\n";
+  comps := IrreducibleComponents(Scheme(Ambient(D),J));
+  Zi := [c : c in comps | Dimension(c) gt 0 ];
+  Ci := [Curve(Z) : Z in Zi];
+  return Ci, U;
 end intrinsic;
 
 // intrinsic TraceByGroebnerBasis(pi::MapSch, g::FldFunFracSchElt, C::Crv) -> .
@@ -90,7 +159,6 @@ end intrinsic;
 
 intrinsic Trace(pi::MapSch, g::FldFunFracSchElt, C::Crv) -> .
  {}
-
   require IsProjective((Domain(pi))) and IsProjective((Codomain(pi))): "The map must have projective domain and codomain";
   degpi := Degree(pi);
   norms := [Pushforward(pi,g-a) : a in [0..degpi]];
@@ -107,28 +175,36 @@ intrinsic Trace(pi::MapSch, g::FldFunFracSchElt, C::Crv) -> .
 end intrinsic;
 
 
-intrinsic EndoAction(Xp::CrvHyp, Ci::SeqEnum, U::Crv, omega::DiffCrvElt) -> DiffCrvElt
-    {Act by the corresopndence Ci on omega}
+intrinsic EndoAction(Xp::CrvHyp, Ci::SeqEnum, U::Crv, omegas::SeqEnum) -> SeqEnum, SeqEnum
+    {Act by the corresopndence Ci on set of omegas}
     fp, hp := HyperellipticPolynomials(Xp);
     R<y2,y1,x2,x1> := Parent(Equations(Ci[1])[1]);
     KU := FunctionField(U);
     u := KU.1;
     v := KU.2;
-    omega0 := Differential(u)/(2*v + Evaluate(hp,u));  
-    Zomegas := [];
-    for C in Ci do
-        pi1proj := map<ProjectiveClosure(C)-> ProjectiveClosure(U) | [x1,y1,1]>;
-        pi2proj := map<ProjectiveClosure(C)-> ProjectiveClosure(U) | [x2,y2,1]>;
+    omega0 := Differential(u)/(2*v + Evaluate(hp,u));
+    PU := ProjectiveClosure(U);
 
-        //Z^*(omega) = pi1_*(pi2^*(omega)) = pi1_*(endo) . omega_0
+    Zomegas := [];
+    for j->C in Ci do
+      Append(~Zomegas, []);
+      PC := ProjectiveClosure(C);
+      vprint LocalHeights, 1 : "Computing the action of the endomorphism on differential forms";
+      pi1proj := map<PC-> PU | [x1,y1,1]>;
+      pi2proj := map<PC-> PU | [x2,y2,1]>;
+      d1 := Degree(pi1proj);
+      d2 := Degree(pi2proj);
+      //Z^*(omega) = pi1_*(pi2^*(omega)) = pi1_*(endo) . omega_0
+      for omega in omegas do
         endo := Pullback(pi2proj, omega)/Pullback(pi1proj, omega0);
-        //Zomega := Pushforward(pi1,endo)*omega0;
         tr := Trace(pi1proj, endo, C);
         //tr2 := TraceByGroebnerBasis(pi1proj,endo,C);
         Zomega := tr*omega0;
-        Append(~Zomegas, Zomega);
+        Append(~Zomegas[j], Zomega);
+      end for;
     end for;
-    return &+Zomegas; //The sum is the right way to deal with irred. components, right?
+    ans := [&+[Zomegas[j][i] : j in [1..#Ci]] : i in [1..#omegas]];
+    return ans, [d1,d2];
 end intrinsic;
 
 intrinsic ConstructDifferentials(X ::CrvHyp, Xp ::CrvHyp, rho::MapIsoSch, KUp::FldFunFracSch) -> SeqEnum, SeqEnum
@@ -147,21 +223,33 @@ intrinsic ConstructDifferentials(X ::CrvHyp, Xp ::CrvHyp, rho::MapIsoSch, KUp::F
     //y = v +1/2h
 
     differentials := [-(1/t^2) * (1/t)^(i-1)/(2*sqrtf) : i in [1..2*g+1]];
-    //differentials is basisDR evaluated in u = 1/t
+    //differentials is basisDR evaluated in x= 1/t
 
     coeffs := [Coefficient(differentials[i],-1) : i in [1..2*g+1]];
     a := coeffs[g+1];
     vprintf LocalHeights, 1: "The residues of x^idx/(2y) at infinity are %o.\n", coeffs;
     vprintf LocalHeights, 2: "The residue of x^gdx/(2y) is  %o.\n", a;
 
+    KX := FunctionField(X);
+    x := KX.1;
+    y := KX.2;
+
+    KXp := FunctionField(Xp);
+    w := KXp.1;
+    z := KXp.2;
+
+    differentialsinx := [ (x)^(i-1)*Differential(x)/(2*y) : i in [1..2*g+1]];
+    holodiff := [ Pullback(rho^(-1), differentialsinx[i]) :  i in [1..g]];
+    holodiffcoerced := [ KUp!(holodiff[i] / Differential(w))*Differential(u)  : i in [1..g] ]; //coerce to have the right parent
+    nonholodiff:= [coeffs[i]*Pullback(rho^(-1), differentialsinx[g+1]) - a*Pullback(rho^(-1), differentialsinx[i]) : i in [g+2..2*g+1]];
+    nonholodiffcoerced := [KUp!(nonholodiff[i]/Differential(w))*Differential(u) : i in [1..#nonholodiff]];
+
     // This is the basis of differentials in Xp coming from the canonical basis in X
-    holoDiff:=[u^(i-1)*Differential(u)/(2*v + Evaluate(hp,u)) : i in [1..g]];
-    nonholoDiff:= [coeffs[i]*u^g*Differential(u)/(2*v + Evaluate(hp,u)) - a*(u^(i-1)*Differential(u)/(2*v + Evaluate(hp,u))) : i in [g+2..2*g+1]];
+    // holoDiff:=[u^(i-1)*Differential(u)/(2*v + Evaluate(hp,u)) : i in [1..g]];
+    // nonholoDiff:= [coeffs[i]*u^g*Differential(u)/(2*v + Evaluate(hp,u)) - a*(u^(i-1)*Differential(u)/(2*v + Evaluate(hp,u))) : i in [g+2..2*g+1]];
 
-    basisDR := holoDiff cat nonholoDiff;
-
-    vprintf LocalHeights, 3: "The basis for the non-holomorphic differential forms that we chose is %o.\n", nonholoDiff;
-
+    basisDR := holodiffcoerced cat nonholodiffcoerced;
+    vprintf LocalHeights, 3: "The basis for the non-holomorphic differential forms that we chose is %o.\n", nonholodiff;
     matrixChange := [[i eq j select 1 else 0 :j in [1..2*g+1]]: i in [1..g]] cat [[0 : j in [1..g]] cat [coeffs[i]] cat [g+j eq i select -a else 0 : j in [2..g+1]] : i in [g+2..2*g+1]];
     return basisDR, coeffs, Matrix(matrixChange);
 end intrinsic;
@@ -300,29 +388,44 @@ intrinsic ReduceInCohomology(omega::DiffCrvElt, X::CrvHyp) -> DiffCrvElt, SeqEnu
   return &+[sol[i+bound+1]*a^(i-1)/(2*b) : i in [1..Degree(f)-1]]*Differential(b), [sol[i+bound+1] : i in [1..Degree(f)-1]];
 end intrinsic;
 
+intrinsic MakeTraceZero(Z :: ModMatFldElt ) -> ModMatFldElt
+  {Turn Z into a trace zero matrix.}
+    tr := Integers()!Trace(Z);
+    if IsZero(tr) then
+      return Z;
+    else
+      m := LCM(tr,Ncols(Z));
+      newZ := (m div tr)*Z- (m div Ncols(Z))*IdentityMatrix(Rationals(),Ncols(Z));
+      assert IsZero(Trace(newZ));
+      return newZ;
+    end if;
+end intrinsic;
 
-intrinsic MatrixH1DR(X::CrvHyp, T::AlgMatElt, P0::PtHyp) -> SeqEnum, ModMatFldElt
-    {Given X hyperelliptic curve, P0 a point on X in the affine patch away from infinity, and T an endomorphism given as
-    the action of T on the tangent space, return the matrix for T acting on H1 de Rham}
+
+intrinsic MatrixH1DR(X::CrvHyp, T::AlgMatElt) -> ModMatFldElt, SeqEnum
+    {Given X hyperelliptic curve, and T an endomorphism on the H^0, return the matrix for T acting on H^1 de Rham}
     f, h := HyperellipticPolynomials(X);
     g := Genus(X);
     Rx<x> := Parent(f);
     if h ne 0 then error "h must be 0"; end if;
-    hp, fp := ChangeCoordinatesHyp(f);
-    Xp := HyperellipticCurve(fp,hp);
-    vprintf LocalHeights, 1: "Using auxiliary model %o", Xp;
+    Xp, rho := ChangeCoordinatesHyp(X);
+    fp, hp := HyperellipticPolynomials(Xp);
+    vprintf LocalHeights, 1: "Using auxiliary model %o. \n", Xp;
     KXp := FunctionField(Xp);
-    _, rho := IsIsomorphic(X,Xp);
-    if Pullback(rho,KXp.1) ne Parent(Pullback(rho,KXp.1)).1 then error "The change of coordinates must be u=x"; end if; //TODO FIX ME in some other cases like scaling x by a constant
-    P0p := rho(P0);
+    P0p := AnyRationalPoint(Xp);
+    Ci, Up := ConstructCorrespondenceByCantor(Xp, P0p, T);
 
-    Ci, Up := ConstructCorrespondence(Xp, P0p, T);
     KUp := FunctionField(Up);
     u := KUp.1;
+
+    KXp := FunctionField(Xp);
+    w := KXp.1;
+
     basisDR, coeffsDR, changeOfBasis := ConstructDifferentials(X, Xp, rho, KUp);
-    zo := [EndoAction(Xp, Ci, Up, basisDR[i]): i in [1..#basisDR]]; // This requires a y^2+h*y=f(x) model with h not 0
+    zo, deg := EndoAction(Xp, Ci, Up, basisDR); // This requires a y^2+h*y=f(x) model with h not 0
+
     KX<a,b> := FunctionField(X);
-    zoX := [Pullback(rho, KXp!(zo[i]/Differential(u)))*Differential(a) : i in [1 .. #zo]];
+    zoX := [Pullback(rho, KXp!(zo[i]/Differential(u))*Differential(w)) : i in [1 .. #zo]];
 
     action := [];
     for dd in zoX do
@@ -330,5 +433,5 @@ intrinsic MatrixH1DR(X::CrvHyp, T::AlgMatElt, P0::PtHyp) -> SeqEnum, ModMatFldEl
       Append(~action,sol);
     end for;
     action := Transpose(Matrix(action));
-    return RightInverseMatrix(Transpose(changeOfBasis))*action;
+    return RightInverseMatrix(Transpose(changeOfBasis))*action, deg; //deg is needed for precision bounds
 end intrinsic;
