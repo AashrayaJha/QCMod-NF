@@ -31,7 +31,7 @@ intrinsic ChangeCoordinatesHyp(X::CrvHyp) -> RngUPolElt, RngUPolElt, MapSch
   return Xp,rho;
 end intrinsic;
 
-intrinsic FindEndoMatrix(X::CrvHyp : tracezero := true) -> AlgMatElt
+intrinsic FindEndoMatrix(X::Crv : tracezero := true) -> AlgMatElt
     {Tries to return a nontrival trace 0 endomorphism, given as Z_* on H^0.}
     g := Genus(X);
     Per := PeriodMatrix(CurveExtra(X));
@@ -46,7 +46,7 @@ intrinsic FindEndoMatrix(X::CrvHyp : tracezero := true) -> AlgMatElt
         continue;
       else
         Z := E[i][1];
-        if IsNilpotent(Z) then
+        if IsNilpotent(Z) then //why this condition??
           continue;
         end if;
         break;
@@ -69,7 +69,7 @@ intrinsic FindEndoMatrix(X::CrvHyp : tracezero := true) -> AlgMatElt
     return Transpose(Z);
 end intrinsic;
 
-intrinsic AnyRationalPoint(X::CrvHyp) -> PtHyp
+intrinsic AnyRationalPoint(X::CrvHyp) -> Pt
     {Any rational point}
     C, pi := SimplifiedModel(X);
     f := HyperellipticPolynomials(C);
@@ -83,7 +83,7 @@ intrinsic AnyRationalPoint(X::CrvHyp) -> PtHyp
     return finiteptsNotWeierstrass[1];
 end intrinsic;
 
-intrinsic ConstructCorrespondence(Xp::CrvHyp, P0::PtHyp, T::AlgMatElt) -> SeqEnum, Crv
+intrinsic ConstructCorrespondence(Xp::Crv, P0::Pt, T::AlgMatElt) -> SeqEnum, Crv
     {Construct the correspondence associated to T}
     T := Transpose(T);
     vprintf LocalHeights, 1: "Constructing Correspondence.\n";
@@ -98,14 +98,14 @@ intrinsic ConstructCorrespondence(Xp::CrvHyp, P0::PtHyp, T::AlgMatElt) -> SeqEnu
     return Ci, U;
 end intrinsic;
 
-intrinsic ConstructCorrespondenceByCantor(Xp::CrvHyp, P0::PtHyp, T::AlgMatElt) -> SeqEnum, Crv
+intrinsic ConstructCorrespondenceByCantor(Xp::Crv, P0::Pt, T::AlgMatElt) -> SeqEnum, Crv
   {Construct the correspondence associated to T}
-  T := Transpose(T);
+ 
   vprintf LocalHeights, 1: "Constructing Correspondence using Cantor representation.\n";
-  _, cant := CantorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T : LowerBound := 1);
+  time _, cant := CantorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T : LowerBound := 1);
   vprintf LocalHeights, 1: "Constructing Correspondence from divisor.\n";
-  _, D := DivisorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T: LowerBound := 1);
-  U := Xp`U;
+  time _, D := DivisorFromMatrixAmbientSplit(Xp, P0, Xp, P0, T: LowerBound := 1);
+  U := X`U;
   eqs := DefiningEquations(D);
   R<y2,y1,x2,x1> := Parent(eqs[1]);
   I := DefiningIdeal(D);
@@ -175,7 +175,7 @@ intrinsic Trace(pi::MapSch, g::FldFunFracSchElt, C::Crv) -> .
 end intrinsic;
 
 
-intrinsic EndoAction(Xp::CrvHyp, Ci::SeqEnum, U::Crv, omegas::SeqEnum) -> SeqEnum, SeqEnum
+intrinsic EndoAction(Xp::Crv, Ci::SeqEnum, U::Crv, omegas::SeqEnum) -> SeqEnum, SeqEnum
     {Act by the corresopndence Ci on set of omegas}
     fp, hp := HyperellipticPolynomials(Xp);
     R<y2,y1,x2,x1> := Parent(Equations(Ci[1])[1]);

@@ -5,9 +5,11 @@ test_format := recformat<Q, level, p, v, N, prec, r, Delta, s, h1basis, g, rho, 
   PhiAZb_to_b0, PhiAZb, PhiAZb_to_z, gammafil_listb_to_z, ptrans_P1, ptrans_P2, ptrans_out,
   ptrans_N, changebasis, Phii, E1_E2, gammafilP, heights, local_height_lists, E1_E2_lists,
   E1_lists, E2_lists, Nexpansions, height_coeffs, Nhtcoeffs, Pps, xts, bts, zeroes_lists,
-  sols_lists, fake_rat_pts, good_affine_rat_pts_xy_final>;
+  sols_lists, fake_rat_pts, good_affine_rat_pts_xy_final, correspondences_Cantor,correspondences_Divisor ,Saturation,foo>;
 
-K<u> := CyclotomicField(3);
+K<z> := CyclotomicField(3);
+u := z;
+R<x1,y1,x2,y2>:=PolynomialRing(K,4);
 _<x> := PolynomialRing(K);
 
 O := function(n)
