@@ -119,7 +119,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
   Q:=data`Q; v:=data`v; p:=data`p; N:=data`N; r:=data`r; W0:=data`W0; Winf:=data`Winf; 
   d:=Degree(Q);
   K := BaseRing(BaseRing(Q));
-  Kv, loc := Completion(K, v);
+  Kv, loc := Completion(K, v: Precision:=N);
   Fp, res := ResidueClassField(v);
   Kx := RationalFunctionField(K);
   Kxy :=PolynomialRing(Kx);
@@ -177,7 +177,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
             end if;
             poly:=data`minpolys[2][1,j+1];
 
-            fy := Qpy!Zpy![eval_poly_Qp(f, x, v) : f in Coefficients(poly)];
+            fy := Qpy!Zpy![eval_poly_Qp(f, x, v, N ) : f in Coefficients(poly)];
             factors := Factorisation(fy); // Roots has some problems that Factorisation does not
             zeros := [-Coefficient(fac[1],0)/Coefficient(fac[1],1) : fac in factors | Degree(fac[1]) eq 1];
 
@@ -197,7 +197,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
           end if;
           poly:=data`minpolys[2][index+1,1];
 
-          fy := Qpy!Zpy![eval_poly_Qp(f, bindex, v) : f in Coefficients(poly)];
+          fy := Qpy!Zpy![eval_poly_Qp(f, bindex, v, N) : f in Coefficients(poly)];
           factors := Factorisation(fy); // Roots has some problems that Factorisation does not
           zeros := [-Coefficient(fac[1],0)/Coefficient(fac[1],1) : fac in factors | Degree(fac[1]) eq 1];
 
@@ -218,7 +218,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
               end if;
               poly:=data`minpolys[2][index+1,j+1];
 
-              fy:=Qpy!Zpy![eval_poly_Qp(f, bindex, v) : f in Coefficients(poly)];
+              fy:=Qpy!Zpy![eval_poly_Qp(f, bindex, v, N) : f in Coefficients(poly)];
               factors := Factorisation(fy); // Roots has some problems that Factorisation does not
               zeros := [-Coefficient(fac[1],0)/Coefficient(fac[1],1) : fac in factors | Degree(fac[1]) eq 1];
 
@@ -238,17 +238,17 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
 
           x:=Qp!Fppoint[1];
 
-          if Valuation(eval_poly_Qp(r, x, v)) eq 0 then // good point
-            W0invx := eval_ff_mat_Qp(W0^(-1), x, v);
+          if Valuation(eval_poly_Qp(r, x, v, N)) eq 0 then // good point
+            W0invx := eval_ff_mat_Qp(W0^(-1), x, v,N);
             ypowersmodp:=Vector(Fppoint[2])*ChangeRing(W0invx,FiniteField(p));
             y:=Qp!ypowersmodp[2];
 
-            fy:=Qpy![eval_poly_Qp(f, x, v) : f in Coefficients(Q)];
+            fy:=Qpy![eval_poly_Qp(f, x, v, N) : f in Coefficients(Q)];
 
             y:=HenselLift(fy,y); // Hensel lifting
             ypowers := Vector([Qp!1 * y^(i-1) : i in [1 .. d]]);
 
-            W0x := eval_ff_mat_Qp(W0, x, v);
+            W0x := eval_ff_mat_Qp(W0, x, v, N);
             b:=Eltseq(ypowers*ChangeRing(W0x,Parent(ypowers[1])));
           else // bad point
             for j:=1 to d do
@@ -259,7 +259,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
               end if;
               poly:=data`minpolys[1][1,j+1];
 
-              fy:=Qpy!Zpy![eval_poly_Qp(f, x, v) : f in Coefficients(poly)];
+              fy:=Qpy!Zpy![eval_poly_Qp(f, x, v, N) : f in Coefficients(poly)];
               factors := Factorisation(fy); // Roots has some problems that Factorisation does not
               zeros := [-Coefficient(fac[1],0)/Coefficient(fac[1],1) : fac in factors | Degree(fac[1]) eq 1];
 
@@ -280,7 +280,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
           end if;
           poly:=data`minpolys[1][index+1,1];
 
-          fy := Qpy!Zpy![eval_poly_Qp(f, bindex, v) : f in Coefficients(poly)];
+          fy := Qpy!Zpy![eval_poly_Qp(f, bindex, v, N) : f in Coefficients(poly)];
           factors := Factorisation(fy); // Roots has some problems that Factorisation does not
           zeros := [-Coefficient(fac[1],0)/Coefficient(fac[1],1) : fac in factors | Degree(fac[1]) eq 1];
 
@@ -301,7 +301,7 @@ function Qp_points(data : points:=[], Nfactor:=1.5)
               end if;
               poly:=data`minpolys[1][index+1,j+1];
 
-              fy := Qpy!Zpy![eval_poly_Qp(f, bindex, v) : f in Coefficients(poly)];
+              fy := Qpy!Zpy![eval_poly_Qp(f, bindex, v, N) : f in Coefficients(poly)];
               factors := Factorisation(fy); // Roots has some problems that Factorisation does not
               zeros := [-Coefficient(fac[1],0)/Coefficient(fac[1],1) : fac in factors | Degree(fac[1]) eq 1];
 

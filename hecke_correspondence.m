@@ -4,7 +4,7 @@ freeze;
 // Function for computing Hecke correspondence  //
 //////////////////////////////////////////////////
 
-import "misc.m": algdepQp,lindepQp;
+import "misc.m": algdepQp,lindepQp, alg_approx_Qp;
 
 intrinsic HeckeCorrespondenceQC(data::Rec, q::RngIntElt, N::RngIntElt :
                                 basis0:=[], basis1:=[], use_polys:=[])

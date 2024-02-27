@@ -17,21 +17,21 @@ print "Endomatrix is", Z;
 //Z1 is the same matrix one obtains from ConstructCorrespondencebyCantor. NumberFieldsExtra does not play nicely
 //with it so we reproduce it here.
 
-time _, cant := CantorFromMatrixAmbientSplit(X, P0, X, P0, Z : LowerBound := 1); //takes 58 seconds
+//time _, cant := CantorFromMatrixAmbientSplit(X, P0, X, P0, Z : LowerBound := 1); //takes 58 seconds
 //time _, D := DivisorFromMatrixAmbientSplit(X, P0, X, P0, Z: LowerBound := 1); //Takes 150 seconds
 
 output_file:="data/NF-example-test-data.m";
-// out_1:= Sprintf("correspondences_Cantor:=%m;",cant); 
+// out_1:= Sprintf("correspondences_Cantor:=%m;",cant); //Need to rewrite constants, define parent ring
 // out_2:= Sprintf("correspondences_Divisor :=%m;",D);  //Need to rewrite constants by hand, and change ring to R as below.
 // Write(output_file, out_1);
 // Write(output_file, out_2);
 
-//U := X`U;
-eqs := DefiningEquations(D);
-R<y2,y1,x2,x1> := Parent(eqs[1]);
-I := DefiningIdeal(D);
+// eqs := DefiningEquations(D);
+// R<y2,y1,x2,x1> := Parent(eqs[1]);
+// I := DefiningIdeal(D);
 // J := Saturation(I,Evaluate(Denominator(cant[1]),[x1,y1])); //This took 3300 seconds!
 // out:=Sprintf("Saturation :=%m;", J);
+// U := X`U;
 // Write(output_file, out);
 //comps := IrreducibleComponents(Scheme(Ambient(D),J));
 print "Calculated correspondencebyCantor";

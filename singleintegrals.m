@@ -5,7 +5,7 @@ import "auxpolys.m": auxpolys, genus, is_integral, log, smooth;
 import "coho.m": ord_0_mat, ord_inf_mat, mat_W0, mat_Winf, con_mat, ddx_mat, jordan_inf, jordan_0, ram, basis_coho;
 import "reductions.m": convert_to_Kxzzinvd, reduce_with_fs, red_lists;
 import "froblift.m": frobenius, froblift, getrings;
-
+import "misc.m": alg_approx_Qp, alg_dep_powerseries;
 function max_prec(d,p,N,g,W0,Winf,e0,einf)
 
   // Compute the p-adic precision required for provable correctness
@@ -181,20 +181,20 @@ intrinsic ColemanData(Q::RngUPolElt[RngUPol], p::RngIntElt, N::RngIntElt :
   return ColemanData(Q, v, N : useU:=useU, basis0:=basis0, basis1:=basis1, basis2:=basis2, heights:=heights);
 end intrinsic;
 
-function eval_poly_Qp(f, z, v)
+function eval_poly_Qp(f, z, v, N)
   // Evaluate polynomial f in K[x] at p-adic number z (where v|p is a split prime of K)
   Qp := Parent(z);
-  Kv, loc := Completion(NumberField(Order(v)), v);
+  Kv, loc := Completion(NumberField(Order(v)),v:Precision:=N);
   // note: don't multiply by z^0, it causes issues with p-adic precision
 
   return Qp!loc(Coefficient(f, 0)) + &+[Qp | Qp!loc(Coefficient(f, i)) * z^i : i in [1 .. Degree(f)]];
 end function;
 
-function eval_ff_mat_Qp(A, z, v)
+function eval_ff_mat_Qp(A, z, v, N)
   // Evaluate matrix A with entries in K(x) at p-adic number z (where v|p is a split prime of K)
   Qp := Parent(z);
   Qpx := PolynomialRing(Qp);
-  Kv, loc := Completion(NumberField(Order(v)), v);
+  Kv, loc := Completion(NumberField(Order(v)), v:Precision:=N);
   m := NumberOfRows(A);
   n := NumberOfColumns(A);
   Az := ZeroMatrix(Qp, m, n);
@@ -215,13 +215,14 @@ function xy_coordinates(P, data)
   if P`inf then 
     error "Point is not affine";
   end if;
+  N:=data`N;
   W0 := data`W0;
   d := Degree(data`Q);
   v := data`v;
   x0 := P`x;
   Qp := Parent(x0);
   Qpx := PolynomialRing(Qp);
-  W0invx0 := eval_ff_mat_Qp(W0^(-1), x0, v);
+  W0invx0 := eval_ff_mat_Qp(W0^(-1), x0, v, N);
   b_vector := Matrix(Universe(P`b), d, 1, P`b);
   ypowers := W0invx0*ChangeRing(b_vector,Parent(W0invx0[1,1]));
   y0 := ypowers[2,1];
@@ -236,12 +237,12 @@ function set_point(x0,y0,data)
   // Constructs a point from affine coordinates x0,y0. 
 
   Q:=data`Q; v:=data`v; p:=data`p; N:=data`N; W0:=data`W0;
-  d:=Degree(Q);
+  d:=Degree(Q);N:=data`N;
   K := BaseRing(BaseRing(Q));
 
   if IsCoercible(K, x0) then
     F := pAdicField(p, N);
-    Kv, loc := Completion(K, v);
+    Kv, loc := Completion(K, v:Precision:=N);
     x0 := F!loc(x0);
     y0 := F!loc(y0);
   else
@@ -253,7 +254,7 @@ function set_point(x0,y0,data)
     error "x0 has negative valuation";
   end if;
   
-  if (not(W0 eq IdentityMatrix(BaseRing(W0),d))) and (Valuation(eval_poly_Qp(data`r, x0, v)) gt 0) then
+  if (not(W0 eq IdentityMatrix(BaseRing(W0),d))) and (Valuation(eval_poly_Qp(data`r, x0, v, N)) gt 0) then
     error "W0 is not the identity and r(x0) is zero mod p";
   end if;
   
@@ -268,7 +269,7 @@ function set_point(x0,y0,data)
     y0powers[i]:=(y0)^(i-1);
   end for;
   y0powers:=Vector(y0powers);
-  W0x0 := Transpose(eval_ff_mat_Qp(W0, x0, v));
+  W0x0 := Transpose(eval_ff_mat_Qp(W0, x0, v, N));
 
   // the values of the b_i^0 at P
   P`b := Eltseq(y0powers*ChangeRing(W0x0, BaseRing(y0powers)));
@@ -282,7 +283,7 @@ function set_bad_point(x,b,inf,data)
   Q:=data`Q; p:=data`p; N:=data`N;
   Qp:=pAdicField(p,N); d:=Degree(Q);
   K := BaseRing(BaseRing(Q));
-  Kv, loc := Completion(K, data`v);
+  Kv, loc := Completion(K, data`v: Precision:=N);
 
   format:=recformat<x,b,inf,xt,bt,index>;
   P:=rec<format|>;
@@ -328,7 +329,7 @@ function is_bad(P,data)
 
   if P`inf then // infinite point
     return true;
-  elif Valuation(Qp!eval_poly_Qp(r, x0, v)) gt 0 then // finite bad point
+  elif Valuation(Qp!eval_poly_Qp(r, x0, v, N)) gt 0 then // finite bad point
     return true;
   else
     return false;
@@ -348,14 +349,14 @@ function is_very_bad(P,data)
   else
     Qp := Parent(x0);
   end if;
-  Kv, loc := Completion(K, v);
+  Kv, loc := Completion(K, v:Precision:=N);
 
   if P`inf then // infinite point
     if Valuation(Qp!x0) ge N then // infinite very bad point
       return true;
     end if;
   else // finite point
-    if Valuation(Qp!eval_poly_Qp(r, x0, v)) ge N then // finite very bad point
+    if Valuation(Qp!eval_poly_Qp(r, x0, v, N)) ge N then // finite very bad point
       return true;
     end if;
   end if;
@@ -572,12 +573,12 @@ function frobenius_pt(P, data);
 
   if not is_bad(P,data) then // finite good point
     
-    W0invx0 := Transpose(eval_ff_mat_Qp(W0^(-1), x0, v));
+    W0invx0 := Transpose(eval_ff_mat_Qp(W0^(-1), x0, v, N));
 
     ypowers:=Vector(b)*ChangeRing(W0invx0,Parent(b[1]));
     y0:=ypowers[2];
   
-    fy := Ly![eval_poly_Qp(Qi, x0p, v) : Qi in Coefficients(Q)];
+    fy := Ly![eval_poly_Qp(Qi, x0p, v, N) : Qi in Coefficients(Q)];
 
     y0p:=HenselLift(fy,y0^p); // Hensel lifting
   
@@ -588,7 +589,7 @@ function frobenius_pt(P, data);
     end for;
     y0ppowers:=Vector(y0ppowers);
 
-    W0x0 := Transpose(eval_ff_mat_Qp(W0, x0, v));
+    W0x0 := Transpose(eval_ff_mat_Qp(W0, x0, v, N));
   
     b := Eltseq(y0ppowers*ChangeRing(W0x0, BaseRing(y0ppowers)));
 
@@ -693,11 +694,11 @@ function teichmueller_pt(P, data : N:=0)
   if IsZero(N) then N := data`N; end if;
 
   x0new:=L!TeichmuellerLift(FiniteField(p)!x0,pAdicQuotientRing(p,N)); 
-  W0invx0 := Transpose(eval_ff_mat_Qp(W0^(-1), x0, v));
+  W0invx0 := Transpose(eval_ff_mat_Qp(W0^(-1), x0, v, N));
   ypowers:=Vector(b)*ChangeRing(W0invx0,Parent(b[1]));
   y0:=ypowers[2];
 
-  fy := Ly![eval_poly_Qp(Qi, x0new, v) : Qi in Coefficients(Q)];
+  fy := Ly![eval_poly_Qp(Qi, x0new, v, N) : Qi in Coefficients(Q)];
   y0new:=HenselLift(fy,y0); // Hensel lifting
   y0newpowers:=[];
   y0newpowers[1]:=L!1;
@@ -706,7 +707,7 @@ function teichmueller_pt(P, data : N:=0)
   end for;
   y0newpowers:=Vector(y0newpowers);
 
-  W0x0new := Transpose(eval_ff_mat_Qp(W0, x0new, v));
+  W0x0new := Transpose(eval_ff_mat_Qp(W0, x0new, v, N));
   b:=Eltseq(y0newpowers*ChangeRing(W0x0new,L));
 
   P`x:=x0new;
@@ -1049,11 +1050,11 @@ local_coord:=function(P,prec,data);
 
     xt:=t+x0;
 
-    W0invx0:=Transpose(eval_ff_mat_Qp(W0^(-1), x0, v));
+    W0invx0:=Transpose(eval_ff_mat_Qp(W0^(-1), x0, v, N));
     ypowers:=Vector(b)*ChangeRing(W0invx0,Parent(b[1]));
     y0:=ypowers[2];
 
-    fy := Qpty![eval_poly_Qp(Qi, xt, v) : Qi in Coefficients(Q)];
+    fy := Qpty![eval_poly_Qp(Qi, xt, v, N) : Qi in Coefficients(Q)];
     derfy := Derivative(fy);
 
     yt:=hensel_lift(fy,Qpt!y0);
@@ -1065,7 +1066,7 @@ local_coord:=function(P,prec,data);
     for i:=3 to d do
       ypowerst[i] := ypowerst[i-1]*yt;
     end for;
-    bt:=Eltseq(Vector(ypowerst)*ChangeRing(Transpose(eval_ff_mat_Qp(W0, xt, v)), Qpt_frac));
+    bt:=Eltseq(Vector(ypowerst)*ChangeRing(Transpose(eval_ff_mat_Qp(W0, xt, v, N)), Qpt_frac));
 
     btnew:=[];
     for i:=1 to d do
@@ -1103,7 +1104,7 @@ local_coord:=function(P,prec,data);
           poly:=minpoly(FF!(1/Kt.1),bfun[i]);
         end if;
 
-        fy := Qpty![eval_poly_Qp(c, xt, v) : c in Coefficients(poly)];
+        fy := Qpty![eval_poly_Qp(c, xt, v, N) : c in Coefficients(poly)];
         derfy := Derivative(fy);
 
         modpprec:=mod_p_prec(fy);
@@ -1129,7 +1130,7 @@ local_coord:=function(P,prec,data);
         poly:=minpoly(bfun[index],FF!1/(Kt.1));
       end if;
 
-      fy := Qpty![eval_poly_Qp(c, t + b[index], v) : c in Coefficients(poly)];
+      fy := Qpty![eval_poly_Qp(c, t + b[index], v, N) : c in Coefficients(poly)];
       derfy := Derivative(fy);
 
       modpprec:=mod_p_prec(fy);
@@ -1157,7 +1158,7 @@ local_coord:=function(P,prec,data);
             poly:=minpoly(bfun[index],bfun[i]);
           end if;
 
-          fy := Qpty![eval_poly_Qp(c, t + b[index], v) : c in Coefficients(poly)];
+          fy := Qpty![eval_poly_Qp(c, t + b[index], v, N) : c in Coefficients(poly)];
           derfy:=Derivative(fy);
 
           modpprec:=mod_p_prec(fy);
@@ -1206,7 +1207,7 @@ local_coord:=function(P,prec,data);
           poly:=minpoly(FF!Kt.1,bfun[i]);
         end if;
 
-        fy := Qpty![eval_poly_Qp(c, xt, v) : c in Coefficients(poly)];
+        fy := Qpty![eval_poly_Qp(c, xt, v, N) : c in Coefficients(poly)];
         derfy := Derivative(fy);
 
         modpprec:=mod_p_prec(fy);
@@ -1232,7 +1233,7 @@ local_coord:=function(P,prec,data);
         poly:=minpoly(bfun[index],FF!Kt.1);
       end if;
 
-      fy := Qpty![eval_poly_Qp(c, t + b[index], v) : c in Coefficients(poly)];
+      fy := Qpty![eval_poly_Qp(c, t + b[index], v, N) : c in Coefficients(poly)];
       derfy := Derivative(fy);
 
       modpprec:=mod_p_prec(fy);
@@ -1260,7 +1261,7 @@ local_coord:=function(P,prec,data);
             poly:=minpoly(bfun[index],bfun[i]);
           end if;
 
-          fy := Qpty![eval_poly_Qp(c, t + b[index], v) : c in Coefficients(poly)];
+          fy := Qpty![eval_poly_Qp(c, t + b[index], v, N) : c in Coefficients(poly)];
           derfy := Derivative(fy);
 
           modpprec:=mod_p_prec(fy);
@@ -1389,7 +1390,7 @@ find_bad_point_in_disk:=function(P,data);
      C:=Coefficients(poly);
      D:=[];
      for i:=1 to #C do
-       D[i]:=eval_poly_Qp(C[i],x0,v);
+       D[i]:=eval_poly_Qp(C[i],x0,v, N);
      end for;
      fy:=Qpy!D;
      fac:=Factorisation(fy);
@@ -1415,7 +1416,7 @@ find_bad_point_in_disk:=function(P,data);
     C:=Coefficients(poly);
     D:=[];
     for i:=1 to #C do
-      D[i]:=eval_poly_Qp(C[i],x0,v); 
+      D[i]:=eval_poly_Qp(C[i],x0,v, N); 
     end for;
     fy:=Qpy!D;
     fac:=Factorisation(fy);
@@ -1434,7 +1435,7 @@ find_bad_point_in_disk:=function(P,data);
         C:=Coefficients(poly);
         D:=[];
         for i:=1 to #C do
-          D[i]:=eval_poly_Qp(C[i],b[index],v); 
+          D[i]:=eval_poly_Qp(C[i],b[index],v, N ); 
         end for;
         fy:=Qpy!D;
         fac:=Factorisation(fy); // Roots has some problems that Factorisation does not
@@ -1486,7 +1487,7 @@ tiny_integrals_on_basis:=function(P1,P2,data:prec:=0,P:=0);
   // residue disk as P1 has to be specified.
 
   x1:=P1`x; x2:=P2`x; b1:=P1`b; b2:=P2`b; Q:=data`Q; p:=data`p; N:=data`N; W0:=data`W0; Winf:=data`Winf; r:=data`r; basis:=data`basis; N:=data`N;
-  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x1); K:=BaseRing(BaseRing(Q));
+  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x1); K:=BaseRing(BaseRing(Q)); v:=data`v;
 
   if not lie_in_same_disk(P1,P2,data) then
     error "the points do not lie in the same residue disk";
@@ -1530,8 +1531,8 @@ tiny_integrals_on_basis:=function(P1,P2,data:prec:=0,P:=0);
   xt,bt,index:=local_coord(P1,prec,data);
 
   Kt<t>:=LaurentSeriesRing(K,prec);
-  xt:=Kt!xt;
-  btnew:=[Kt!bt[i] : i in [1..d]];
+  xt:=Kt!alg_dep_powerseries(xt,v);
+  btnew:=[Kt!alg_dep_powerseries(bt[i],v) : i in [1..d]];
   bt:=Vector(btnew);
 
   if P1`inf then
@@ -1605,7 +1606,7 @@ tiny_integrals_on_basis_to_z:=function(P,data:prec:=0);
   // local parameter are also returned.
 
   x0:=P`x; b:=P`b; Q:=data`Q; p:=data`p; N:=data`N; basis:=data`basis; r:=data`r; W0:=data`W0; Winf:=data`Winf;
-  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x0); K:=BaseRing(BaseRing(Q));
+  d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1); Qp:=Parent(x0); K:=BaseRing(BaseRing(Q)); v:=data`v;
 
   if is_bad(P,data) and not is_very_bad(P,data) then // on a bad disk P needs to be very bad
     P1:=find_bad_point_in_disk(P,data);  
@@ -1630,11 +1631,10 @@ tiny_integrals_on_basis_to_z:=function(P,data:prec:=0);
   xtold:=xt;
   btold:=bt;
 
-  Qp<t>:=LaurentSeriesRing(Qp,prec);
-  xt:=Qpt!xt;
-  btnew:=[Qpt|];
+  xt:=Kt!alg_dep_powerseries(xt,v);
+  btnew:=[Kt|];
   for i:=1 to d do
-    btnew[i]:=Kt!bt[i];
+    btnew[i]:=Kt!alg_dep_powerseries(xt,v);(bt[i],v);
   end for;
   bt:=Vector(btnew);
 
@@ -1649,7 +1649,7 @@ tiny_integrals_on_basis_to_z:=function(P,data:prec:=0);
   end if;
 
   if P1`inf or not is_bad(P1,data) then 
-    denom:=Kt!Qpt!(1/Evaluate(r,xt));
+    denom:=Qpt!(1/Evaluate(r,xt));
   else
     Qp:=pAdicField(p,N);
     Qpx:=PolynomialRing(Qp);

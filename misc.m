@@ -72,6 +72,18 @@ function alg_approx_Qp(a_Qp, v)
   return alist[1];
 end function;
 
+function alg_dep_powerseries(xt,v)
+  K:=NumberField(Order(v));
+  Kt:=PowerSeriesRing(K);
+  xtcoeffs:=[];
+  Qpcoeffs:=SequenceToList(Coefficients(xt));
+  // n:=#Qpcoeffs;
+  for x in Qpcoeffs do
+      Append(~xtcoeffs, alg_approx_Qp(x,v));
+  end for ;
+  xt:=Kt!xtcoeffs;
+  return xt  ;
+end function;
 
 // Find an equivariant splitting of the Hodge filtration.
 // We need to solve the equation T'*S = S*T, where T is the action induced by a generator
@@ -362,9 +374,9 @@ end function;
 
 
 
-function eval_Q(Q, x0, y0, v)
+function eval_Q(Q, x0, y0, v, N)
   Qpy := PolynomialRing(Parent(x0));
-  Qx0y := Qpy![eval_poly_Qp(f, x0, v) : f in Coefficients(Q)];
+  Qx0y := Qpy![eval_poly_Qp(f, x0, v, N) : f in Coefficients(Q)];
   return Evaluate(Qx0y, y0);
 end function;
 

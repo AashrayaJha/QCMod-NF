@@ -1,0 +1,15 @@
+AttachSpec("QCMod.spec");
+//load "data/NF-example-test-data.m";
+load "data/NF-example-coleman-data_40.m";
+data:=data;
+//test:=test_NF;
+QpPoints:=test`Qp_points_40;
+// Pfin:=QpPoints[3];
+Pinf:=QpPoints[1];
+//import "applications.m" :Fp_points,Qp_points;
+//import "singleintegrals.m" :is_very_bad,is_bad;
+// import "singleintegrals.m" :tiny_integrals_on_basis,is_very_bad,find_bad_point_in_disk,tadicprec,is_bad,local_coord;
+// import "misc.m": alg_approx_Qp, alg_dep_powerseries;
+p:=data`p; N:=data`N; basis:=data`basis; r:=data`r; W0:=data`W0; Winf:=data`Winf;Q:=data`Q;
+d:=Degree(Q); lc_r:=LeadingCoefficient(r); W:=Winf*W0^(-1);  K:=BaseRing(BaseRing(Q)); v:=data`v;
+prec:=20;

@@ -13,7 +13,7 @@ Q := y^4 + (u - 1)*y^3*x + (2*u + 2)*y*x^3 + (3*u + 2)*y^3 - 3*u*y*x^2 - u*x^3 -
 
 p := 13;
 v := Factorization(p*OK)[1][1];
-N := 15;
+N := 40 ; //Going to try 40
 
 "Constructing symplectic basis of H1...";
 h1basis, g, r, W0 := H1Basis(Q, v);
@@ -30,14 +30,14 @@ basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basi
 time data := ColemanData(Q, v, N : useU:=true,  basis0:=basis0, basis1:=basis1);
 "Coleman data constructed.";
 
-//"Recording Coleman data...";
-//output_file := "data/NF-example-coleman-data.m";
-//fprintf output_file, "K<u> := CyclotomicField(3);\n";
-//fprintf output_file, "_<x> := PolynomialRing(K);\n";
-//fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
+"Recording Coleman data...";
+output_file := "data/NF-example-coleman-data_40.m";
+fprintf output_file, "K<u> := CyclotomicField(3);\n";
+fprintf output_file, "_<x> := PolynomialRing(K);\n";
+fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
 
-//out := Sprintf("data := %m;\n\n", data);
-//out := ReplaceString(out, "\n ! ", "\n "); // hack to handle bug in Magma string formatting
-//out := ReplaceString(out, "EquationOrder(Polynomial(\\[1, 1, 1]))", "Integers(CyclotomicField(3))");
-//Write(output_file, out);
-//"Coleman data recorded.";
+out := Sprintf("data := %m;\n\n", data);
+out := ReplaceString(out, "\n ! ", "\n "); // hack to handle bug in Magma string formatting
+out := ReplaceString(out, "EquationOrder(Polynomial(\\[1, 1, 1]))", "Integers(CyclotomicField(3))");
+Write(output_file, out);
+"Coleman data recorded.";

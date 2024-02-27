@@ -59,7 +59,7 @@ intrinsic ParallelTransport(P1::Rec, P2::Rec, Z::AlgMatElt, eta::ModTupFldElt, d
   r:=data`r; basis:=data`basis; g:=data`g;
   d:=Degree(Q); Qp:=Parent(x1);
   K := BaseRing(BaseRing(Q));
-  Kv, loc := Completion(K, v);
+  Kv, loc := Completion(K, v: Precision:=N);
   lc_r := Qp!loc(LeadingCoefficient(r));
 
   if IsZero(N) then N:=data`N; end if;
@@ -94,21 +94,21 @@ intrinsic ParallelTransport(P1::Rec, P2::Rec, Z::AlgMatElt, eta::ModTupFldElt, d
     xt:=1/xt;
     xt:=Qt!Qpt!xt; 
     Winv:=W0*Winf^(-1);
-    bt := bt * Transpose(eval_ff_mat_Qp(Winv, xt, v));
+    bt := bt * Transpose(eval_ff_mat_Qp(Winv, xt, v, N));
     for i:=1 to d do
       bt[i]:=Qt!(Qpt!bt[i]);
     end for; 
   end if;
 
   if P1`inf or not is_bad(P1,data) then 
-    denom:=Qt!Qpt!(1/eval_poly_Qp(r, xt, v));
+    denom:=Qt!Qpt!(1/eval_poly_Qp(r, xt, v, N));
   else
     Qp_N := pAdicField(p,N);
     Qpx := PolynomialRing(Qp_N);
-    rQp := eval_poly_Qp(r, Qpx.1, v);
+    rQp := eval_poly_Qp(r, Qpx.1, v, N);
     zero:=HenselLift(rQp,x1);
     sQp:=rQp div (Qpx.1-zero);
-    denom:=Qt!Qpt!((Qt!Zpt!(xt-Coefficient(xt,0)))^(-1)*(Qt!Qpt!(1/eval_poly_Qp(sQp, xt, v))));
+    denom:=Qt!Qpt!((Qt!Zpt!(xt-Coefficient(xt,0)))^(-1)*(Qt!Qpt!(1/eval_poly_Qp(sQp, xt, v, N))));
   end if;
 
   // determine the number of points at infinity
@@ -121,7 +121,7 @@ intrinsic ParallelTransport(P1::Rec, P2::Rec, Z::AlgMatElt, eta::ModTupFldElt, d
   derxt:=Qt!Qpt!Derivative(xt); 
   omegax:=[];
   for i:=1 to 2*g+infpoints-1 do
-    basisxt := Vector([eval_poly_Qp(c, xt, v) : c in Eltseq(basis[i])]);
+    basisxt := Vector([eval_poly_Qp(c, xt, v, N) : c in Eltseq(basis[i])]);
     for j:=1 to d do
       basisxt[j] := Qt!Qpt!basisxt[j];
     end for;
@@ -236,21 +236,21 @@ intrinsic ParallelTransportToZ(P::Rec, Z::AlgMatElt, eta::ModTupFldElt, data::Re
     xt:=1/xt;
     xt:=Qt!Qpt!xt; 
     Winv:=W0*Winf^(-1);
-    bt:=bt*Transpose(eval_ff_mat_Qp(Winv, xt, v));
+    bt:=bt*Transpose(eval_ff_mat_Qp(Winv, xt, v, N));
     for i:=1 to d do
       bt[i]:=Qt!(Qpt!bt[i]);
     end for; 
   end if;
 
   if P1`inf or not is_bad(P1,data) then 
-    denom:=Qt!Qpt!(1/eval_poly_Qp(r, xt, v));
+    denom:=Qt!Qpt!(1/eval_poly_Qp(r, xt, v, N));
   else
     Qp_N := pAdicField(p,N);
     Qpx := PolynomialRing(Qp_N);
-    rQp := eval_poly_Qp(r, Qpx.1, v);
+    rQp := eval_poly_Qp(r, Qpx.1, v, N);
     zero:=HenselLift(rQp,x1);
     sQp:=rQp div (Qpx.1-zero);
-    denom:=Qt!Qpt!((Qt!Zpt!(xt-Coefficient(xt,0)))^(-1)*(Qt!Qpt!(1/eval_poly_Qp(sQp, xt, v))));
+    denom:=Qt!Qpt!((Qt!Zpt!(xt-Coefficient(xt,0)))^(-1)*(Qt!Qpt!(1/eval_poly_Qp(sQp, xt, v, N))));
   end if;
 
   // determine the number of points at infinity
@@ -268,7 +268,7 @@ intrinsic ParallelTransportToZ(P::Rec, Z::AlgMatElt, eta::ModTupFldElt, data::Re
   derxt:=Qt!Qpt!Derivative(xt); 
   omegax:=[];
   for i:=1 to 2*g+infpoints-1 do
-    basisxt := Vector([eval_poly_Qp(c, xt, v) : c in Eltseq(basis[i])]);
+    basisxt := Vector([eval_poly_Qp(c, xt, v, N) : c in Eltseq(basis[i])]);
     for j:=1 to d do
       basisxt[j] := Qt!Qpt!basisxt[j];
     end for;
@@ -367,7 +367,7 @@ expand_algebraic_function:=function(P,g,data,N,prec)
   Qt<t>:=LaurentSeriesRing(pAdicField(p,N),prec);
   xt:=Qt!xt;
   bt:=[Qt!bt[i]:i in [1..#bt]];
-  return &+[eval_poly_Qp(g[i], xt, v)*bt[i]:i in [1..NumberOfColumns(g)]];
+  return &+[eval_poly_Qp(g[i], xt, v, N)*bt[i]:i in [1..NumberOfColumns(g)]];
 end function;
 
 
