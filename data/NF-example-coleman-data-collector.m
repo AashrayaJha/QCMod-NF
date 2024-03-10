@@ -1,3 +1,4 @@
+AttachSpec("~/GitHub/CHIMP/CHIMP.spec");
 AttachSpec("QCMod.spec");
 import "auxpolys.m": auxpolys, log;
 import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
@@ -12,8 +13,8 @@ Kxy<y> := PolynomialRing(Kx);
 Q := y^4 + (u - 1)*y^3*x + (2*u + 2)*y*x^3 + (3*u + 2)*y^3 - 3*u*y*x^2 - u*x^3 - 3*y^2 + 3*u*y*x + 3*u*x^2 - 2*u*y + (-u + 1)*x + (u + 1);
 
 p := 13;
-v := Factorization(p*OK)[1][1];
-N := 40 ; //Going to try 40
+v := Factorization(p*OK)[2][1];
+N := 160 ; //Going to try 40
 
 "Constructing symplectic basis of H1...";
 h1basis, g, r, W0 := H1Basis(Q, v);
@@ -31,7 +32,7 @@ time data := ColemanData(Q, v, N : useU:=true,  basis0:=basis0, basis1:=basis1);
 "Coleman data constructed.";
 
 "Recording Coleman data...";
-output_file := "data/NF-example-coleman-data_40.m";
+output_file := "data/NF-example-coleman-data-13_160.m";
 fprintf output_file, "K<u> := CyclotomicField(3);\n";
 fprintf output_file, "_<x> := PolynomialRing(K);\n";
 fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
@@ -39,5 +40,6 @@ fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
 out := Sprintf("data := %m;\n\n", data);
 out := ReplaceString(out, "\n ! ", "\n "); // hack to handle bug in Magma string formatting
 out := ReplaceString(out, "EquationOrder(Polynomial(\\[1, 1, 1]))", "Integers(CyclotomicField(3))");
-Write(output_file, out);
+
+Write(output_file,out);
 "Coleman data recorded.";

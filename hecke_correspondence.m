@@ -71,7 +71,7 @@ intrinsic HeckeCorrespondenceQC(data::Rec, q::RngIntElt, N::RngIntElt :
     for i in [1..g-1] do
       A := Aq^i; // ith power of hecke operator
       Zmx := (2*g*A-Trace(A)*IdentityMatrix(K,2*g))*C^(-1);  
-      // Zmx is a q-adic approximation of a nice correspondence Z
+      // Zmx is a q-adic approximation of a nice correspondence Z, ie trace 0
       // Now clear denominators to find A and Z exactly
       D1 := LCM([LCM([Denominator(Zmx[j,k]):k in [1..2*g]]):j in [1..2*g]]);
       D2 := LCM([LCM([Denominator(A[j,k]):k in [1..2*g]]):j in [1..2*g]]);

@@ -74,7 +74,7 @@ intrinsic H1Basis(Q::RngUPolElt[RngUPol], v::RngOrdIdl)
   Winfinv:=Winf^(-1);
   W:=Winf*W0^(-1);
 
-  require not (LeadingCoefficient(Delta)*OK subset v): "Bad prime";
+  require not (LeadingCoefficient(Delta)*OK subset v): "Bad prime"; 
   require Degree(r) ge 1: "Bad prime";
   require smooth(r, v): "Bad prime";
   require is_integral(W0, v) and is_integral(W0inv, v) and is_integral(Winf, v) and is_integral(Winfinv, v): "Bad prime";

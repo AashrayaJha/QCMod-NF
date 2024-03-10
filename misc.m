@@ -30,6 +30,7 @@ function algdepQp(a,deg)
       P1 := x;
     else
       M:=ZeroMatrix(RR,deg+2,deg+2);
+      
       for j := 1 to deg+1 do 
         M[j,j] := 1;
         M[j,deg+2] := QQ!(a^(j-1));
@@ -541,3 +542,30 @@ function equivariant_splitting(Z)
   return BlockMatrix(2,1,[IdentityMatrix(K,g), -mat2]);
 
 end function;
+
+function Columns(M)
+return Rows(Transpose(M));
+end function;
+
+function Matrix_checker(M1,M2)
+
+  //  require #Rows(M1) eq #Rows(M2) :"The mateices need ot have the same number of Rows";
+  //  require #Columns(M1) eq #Columns(M2) :"The mateices need ot have the same number of Columns";
+
+   m:=#Rows(M1); n:=#Columns(M1);
+   bad_indices:=[**];
+   
+  for i in [1..m] do
+    for j in [1..n] do
+      m1:=M1[i][j]; m2:=M2[i][j];
+      if m1 eq m2 then
+        continue;
+      else 
+        Append(~bad_indices,[i,j]);
+      end if;
+    end for;
+  end for;
+  
+  return bad_indices;
+end function;
+

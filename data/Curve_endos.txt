@@ -15,6 +15,7 @@ _ := PeriodMatrix(C);
 X := C`riesrf;
 
 Cycles, IntersectionMat, SymplecticTransform := HomologyBasis(X);
-Omega1:= HolomorphicDifferentials(X);
+Omega1:= HolomorphicDifferentials(X); //The output is x^iy^jdx/g where [i,j] are the three integer tuples first outputted
+                                      // and g=d_y(f)
 HeuristicEndomorphismRepresentation(C : Geometric:=true);
 
