@@ -13,9 +13,9 @@ import "heights.m": E1_tensor_E2, expand_algebraic_function, frob_equiv_iso, hei
 // verbose flag determines how much information is printed during the computation.
 declare verbose QCMod, 4;
 
-intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
-                      N := 15, prec := 2*N, basis0 := [], basis1 := [], basis2 := [], 
-                      number_of_correspondences := 0, base_point := 0, known_points := [],
+intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
+                      N := 15, prec := 2*N, basis0 := [], basis1 := [], basis2 := [], data1:=0,
+                      data2:=0, correspondence_data:=0, number_of_correspondences := 0, base_point := 0, known_points := [],
                       hecke_prime := 0, unit_root_splitting := false, eqsplit := 0,
                       height_coeffs := [], rho := 0, use_log_basis := false, use_polys:=[])
   -> SeqEnum[FldRatElt], BoolElt, SeqEnum[FldRatElt], Rec, List, SeqEnum[Rec]
@@ -84,8 +84,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   // ===                   CHECK INPUT                      ===
   // ==========================================================
   
-  p := Norm(v);
-  require IsPrime(p): "v must be a split prime of K.";
+  require IsPrime(p): "p must be prime number";
 
 
   // ==========================================================
@@ -98,15 +97,25 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   end while;
     
   K := BaseRing(BaseRing(Q));
+  OK := MaximalOrder(K);
   Qp := pAdicField(p,N);
   r,Delta,s := auxpolys(Q);
+  v1:= Factorisation(p*OK[1][1]);
+  v2:= Factorisation(p*OK[2][1]);
+
+  require Norm(v1) eq p: "p should split in K.";
 
   // ==========================================================
   // ===               SYMPLECTIC BASIS                  ===
   // ==========================================================
-
+  print "This is actually running";
   vprint QCMod, 2: " Computing a symplectic basis of H^1";
-  h1basis, g, r, W0 := H1Basis(Q, v);
+  
+  h1basis, g, r, W0 := H1Basis(Q, v1); 
+  _,_,_,_:=H1Basis(Q,v2); 
+  //The second iteration is just a check for Tuitman's conditions being satisfied at both places.
+
+  print "this has computed H1basis";
   if #basis0*#basis1 gt 0 then // Use the given basis
     h1basis := basis0 cat basis1;
   end if;
@@ -145,17 +154,27 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
     coefficients := SymplecticBasisH1(cpm); // Create coefficients of a symplectic basis in terms of h1basis
     new_complementary_basis := [&+[coefficients[i,j]*h1basis[j] : j in [1..2*g]] : i in [1..g]];
     sympl_basis := [h1basis[i] : i in [1..g]] cat new_complementary_basis;
-    if not &and[&and[Valuation(c, v) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
+    if not &and[&and[Valuation(c, v1) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
       error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
     end if; 
+    if not &and[&and[Valuation(c, v2) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
+      error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
+    end if;
     vprintf QCMod, 3: " Symplectic basis of H^1:\n%o\n", sympl_basis;
     basis0 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [1..g]]; // basis of regular differentials
     basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basis of complementary subspace
   end if;
-  data := ColemanData(Q, v, N : useU:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
-  vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", p, N;
+  if data1 eq 0 then 
+    data1 := ColemanData(Q, v1, N : useU:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
+  end  if;
+  vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v1, N;
 
-  prec := Max(100, tadicprec(data, 1));
+  if data2 eq 0 then 
+    data2:= ColemanData(Q, v2, N : useU:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
+  end if;  
+  vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
+
+  prec := Max(100, tadicprec(data1, 1));
   S    := LaurentSeriesRing(Qp,prec);
   
 
@@ -163,12 +182,26 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   // ===                    POINTS                       ===
   // ==========================================================
   search_bound := 1000;
-  Qpoints := Q_points(data,search_bound : known_points := known_points); // small Q-rational points
+
+  // small Q-rational points
+  Qpoints_1 := Q_points(data1,search_bound : known_points := known_points);
+  Qpoints_2 := Q_points(data2,search_bound : known_points := known_points); 
+  //PointSearch in Magma is defined over the rationals, so enter points manually.
+
   Nfactor := 1.5; // Additional precision for root finding in Qp_points
   computed_Qp_points := false;
   repeat 
     try 
-      Qppoints := Qp_points(data : Nfactor := Nfactor); // One Q_p-point for every residue disk.
+      Qppoints_1 := Qp_points(data1 : Nfactor := Nfactor); // One Q_p-point for every residue disk.
+      computed_Qp_points := true;
+    catch e; 
+      Nfactor +:= 0.5;
+    end try;
+  until computed_Qp_points;
+
+  repeat 
+    try 
+      Qppoints_2 := Qp_points(data2 : Nfactor := Nfactor); // One Q_p-point for every residue disk.
       computed_Qp_points := true;
     catch e; 
       Nfactor +:= 0.5;
@@ -176,36 +209,45 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   until computed_Qp_points;
 
   // Affine points where Frobenius lift isn't defined:
-  bad_Qppoints := [P : P in Qppoints | is_bad(P, data) and not P`inf];
-  bad_Qpoints := [P : P in Qpoints | is_bad(P, data) and not P`inf];
-  bad_Qpindices := [i : i in [1..#Qppoints] | is_bad(Qppoints[i], data) and not Qppoints[i]`inf];
-
+  bad_Qppoints_1 := [P : P in Qppoints_1 | is_bad(P, data1) and not P`inf];
+  bad_Qpoints_1 := [P : P in Qpoints_1 | is_bad(P, data1) and not P`inf];
+  bad_Qpindices_1 := [i : i in [1..#Qppoints_1] | is_bad(Qppoints_1[i], data1) and not Qppoints_1[i]`inf];
+  
+  bad_Qppoints_2 := [P : P in Qppoints_2 | is_bad(P, data2) and not P`inf];
+  bad_Qpoints_2 := [P : P in Qpoints_2 | is_bad(P, data2) and not P`inf];
+  bad_Qpindices_2 := [i : i in [1..#Qppoints_2] | is_bad(Qppoints_2[i], data2) and not Qppoints_2[i]`inf];
   // Affine points where Frobenius lift is defined:
-  good_Qpoints := [P : P in Qpoints | not is_bad(P, data) and not P`inf];
-  good_Q_Qp_indices := [FindQpointQp(P,Qppoints) : P in good_Qpoints];
-  numberofpoints := #Qppoints;
+  good_Qpoints_1 := [P : P in Qpoints_1 | not is_bad(P, data1) and not P`inf];
+  good_Q_Qp_indices_1 := [FindQpointQp(P,Qppoints_1) : P in good_Qpoints_1];
+  numberofpoints_1 := #Qppoints_1;
+
+  good_Qpoints_2 := [P : P in Qpoints_2 | not is_bad(P, data2) and not P`inf];
+  good_Q_Qp_indices_2 := [FindQpointQp(P,Qppoints_2) : P in good_Qpoints_2];
+  numberofpoints_2 := #Qppoints_2;
 
   // Find xy-coordinates of the small affine rational points as rational numbers.
   // Use LLL for this.
-  good_coordinates := [xy_coordinates(P,data) : P in good_Qpoints];
-  good_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v), alg_approx_Qp(P[2], v)] : P in good_coordinates]; 
-  bad_coordinates := [xy_coordinates(P,data) : P in bad_Qpoints];
+  good_coordinates_1 := [xy_coordinates(P,data1) : P in good_Qpoints_1];
+  good_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in good_coordinates_1]; 
+  bad_coordinates_1 := [xy_coordinates(P,data1) : P in bad_Qpoints_1];
   // TODO: This might not always work for very bad points
-  bad_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v), alg_approx_Qp(P[2], v)] : P in bad_coordinates]; 
+  bad_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in bad_coordinates_1]; 
 
   vprintf QCMod, 2: "\n Good affine rational points:\n%o\n", good_affine_rat_pts_xy;
   vprintf QCMod, 2: "\n Bad affine rational points:\n%o\n", bad_affine_rat_pts_xy;
 
   if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
     global_base_point_index := 1;
-    bQ := good_Qpoints[global_base_point_index]; // base point as Qpoint
+    bQ_1 := good_Qpoints_1[global_base_point_index];
+    bQ_2 := good_Qpoints_2[global_base_point_index]; // base point as Qpoint
     bQ_xy := good_affine_rat_pts_xy[global_base_point_index];  // xy-coordinates of base point
   else 
-    bQ := set_point(base_point[1], base_point[2], data); // base point given
+    bQ := set_point(base_point[1], base_point[2], data1); // base point given
     bQ_xy := base_point;
     global_base_point_index := Index(good_affine_rat_pts_xy, base_point);
   end if;
-  local_base_point_index := FindQpointQp(bQ,Qppoints);       // Index of global base point in list of local points.
+  local_base_point_index_1 := FindQpointQp(bQ_1,Qppoints_1);
+  local_base_point_index_2 := FindQpointQp(bQ_2,Qppoints_2);       // Index of global base point in list of local points.
 
   FF<y>   := function_field(Q);
   x := BaseRing(FF).1;
@@ -213,16 +255,19 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   vprintf QCMod, 2: "\n Using the base point %o.\n", bQ_xy;
   good_affine_rat_pts_xy_no_bpt := Remove(good_affine_rat_pts_xy, global_base_point_index); 
 
-  ks := Exclude(good_Q_Qp_indices, local_base_point_index);  // indices in Qppoints of good affine 
+  ks_1 := Exclude(good_Q_Qp_indices_1, local_base_point_index_1);
+  ks_2 := Exclude(good_Q_Qp_indices_2, local_base_point_index_2);  // indices in Qppoints of good affine 
                                                              // rational points with base point removed
   
 
   // compute Teichmueller representatives of good points
-  teichpoints := [**]; 
-  for i := 1 to numberofpoints do
-    teichpoints[i] := is_bad(Qppoints[i],data) select 0  else teichmueller_pt(Qppoints[i],data); // No precision loss
+  teichpoints_1 := [**]; teichpoints_2 := [**];
+  for i in [1..numberofpoints_1] do
+    teichpoints_1[i] := is_bad(Qppoints_1[i],data1) select 0  else teichmueller_pt(Qppoints_1[i],data1); // No precision loss
   end for;
-
+  for i in [1..numberofpoints_2] do
+    teichpoints_2[i] := is_bad(Qppoints_2[i],data1) select 0  else teichmueller_pt(Qppoints_2[i],data2); // No precision loss
+  end for;
   // ==========================================================
   // ===                  CORRESPONDENCES                 ===
   // ==========================================================
@@ -232,7 +277,16 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   // Want rho-1 independent `nice` correspondences.
   // Construct them using powers of Hecke operator
   q := IsZero(hecke_prime) select p else hecke_prime;
-  correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
+  
+  //Note this won't actually work, maybe this hsouldn't be anoptional parameter. Think about this
+  //later. Ask user to provide the action of a correspondence. For now for X/Q(zeta_3), we just 
+  //provide the data.
+
+  if correspondence_data eq 0 then 
+    correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
+  else
+    correspondences, Tq, corr_loss := correspondence_data;
+  end if;
 
   Ncorr := N + Min(corr_loss, 0);
   // correspondences and Tq are provably correct to O(p^Ncorr), at least if q = p. We
@@ -261,15 +315,18 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
 
   Tq_small := ExtractBlock(Tq,1,1,g,g);                // Hecke operator at q on H^0(X,Omega^1)
   char_poly_Tq := CharacteristicPolynomial(Tq_small);  
-  Qp_ext := quo<PolynomialRing(Qp) | char_poly_Tq>;
-  Salpha := quo<PolynomialRing(S) | char_poly_Tq>;
+  Qp_ext := quo<PolynomialRing(Qp) | PolynomialRing(Rationals())!char_poly_Tq>;
+  //The characteristic polynomial is defined over Z, so don't actually need any embedding.
+  Salpha := quo<PolynomialRing(S) | PolynomialRing(Rationals())!char_poly_Tq>;
 
   // Compute an End0(J)-equivariant splitting of the Hodge filtration.
-  
+  //Just making this run for the moment wihtout consdiering functionality, 
+  //since will probaby not give unit-root splitting.
+
   if IsZero(eqsplit) then
     if unit_root_splitting then 
       // Compute the unit root splitting 
-      FQp := ChangeRing(Submatrix(data`F,1,1,2*g,2*g), Qp); // Frobenius over Qp
+      FQp := ChangeRing(Submatrix(data1`F,1,1,2*g,2*g), Qp); // Frobenius over Qp
       char_poly_frob := CharacteristicPolynomial(FQp);
       fact := Factorisation(char_poly_frob);
       assert #fact ge 2;
@@ -300,6 +357,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], v::RngOrdIdl :
   vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   minvaleqsplit := minvalp(eqsplit, p);
 
+  //Sum of these quantiites below will need to account for both primes, we will fix them 
+  //when they actually show up in Hodge/Frobenius/power series. 
 
   F_lists := [* *]; // functions vanishing in rational points, one for each corresp
   zeroes_lists := [* *]; // zeroes of functions in F_lists; these are centered at 0, i.e. shifted 

@@ -1,0 +1,22 @@
+First, the saturation step has to do with getting rid of vertical components. 
+I conjecture that these components are related to the denominators in the Cantor representation, i.e., the 
+locus of indeterminacy of the rational map. So in general I think you should saturate at these denominators,
+ i.e., Factorization(Denominator(cant[1])); You have to substitute x1,y1 (and maybe x2,y2?) for u,v. 
+ A test for this: did the saturation at [x1,y1] simplify the ideal at all? I haven't done a careful study of this,
+  so some experiments on other easier examples is probably worth doing before returning to this one.
+
+Second, I'm not sure if the highly optimized Groebner basis algorithms are happy working over a number field.
+Maybe it's fine. But you can cheat by adding a variable z and the equation z^2-z+1 to the ideal.
+
+Third, use SetVerbose("Groebner", 2); (or your favorite number from 1 to 3) to see how the Groebner basis is doing. 
+If it's frozen, or has millions of monomials, or whatever, it's a good assumption that it's never going to terminate
+--you don't have to wait 3 days for it to fail.
+
+Fourth, it can be helpful to reduce modulo a random prime. Sometimes the problem is caused by coefficient blowup,
+and this helps to avoid it.
+
+Finally, you could take a random projection down to a plane curve and then just factor, and unproject.
+
+Some combination of these tricks was successfully for me (I found a crazy curve over big field);
+the last idea seemed the best,but there was too much copying and pasting for me to offer anything concrete. 
+I hope the above is enough!

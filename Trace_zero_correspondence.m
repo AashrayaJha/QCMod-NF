@@ -5,7 +5,9 @@ AttachSpec("QCMod.spec");
 //load "data/NF-example-coleman-data-13_160.m"; 
 
 //10/3/2024 AJ- I think the correspondences obtained here are correct. The number of digits seem
-// to have stabilised. Also they satisfy the right minpoly, though this is a abd check
+// to have stabilised. Also they satisfy the right minpoly, though this is a bad check due to the 
+// shape of the matrix.
+
 // Just going to try and work directly with the K-numbers now. 
 
 //import "misc.m": algdepQp,lindepQp, alg_approx_Qp;

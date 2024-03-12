@@ -5,13 +5,13 @@ AttachSpec("QCMod.spec");
 //load "data/NF-example-coleman-data-13_40.m";
 //load "data/NF-example-coleman-data-13_80.m";
 //load "data/NF-example-coleman-data-13_120.m";
-load "data/NF-example-coleman-data-13_160.m";
+//load "data/NF-example-coleman-data-13_160.m";
 
 //AK_160 is the same as AK_250, bouth of which guess entries without any errors. 
 
 import "misc.m": algdepQp,lindepQp, alg_approx_Qp;
 data_1:=data_1;
-//data_2:=data_2;
+data_2:=data_2;
 
 Q:=data_1`Q; g:=data_1`g; d:=Degree(Q); p:=data_1`p; v:=data_1`v; 
 q:=p; N:=data_1`N;
@@ -25,11 +25,11 @@ F1inv := Transpose(F1)^(-1);
 Aq_1 := Transpose(F1)+q*F1inv;   // Eichler-Shimura -> Hecke operator
 prec_loss_bd1 := Valuation(Norm(Determinant(F1inv)), p);
 
-// F2 := data_2`F;
-// if q eq p then F2 := Submatrix(data_2`F,1,1,2*g,2*g); end if;// Necessary when q=p
-// F2inv := Transpose(F2)^(-1);
-// Aq_2 := Transpose(F2)+q*F2inv;   // Eichler-Shimura -> Hecke operator
-// prec_loss_bd2 := Valuation(Norm(Determinant(F2inv)), p);
+F2 := data_2`F;
+if q eq p then F2 := Submatrix(data_2`F,1,1,2*g,2*g); end if;// Necessary when q=p
+F2inv := Transpose(F2)^(-1);
+Aq_2 := Transpose(F2)+q*F2inv;   // Eichler-Shimura -> Hecke operator
+prec_loss_bd2 := Valuation(Norm(Determinant(F2inv)), p);
 
 AK := ZeroMatrix(K, 2*g, 2*g); ZK := AK;
 bad_indices:=[**];
@@ -115,8 +115,8 @@ out:=Sprintf("AK_160:=%m;",AK);
 output_file:="data/New_hecke.m";
 
 Write(output_file,out);
-Write(output_file,out_sum);
-Write(output_file,out_prod);
+//Write(output_file,out_sum);
+//Write(output_file,out_prod);
 
 function make_poly_quadratic(trace,norm)
     R<x>:=PolynomialRing(Rationals());
@@ -128,6 +128,7 @@ function Matrix_from_trace_norm(trace,norm,A,v)
 // the matrix of the original A with the minimal polynomial using the trace and norm matrices.
 K := NumberField(Order(v));
 Kv, loc := Completion(K, v);
+n:= #Rows(trace);
 M:=ZeroMatrix(K,n,n);
 bad_indices_1:=[**];
 for i in [1..n] do
