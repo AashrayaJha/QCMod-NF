@@ -514,21 +514,22 @@ if IsZero(eqsplit) then
     PhiAZb1 := [**]; // Frobenius on the phi-modules A_Z(b,P) (0 if P bad)
     PhiAZb2 := [**]; // Frobenius on the phi-modules A_Z(b,P) (0 if P bad)
 
-    Ncurrent := Min(Min(Ncurrent, Nptb01),NPtb02);
+    Ncurrent := Min(Min(Ncurrent, Nptb01),Nptb02);
     Nfrob_equiv_iso := Ncurrent;
 
     //JB 03/19/24 started editing here
     //Aash: numberofpoints_1 == numberofpoints_2 yes?
 
-    minvalPhiAZbs := [0 : i in [1..numberofpoints_1]];
+    minvalPhiAZbs1 := [0 : i in [1..numberofpoints_1]];
+    minvalPhiAZbs2 := [0 : i in [1..numberofpoints_2]];
 
     for i := 1 to numberofpoints_1 do
 
-      if G_list[i] eq 0 then //should this be G_list1 ?
+      if G_list1[i] eq 0 then //JB: should this be G_list1 (was G_list)?
         PhiAZb1[i] := 0;
       else 
         pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge);
-        isoi1, Nisoi1 := frob_equiv_iso(G_list[i],data1,Ncurrent); //G_list1 ?
+        isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent); //JB: changed to G_list1
         MNi1 := Npti1 lt Nisoi1 select Parent(pti1) else Parent(isoi1);
         PhiAZb1[i] := MNi1!(pti1*PhiAZb_to_b01*isoi1);
         Nfrob_equiv_iso1 := Min(Nfrob_equiv_iso, minprec(PhiAZb1[i]));
@@ -538,11 +539,11 @@ if IsZero(eqsplit) then
 
     for i := 1 to numberofpoints_2 do
 
-      if G_list[i] eq 0 then //should be G_list2?
+      if G_list2[i] eq 0 then //JB: should be G_list2? (changed ut)
         PhiAZb2[i] := 0;
       else 
         pti2, Npti2 := ParallelTransport(teichpoints_2[i],Qppoints_2[i],Z,eta2,data2:prec:=prec,N:=Nhodge);
-        isoi2, Nisoi2 := frob_equiv_iso(G_list[i],data2,Ncurrent); //G_list2
+        isoi2, Nisoi2 := frob_equiv_iso(G_list2[i],data2,Ncurrent); //G_list2
         MNi2 := Npti2 lt Nisoi2 select Parent(pti2) else Parent(isoi2);
         PhiAZb2[i] := MNi2!(pti2*PhiAZb_to_b02*isoi2);
         Nfrob_equiv_iso2 := Min(Nfrob_equiv_iso, minprec(PhiAZb2[i]));
