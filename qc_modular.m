@@ -516,47 +516,72 @@ if IsZero(eqsplit) then
 
     Ncurrent := Min(Min(Ncurrent, Nptb01),NPtb02);
     Nfrob_equiv_iso := Ncurrent;
-    minvalPhiAZbs := [0 : i in [1..numberofpoints]];
-    for i := 1 to numberofpoints do
 
-      if G_list[i] eq 0 then
+    //JB 03/19/24 started editing here
+    //Aash: numberofpoints_1 == numberofpoints_2 yes?
+
+    minvalPhiAZbs := [0 : i in [1..numberofpoints_1]];
+
+    for i := 1 to numberofpoints_1 do
+
+      if G_list[i] eq 0 then //should this be G_list1 ?
         PhiAZb1[i] := 0;
       else 
-        pti, Npti := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge);
-        isoi, Nisoi := frob_equiv_iso(G_list[i],data,Ncurrent);
-        MNi := Npti lt Nisoi select Parent(pti) else Parent(isoi);
-        PhiAZb1[i] := MNi!(pti*PhiAZb_to_b0*isoi);
-        Nfrob_equiv_iso := Min(Nfrob_equiv_iso, minprec(PhiAZb[i]));
-        minvalPhiAZbs[i] := minval(PhiAZb[i]);
+        pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge);
+        isoi1, Nisoi1 := frob_equiv_iso(G_list[i],data1,Ncurrent); //G_list1 ?
+        MNi1 := Npti1 lt Nisoi1 select Parent(pti1) else Parent(isoi1);
+        PhiAZb1[i] := MNi1!(pti1*PhiAZb_to_b01*isoi1);
+        Nfrob_equiv_iso1 := Min(Nfrob_equiv_iso, minprec(PhiAZb1[i]));
+        minvalPhiAZbs1[i] := minval(PhiAZb1[i]);
       end if;
     end for;
-    for i := 1 to numberofpoints do
 
-      if G_list[i] eq 0 then
-        PhiAZb1[i] := 0;
+    for i := 1 to numberofpoints_2 do
+
+      if G_list[i] eq 0 then //should be G_list2?
+        PhiAZb2[i] := 0;
       else 
-        pti, Npti := ParallelTransport(teichpoints[i],Qppoints[i],Z,eta,data:prec:=prec,N:=Nhodge);
-        isoi, Nisoi := frob_equiv_iso(G_list[i],data,Ncurrent);
-        MNi := Npti lt Nisoi select Parent(pti) else Parent(isoi);
-        PhiAZb[i] := MNi!(pti*PhiAZb_to_b0*isoi);
-        Nfrob_equiv_iso := Min(Nfrob_equiv_iso, minprec(PhiAZb[i]));
-        minvalPhiAZbs[i] := minval(PhiAZb[i]);
+        pti2, Npti2 := ParallelTransport(teichpoints_2[i],Qppoints_2[i],Z,eta2,data2:prec:=prec,N:=Nhodge);
+        isoi2, Nisoi2 := frob_equiv_iso(G_list[i],data2,Ncurrent); //G_list2
+        MNi2 := Npti2 lt Nisoi2 select Parent(pti2) else Parent(isoi2);
+        PhiAZb2[i] := MNi2!(pti2*PhiAZb_to_b02*isoi2);
+        Nfrob_equiv_iso2 := Min(Nfrob_equiv_iso, minprec(PhiAZb2[i]));
+        minvalPhiAZbs2[i] := minval(PhiAZb2[i]);
       end if;
     end for;
-    Ncurrent := Nfrob_equiv_iso;
-    Append(~c1s, Min(minvalPhiAZbs));
 
-    PhiAZb_to_z := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
-    for i := 1 to numberofpoints do
-      PhiAZb_to_z[i] := G_list[i] eq 0 select 0 else
-        ParallelTransportToZ(Qppoints[i],Z,eta,data:prec:=prec,N:=Nhodge)*PhiAZb[i]; 
+    Ncurrent := Min(Nfrob_equiv_iso1, Nfrob_equiv_iso2);
+    Append(~c1s, Min(minvalPhiAZbs1, minvalPhiAZbs2));
+
+
+    PhiAZb_to_z1 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
+    for i := 1 to numberofpoints_1 do
+      PhiAZb_to_z1[i] := G_list1[i] eq 0 select 0 else //G_list1? 
+        ParallelTransportToZ(Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge)*PhiAZb1[i]; 
     end for;
 
-    gammafil_listb_to_z := [* 0 : k in [1..numberofpoints] *]; // evaluations of gammafil at local coordinates for all points 
+
+    PhiAZb_to_z2 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
+    for i := 1 to numberofpoints_2 do
+      PhiAZb_to_z2[i] := G_list2[i] eq 0 select 0 else //G_list2?
+        ParallelTransportToZ(Qppoints_2[i],Z,eta2,data2:prec:=prec,N:=Nhodge)*PhiAZb2[i]; 
+    end for;
+
+
+    gammafil_listb_to_z1 := [* 0 : k in [1..numberofpoints_1] *]; // evaluations of gammafil at local coordinates for all points 
     vprint QCMod, 3: "Computing expansions of the filtration-respecting function gamma_fil.\n";
-    for i := 1 to numberofpoints do
-      if G_list[i] ne 0 then
-        gammafil_listb_to_z[i] := expand_algebraic_function(Qppoints[i], gammafil, data, Nhodge, prec);
+    for i := 1 to numberofpoints_1 do
+      if G_list1[i] ne 0 then
+        gammafil_listb_to_z1[i] := expand_algebraic_function(Qppoints_1[i], gammafil1, data1, Nhodge, prec);
+      end if;
+    end for;
+
+
+    gammafil_listb_to_z2 := [* 0 : k in [1..numberofpoints_2] *]; // evaluations of gammafil at local coordinates for all points 
+    vprint QCMod, 3: "Computing expansions of the filtration-respecting function gamma_fil.\n";
+    for i := 1 to numberofpoints_2 do
+      if G_list2[i] ne 0 then
+        gammafil_listb_to_z2[i] := expand_algebraic_function(Qppoints_2[i], gammafil2, data2, Nhodge, prec);
       end if;
     end for;
 
