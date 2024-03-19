@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-load "data/NF-example-coleman-data.m";
-load "data/New_hecke.m";
+// load "data/NF-example-coleman-data.m";
+// load "data/New_hecke.m";
 
 data_1:=data_1;
 data_2:=data_2;
@@ -13,7 +13,7 @@ v_2:=data_2`v; //Will calculate them in the intrinsic.
 correspondence_data:= [*AK_160,Zs,-3*];
 // The -6 correspinds to prec_loss for correspondences. This was set as the val(det(Finv),p) over Q, so
 // did the analogous thing over K.
-known_points := [
+known_projective_points := [
   [1,0,0], // j = 1728, D = -4
   [1,u+1,0], // j = 287496, D = -16 
   [0,-u-1,1], // j = 1728, D = -4
@@ -29,7 +29,7 @@ known_points := [
   [(1/7)*(5*u+4),-1,1]// j=-262737412640768000, D = -163
   ];
 
-known_affine_points:=[Prune(known_points[i]): i in [3..13]];
+known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 
 SetVerbose("QCMod",3);
 QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points);

@@ -5,7 +5,7 @@ freeze;
 
 import "auxpolys.m": auxpolys, log;
 import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
-import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp;
+import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp, QpMatrix;
 import "applications.m": Q_points, Qp_points, roots_with_prec, separate;
 import "heights.m": E1_tensor_E2, expand_algebraic_function, frob_equiv_iso, height;
 
@@ -100,15 +100,15 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   OK := MaximalOrder(K);
   Qp := pAdicField(p,N);
   r,Delta,s := auxpolys(Q);
-  v1:= Factorisation(p*OK[1][1]);
-  v2:= Factorisation(p*OK[2][1]);
+  v1:= Factorisation(p*OK)[1][1];
+  v2:= Factorisation(p*OK)[2][1];
 
   require Norm(v1) eq p: "p should split in K.";
 
   // ==========================================================
   // ===               SYMPLECTIC BASIS                  ===
   // ==========================================================
-  print "This is actually running";
+  // print "This is actually running";
   vprint QCMod, 2: " Computing a symplectic basis of H^1";
   
   h1basis, g, r, W0 := H1Basis(Q, v1); 
@@ -285,7 +285,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   if correspondence_data eq 0 then 
     correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
   else
-    correspondences, Tq, corr_loss := correspondence_data;
+    correspondences := correspondence_data[2]; Tq:=correspondence_data[1];  corr_loss:=correspondence_data[3];
   end if;
 
   Ncorr := N + Min(corr_loss, 0);
@@ -302,9 +302,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
   end if;  
 
+  correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];
+  correspondences_Qp2:=[QpMatrix(M,15,v2): M in correspondences];
   if #use_polys eq 0 then
     // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
-    if Dimension(sub<mat_space | ChangeUniverse(correspondences, mat_space)>) lt rho-1 then
+    if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp1, mat_space)>) lt rho-1 then
+      error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
+    end if;
+    if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp2, mat_space)>) lt rho-1 then
       error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
     end if;
   end if;
@@ -326,7 +331,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   if IsZero(eqsplit) then
     if unit_root_splitting then 
       // Compute the unit root splitting 
-      FQp := ChangeRing(Submatrix(data1`F,1,1,2*g,2*g), Qp); // Frobenius over Qp
+      FQp := ChangeRing(ChangeRing(Submatrix(data1`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
       char_poly_frob := CharacteristicPolynomial(FQp);
       fact := Factorisation(char_poly_frob);
       assert #fact ge 2;
@@ -341,13 +346,37 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       W_lower := ExtractBlock(W_wrt_simpl, g+1, 1, g, g);
       W_upper_minus := [-Vector(RowSequence(W_wrt_simpl)[i]) : i in [1..g]];
       split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
-      eqsplit := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
+      eqsplit1 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
     else 
       //eqsplit := eq_split(Tq); // Bug with X0*(303)
-      eqsplit := equivariant_splitting(Tq);
+      eqsplit1 := equivariant_splitting(Tq);
     end if; // unit_root_splitting
   end if; // IsZero(eqsplit)
 
+if IsZero(eqsplit) then
+    if unit_root_splitting then 
+      // Compute the unit root splitting 
+      FQp := ChangeRing(ChangeRing(Submatrix(data2`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
+      char_poly_frob := CharacteristicPolynomial(FQp);
+      fact := Factorisation(char_poly_frob);
+      assert #fact ge 2;
+      non_unit_root_char_poly := &*[t[1]^t[2] : t in fact | &and[Valuation(Coefficient(t[1],i)) gt 0 : i in [0..Degree(t[1])-1]]];
+      assert Degree(non_unit_root_char_poly) eq g;
+      Mp := EchelonForm(ChangeRing(Evaluate(non_unit_root_char_poly, FQp), pAdicField(p, N-2))); 
+      assert Rank(Mp) eq g;
+      // basis of the unit root subspace wrt symplectic basis
+      W_wrt_simpl := Transpose(Submatrix(ChangeRing(Mp, Rationals()), 1,1,g,2*g));
+      // the splitting matrix is the unique matrix leaving the holomorphic
+      // differentials invariant and vanishing along the unit root subspace.
+      W_lower := ExtractBlock(W_wrt_simpl, g+1, 1, g, g);
+      W_upper_minus := [-Vector(RowSequence(W_wrt_simpl)[i]) : i in [1..g]];
+      split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
+      eqsplit2 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
+    else 
+      //eqsplit := eq_split(Tq); // Bug with X0*(303)
+      eqsplit2 := equivariant_splitting(Tq);
+    end if; // unit_root_splitting
+  end if; // IsZero(eqsplit)
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
   check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
@@ -357,6 +386,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   minvaleqsplit := minvalp(eqsplit, p);
 
+  // Test equivariance of splitting 
+  big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
+  check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
+  min_val_check_equiv := Min([Min([Valuation(check_equiv[i,j]) : j in [1..g]]): i in [1..2*g]]);
+  assert min_val_check_equiv ge N-3; 
+  //assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
+  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
+  minvaleqsplit := minvalp(eqsplit, p);
   //Sum of these quantiites below will need to account for both primes, we will fix them 
   //when they actually show up in Hodge/Frobenius/power series. 
 
@@ -371,10 +408,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   Nhts := Ncorr; // Precision of local heights of auxiliary points
   Nexpansions := []; // Precision of power series expansion of local heights 
   c1s := [];
-  valetas := [];
-  valbetafils := [];
-  maxdeggammafils := [];
-  minvalgammafils := []; 
+  valetas1 := [];
+  valbetafils1 := [];
+  maxdeggammafils1 := [];
+  minvalgammafils1 := []; 
+  valetas2 := [];
+  valbetafils2 := [];
+  maxdeggammafils2 := [];
+  minvalgammafils2 := []; 
   if #height_coeffs eq 0 or not use_log_basis then 
     heights := [* *];    // heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
     E1P := 0;
@@ -393,62 +434,106 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     
     vprintf QCMod: " Computing Hodge filtration for correspondence %o.\n", l;
 
-    if assigned betafil then delete betafil; end if;
+    if assigned betafil1 then delete betafil1; end if;
     hodge_prec := 5; 
     repeat
       try
-        eta,betafil,gammafil,hodge_loss := HodgeData(Q,g,W0,data`basis,Z,bpt : r:=r, prec:=hodge_prec);
+        eta1,betafil1,gammafil1,hodge_loss1 := HodgeData(Q,g,W0,data1`basis,Z,bpt : r:=r, prec:=hodge_prec);
       catch e;
         hodge_prec +:= 5;
       end try;
-    until assigned betafil;
+    until assigned betafil1;
+    repeat
+      try
+        eta2,betafil2,gammafil2,hodge_loss2 := HodgeData(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
+      catch e;
+        hodge_prec +:= 5;
+      end try;
+    until assigned betafil2;
+    Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
 
-    Nhodge := Ncorr + Min(0, hodge_loss);
+    vprintf QCMod: " eta =  %o,%o.\n", eta1,eta2; 
+    vprintf QCMod: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
+    vprintf QCMod: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
 
-    vprintf QCMod: " eta =  %o.\n", eta; 
-    vprintf QCMod: " beta_fil  =  %o.\n", betafil; 
-    vprintf QCMod: " gamma_fil =  %o.\n\n", gammafil; 
+    Append(~valetas1, minvalp(eta1, v1));
+    Append(~valbetafils1, minvalp(betafil1, v1));
+    Append(~maxdeggammafils1, Max([Degree(a) : a in Eltseq(gammafil1)]));
+    Append(~minvalgammafils1, 
+        Min([Min([0] cat [Valuation(c, v1) : c in Coefficients(a)]) : a in Eltseq(gammafil1)]));
 
-    Append(~valetas, minvalp(eta, p));
-    Append(~valbetafils, minvalp(betafil, p));
-    Append(~maxdeggammafils, Max([Degree(a) : a in Eltseq(gammafil)]));
-    Append(~minvalgammafils, 
-        Min([Min([0] cat [Valuation(c, p) : c in Coefficients(a)]) : a in Eltseq(gammafil)]));
+    Append(~valetas2, minvalp(eta2, v2));
+    Append(~valbetafils2, minvalp(betafil2, v2));
+    Append(~maxdeggammafils2, Max([Degree(a) : a in Eltseq(gammafil2)]));
+    Append(~minvalgammafils2, 
+        Min([Min([0] cat [Valuation(c, v2) : c in Coefficients(a)]) : a in Eltseq(gammafil2)]));
 
     // ==========================================================
     // ===                  FROBENIUS                      ===
     // ==========================================================
 
-    b0 := teichmueller_pt(bQ,data);
+    b01 := teichmueller_pt(bQ,data1);
+    b02 := teichmueller_pt(bQ,data2);
     vprintf QCMod: " Computing Frobenius structure for correspondence %o.\n", l;
-    b0pt := [RationalField()!c : c in xy_coordinates(b0, data)]; // xy-coordinates of P
-    G, NG := FrobeniusStructure(data,Z,eta,b0pt : N:=Nhodge); 
-    G_list := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
-    for i := 1 to numberofpoints do
-      if is_bad(Qppoints[i],data) then
-        G_list[i]:=0;
+    b0pt1 := [K!c : c in xy_coordinates(b01, data1)];
+    b0pt2 := [K!c : c in xy_coordinates(b02, data2)]; // xy-coordinates of P
+    G1, NG1 := FrobeniusStructure(data1,Z,eta1,b0pt1 : N:=Nhodge); 
+    G2, NG2 := FrobeniusStructure(data2,Z,eta2,b0pt2 : N:=Nhodge); 
+    G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
+    for i := 1 to numberofpoints_1 do
+      if is_bad(Qppoints_1[i],data1) then
+        G_list1[i]:=0;
       else
-        P  := teichpoints[i]; // P is the Teichmueller point in this disk
-        pt := [IntegerRing()!c : c in xy_coordinates(P, data)]; // xy-coordinates of P
-        G_list[i] := eval_mat_R(G, pt, r, v); // P is finite good, so no precision loss. 
+        P  := teichpoints_1[i]; // P is the Teichmueller point in this disk
+        pt := [IntegerRing()!c : c in xy_coordinates(P, data1)]; // xy-coordinates of P
+        G_list1[i] := eval_mat_R(G1, pt, r, v1); // P is finite good, so no precision loss. 
       end if;
     end for;
-    Ncurrent := Min(Nhodge, NG);
+    G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
+    for i := 1 to numberofpoints_2 do
+      if is_bad(bad_Qppoints_2[i],data2) then
+        G_list2[i]:=0;
+      else
+        P  := teichpoints_2[i]; // P is the Teichmueller point in this disk
+        pt := [IntegerRing()!c : c in xy_coordinates(P, data2)]; // xy-coordinates of P
+        G_list2[i] := eval_mat_R(G2, pt, r, v2); // P is finite good, so no precision loss. 
+      end if;
+    end for;
+    Ncurrent := Min(Min(Nhodge, NG1),NG2);
 
-    PhiAZb_to_b0, Nptb0 := ParallelTransport(bQ,b0,Z,eta,data:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ,b01,Z,eta1,data1:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
-      PhiAZb_to_b0[2*g+2,i+1] := -PhiAZb_to_b0[2*g+2,i+1];
+      PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
 
-    PhiAZb := [**]; // Frobenius on the phi-modules A_Z(b,P) (0 if P bad)
+    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ,b02,Z,eta2,data2:prec:=prec,N:=Nhodge);
+    for i := 1 to 2*g do
+      PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
+    end for;
 
-    Ncurrent := Min(Ncurrent, Nptb0);
+    PhiAZb1 := [**]; // Frobenius on the phi-modules A_Z(b,P) (0 if P bad)
+    PhiAZb2 := [**]; // Frobenius on the phi-modules A_Z(b,P) (0 if P bad)
+
+    Ncurrent := Min(Min(Ncurrent, Nptb01),NPtb02);
     Nfrob_equiv_iso := Ncurrent;
     minvalPhiAZbs := [0 : i in [1..numberofpoints]];
     for i := 1 to numberofpoints do
 
       if G_list[i] eq 0 then
-        PhiAZb[i] := 0;
+        PhiAZb1[i] := 0;
+      else 
+        pti, Npti := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge);
+        isoi, Nisoi := frob_equiv_iso(G_list[i],data,Ncurrent);
+        MNi := Npti lt Nisoi select Parent(pti) else Parent(isoi);
+        PhiAZb1[i] := MNi!(pti*PhiAZb_to_b0*isoi);
+        Nfrob_equiv_iso := Min(Nfrob_equiv_iso, minprec(PhiAZb[i]));
+        minvalPhiAZbs[i] := minval(PhiAZb[i]);
+      end if;
+    end for;
+    for i := 1 to numberofpoints do
+
+      if G_list[i] eq 0 then
+        PhiAZb1[i] := 0;
       else 
         pti, Npti := ParallelTransport(teichpoints[i],Qppoints[i],Z,eta,data:prec:=prec,N:=Nhodge);
         isoi, Nisoi := frob_equiv_iso(G_list[i],data,Ncurrent);
