@@ -1,6 +1,5 @@
 {
     +coleman.spec
-    pushpull.m
     symplectic_basis.m
     hecke_correspondence.m
     hodge.m

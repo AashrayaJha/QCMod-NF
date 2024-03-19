@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-// load "data/NF-example-coleman-data.m";
-// load "data/New_hecke.m";
+load "data/NF-example-coleman-data.m";
+load "data/New_hecke.m";
 
 data_1:=data_1;
 data_2:=data_2;
@@ -31,5 +31,5 @@ known_projective_points := [
 
 known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 
-SetVerbose("QCMod",3);
+//SetVerbose("QCModAffine",3);
 QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points);
