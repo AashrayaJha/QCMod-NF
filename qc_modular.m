@@ -164,12 +164,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     basis0 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [1..g]]; // basis of regular differentials
     basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basis of complementary subspace
   end if;
-  if data1 eq 0 then 
+  if Type(data1) eq RngIntElt then 
     data1 := ColemanData(Q, v1, N : useU:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
   end  if;
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v1, N;
 
-  if data2 eq 0 then 
+  if Type(data2) eq RngIntElt then 
     data2:= ColemanData(Q, v2, N : useU:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
   end if;  
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
