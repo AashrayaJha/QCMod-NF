@@ -453,12 +453,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     vprintf QCMod: " Computing Frobenius structure for correspondence %o.\n", l;
     // xy-coordinates of Teichmueller points in discs of base point under
     // the 2 embeddings into Qp. Here we approximate elements of Qp using
-    // integers. This is requirued for FrobeniusStructure, which
+    // integers. This is required for FrobeniusStructure, which
     // approximates p-adics using IntegerRing(p^n).
     b0pt1 := [Rationals()!c : c in xy_coordinates(b01, data1)];
     b0pt2 := [Rationals()!c : c in xy_coordinates(b02, data2)]; 
     Z1 := QpMatrix(Z, Nhodge, v1);
+    Z1 := ChangeRing(Z1, Rationals());
     Z2 := QpMatrix(Z, Nhodge, v2);
+    Z2 := ChangeRing(Z2, Rationals());
     G1, NG1 := FrobeniusStructure(data1,Z1,eta1,b0pt1 : N:=Nhodge); 
     G2, NG2 := FrobeniusStructure(data2,Z2,eta2,b0pt2 : N:=Nhodge); 
     G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
