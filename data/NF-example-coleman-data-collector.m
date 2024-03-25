@@ -1,3 +1,7 @@
+//This file collects Coleman data, for one prime of the number field at a time. 
+//The main intrinsic is ColemanData (in singleintegral.m), which in particular computes 
+//Frobenius action on H^1_dR(X).
+
 AttachSpec("~/GitHub/CHIMP/CHIMP.spec");
 AttachSpec("QCMod.spec");
 import "auxpolys.m": auxpolys, log;
