@@ -31,5 +31,5 @@ known_projective_points := [
 
 known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 
-//SetVerbose("QCModAffine",3);
+SetVerbose("QCMod",4);
 QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points);
