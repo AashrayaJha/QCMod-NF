@@ -455,6 +455,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     G1, NG1 := FrobeniusStructure(data1,Z,eta1,b0pt1 : N:=Nhodge); 
     G2, NG2 := FrobeniusStructure(data2,Z,eta2,b0pt2 : N:=Nhodge); 
     G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
+                                      //
     for i := 1 to numberofpoints_1 do
       if is_bad(Qppoints_1[i],data1) then
         G_list1[i]:=0;
