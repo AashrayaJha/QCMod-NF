@@ -7,8 +7,8 @@ data_2:=data_2;
 
 Q:=data_1`Q;
 p:=data_1`p;
-v_1:=data_1`v; //We need both primes above p. Here v1,v2 will be those primes.
-v_2:=data_2`v; //Will calculate them in the intrinsic.
+//v_1:=data_1`v; //We need both primes above p. Here v1,v2 will be those primes.
+//v_2:=data_2`v; //Will calculate them in the intrinsic.
 
 correspondence_data:= [*AK_160,Zs,-3*];
 // The -6 correspinds to prec_loss for correspondences. This was set as the val(det(Finv),p) over Q, so
