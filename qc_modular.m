@@ -100,8 +100,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   OK := MaximalOrder(K);
   Qp := pAdicField(p,N);
   r,Delta,s := auxpolys(Q);
-  v1:= Factorisation(p*OK)[1][1];
-  v2:= Factorisation(p*OK)[2][1];
+  //v1:= Factorisation(p*OK)[1][1];
+  //v2:= Factorisation(p*OK)[2][1];
+  v1 := data1`v;
+  v2 := data2`v;
 
   require Norm(v1) eq p: "p should split in K.";
 
@@ -366,7 +368,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   assert min_val_check_equiv2 ge N-3; 
   //assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
   vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
-  minvaleqsplit := minvalp(eqsplit, p);
+  minvaleqsplit1 := minvalp(eqsplit, v1);
+  minvaleqsplit2 := minvalp(eqsplit, v2);
   //Sum of these quantiites below will need to account for both primes, we will fix them 
   //when they actually show up in Hodge/Frobenius/power series. 
 
