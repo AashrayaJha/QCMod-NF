@@ -79,11 +79,15 @@ intrinsic FrobeniusStructure(data::Rec, Z::AlgMatElt, eta::ModTupFldElt, bpt::Se
   end for;
 
   // The matrix of Frobenius on H^1(X) is the 2gx2g top left corner of the matrix of Frobenius on H^1(U):
-  FH1X := Submatrix(FH1U, [1 .. 2*g], [1 .. 2*g]);
+  FH1X := ChangeRing(Submatrix(FH1U, [1 .. 2*g], [1 .. 2*g]), Rationals());
 
   // Compute g0:
   // Z is p-integral by construction due to clearing denominators.
+  //  vprintf QCMod, 2: " FH1X =  %o.\n\n", BaseRing(FH1X); 
+  //  vprintf QCMod, 2: " Z =  %o.\n\n", BaseRing(Z); 
   A:=-Transpose(FH1X)*Z;
+  //  vprintf QCMod, 2: " A =  %o.\n\n", BaseRing(A); 
+  //  vprintf QCMod, 2: " R =  %o.\n\n", R;
   A:=ChangeRing(A,R);
   g0:=[];
   for i:=1 to 2*g do
