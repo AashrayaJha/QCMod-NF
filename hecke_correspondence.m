@@ -84,7 +84,7 @@ intrinsic HeckeCorrespondenceQC(data::Rec, q::RngIntElt, N::RngIntElt :
           ZK[j,k] := lindepQp(pAdicField(q, N-1)!Zmx[j,k]);  // dito
         end for;
       end for;
-      if Trace(ZQ*C) ne 0 then // approximation issue. Perturbe ZQ slightly.
+      if Trace(ZK*C) ne 0 then // approximation issue. Perturb ZK slightly.
         if q ne p then 
           error "q-adic approximation of nice correspondence not exact.";  
         end if;
