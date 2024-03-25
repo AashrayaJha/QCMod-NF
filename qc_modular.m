@@ -238,16 +238,17 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: "\n Good affine rational points:\n%o\n", good_affine_rat_pts_xy;
   vprintf QCMod, 2: "\n Bad affine rational points:\n%o\n", bad_affine_rat_pts_xy;
 
-  if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
+  //if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
+  assert ISA(Type(base_point), RngIntElt) and IsZero(base_point);  // No base point given, take the first possible one.
     global_base_point_index := 1;
     bQ_1 := good_Qpoints_1[global_base_point_index];
     bQ_2 := good_Qpoints_2[global_base_point_index]; // base point as Qpoint
     bQ_xy := good_affine_rat_pts_xy[global_base_point_index];  // xy-coordinates of base point
-  else 
-    bQ := set_point(base_point[1], base_point[2], data1); // base point given
-    bQ_xy := base_point;
-    global_base_point_index := Index(good_affine_rat_pts_xy, base_point);
-  end if;
+  //else 
+  //  bQ := set_point(base_point[1], base_point[2], data1); // base point given
+  //  bQ_xy := base_point;
+  //  global_base_point_index := Index(good_affine_rat_pts_xy, base_point);
+  //end if;
   local_base_point_index_1 := FindQpointQp(bQ_1,Qppoints_1);
   local_base_point_index_2 := FindQpointQp(bQ_2,Qppoints_2);       // Index of global base point in list of local points.
 
@@ -353,9 +354,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       eqsplit := equivariant_splitting(Tq);
     //end if; // unit_root_splitting
   //end if; // IsZero(eqsplit)
-  // Test equivariance of splitting 
-  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
-  //vprintf QCMod, 2: "\nparent: %o\n", BaseRing(eqsplit);
 
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
@@ -448,8 +446,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ===                  FROBENIUS                      ===
     // ==========================================================
 
-    b01 := teichmueller_pt(bQ,data1);
-    b02 := teichmueller_pt(bQ,data2);
+    b01 := teichmueller_pt(bQ_1,data1);
+    b02 := teichmueller_pt(bQ_2,data2);
     vprintf QCMod: " Computing Frobenius structure for correspondence %o.\n", l;
     b0pt1 := [K!c : c in xy_coordinates(b01, data1)];
     b0pt2 := [K!c : c in xy_coordinates(b02, data2)]; // xy-coordinates of P
@@ -477,12 +475,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
     Ncurrent := Min(Min(Nhodge, NG1),NG2);
 
-    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ,b01,Z,eta1,data1:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ_1,b01,Z,eta1,data1:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
 
-    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ,b02,Z,eta2,data2:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ_2,b02,Z,eta2,data2:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
     end for;
