@@ -487,12 +487,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
     Ncurrent := Min(Min(Nhodge, NG1),NG2);
 
-    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ_1,b01,Z,eta1,data1:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ_1,b01,Z1,eta1,data1:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
 
-    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ_2,b02,Z,eta2,data2:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ_2,b02,Z2,eta2,data2:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
     end for;
@@ -514,7 +514,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       if G_list1[i] eq 0 then //JB: should this be G_list1 (was G_list)?
         PhiAZb1[i] := 0;
       else 
-        pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge);
+        pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge);
         isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent); //JB: changed to G_list1
         MNi1 := Npti1 lt Nisoi1 select Parent(pti1) else Parent(isoi1);
         PhiAZb1[i] := MNi1!(pti1*PhiAZb_to_b01*isoi1);
@@ -528,7 +528,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       if G_list2[i] eq 0 then //JB: should be G_list2? (changed ut)
         PhiAZb2[i] := 0;
       else 
-        pti2, Npti2 := ParallelTransport(teichpoints_2[i],Qppoints_2[i],Z,eta2,data2:prec:=prec,N:=Nhodge);
+        pti2, Npti2 := ParallelTransport(teichpoints_2[i],Qppoints_2[i],Z2,eta2,data2:prec:=prec,N:=Nhodge);
         isoi2, Nisoi2 := frob_equiv_iso(G_list2[i],data2,Ncurrent); //G_list2
         MNi2 := Npti2 lt Nisoi2 select Parent(pti2) else Parent(isoi2);
         PhiAZb2[i] := MNi2!(pti2*PhiAZb_to_b02*isoi2);
@@ -538,20 +538,21 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
 
     Ncurrent := Min(Nfrob_equiv_iso1, Nfrob_equiv_iso2);
-    Append(~c1s, Min(minvalPhiAZbs1, minvalPhiAZbs2));
+
+    Append(~c1s, Min(minvalPhiAZbs1 cat minvalPhiAZbs2));
 
 
     PhiAZb_to_z1 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
     for i := 1 to numberofpoints_1 do
       PhiAZb_to_z1[i] := G_list1[i] eq 0 select 0 else //G_list1? 
-        ParallelTransportToZ(Qppoints_1[i],Z,eta1,data1:prec:=prec,N:=Nhodge)*PhiAZb1[i]; 
+        ParallelTransportToZ(Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge)*PhiAZb1[i]; 
     end for;
 
 
     PhiAZb_to_z2 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
     for i := 1 to numberofpoints_2 do
       PhiAZb_to_z2[i] := G_list2[i] eq 0 select 0 else //G_list2?
-        ParallelTransportToZ(Qppoints_2[i],Z,eta2,data2:prec:=prec,N:=Nhodge)*PhiAZb2[i]; 
+        ParallelTransportToZ(Qppoints_2[i],Z2,eta2,data2:prec:=prec,N:=Nhodge)*PhiAZb2[i]; 
     end for;
 
 
@@ -573,7 +574,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
 
     // ==========================================================
-    // ===                  HEIGHTS                        ===
+    // ===                     HEIGHTS                        ===
     // ==========================================================
 end for;
 
