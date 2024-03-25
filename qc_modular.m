@@ -282,7 +282,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   //later. Ask user to provide the action of a correspondence. For now for X/Q(zeta_3), we just 
   //provide the data.
 
-  if correspondence_data eq 0 then 
+  if Type(correspondence_data) eq RngIntElt  then 
     correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
   else
     correspondences := correspondence_data[2]; Tq:=correspondence_data[1];  corr_loss:=correspondence_data[3];

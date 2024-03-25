@@ -568,24 +568,24 @@ function Matrix_checker(M1,M2)
   return bad_indices;
 end function;
 
-function QpMatrix1(M,N,v)
+function QpMatrix(M,N,v)
 
-p:=Norm(v);
-Qp:=pAdicField(p,N);
-K:=BaseRing(M);
-Kv,loc:=Completion(K,v);
+  p:=Norm(v);
+  Qp:=pAdicField(p,N);
+  K:=BaseRing(M);
+  Kv,loc:=Completion(K,v);
 
-m:=#Rows(M);
-n:=#Rows(Transpose(M));
-MQp:=ZeroMatrix(Qp,m,n);
+  m:=#Rows(M);
+  n:=#Rows(Transpose(M));
+  MQp:=ZeroMatrix(Qp,m,n);
 
-for i in [1..m] do
-  for j in [1..n] do
-    MQp[i][j]:= Qp!loc(M[i][j]);
+  for i in [1..m] do
+    for j in [1..n] do
+      MQp[i][j]:= Qp!loc(M[i][j]);
+    end for;
   end for;
-end for;
 
-return MQp;
+  return MQp;
 
 end function;
 
