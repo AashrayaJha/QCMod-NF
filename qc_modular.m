@@ -320,6 +320,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   //end if;
     
   vprintf QCMod, 2: "\n Nice correspondences:\n%o\n\n", correspondences;
+  vprintf QCMod, 2: "\n number_of_correspondences:\n%o\n\n", number_of_correspondences;
 
   Tq_small := ExtractBlock(Tq,1,1,g,g);                // Hecke operator at q on H^0(X,Omega^1)
   char_poly_Tq := CharacteristicPolynomial(Tq_small);  
@@ -426,9 +427,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     until assigned betafil2;
     Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
 
-    vprintf QCMod: " eta =  %o,%o.\n", eta1,eta2; 
-    vprintf QCMod: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
-    vprintf QCMod: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
+    vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
+    vprintf QCMod, 2: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
+    vprintf QCMod, 2: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
 
     Append(~valetas1, minvalp(eta1, v1));
     Append(~valbetafils1, minvalp(betafil1, v1));
