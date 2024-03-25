@@ -238,16 +238,17 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: "\n Good affine rational points:\n%o\n", good_affine_rat_pts_xy;
   vprintf QCMod, 2: "\n Bad affine rational points:\n%o\n", bad_affine_rat_pts_xy;
 
-  if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
+  //if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
+  assert ISA(Type(base_point), RngIntElt) and IsZero(base_point);  // No base point given, take the first possible one.
     global_base_point_index := 1;
     bQ_1 := good_Qpoints_1[global_base_point_index];
     bQ_2 := good_Qpoints_2[global_base_point_index]; // base point as Qpoint
     bQ_xy := good_affine_rat_pts_xy[global_base_point_index];  // xy-coordinates of base point
-  else 
-    bQ := set_point(base_point[1], base_point[2], data1); // base point given
-    bQ_xy := base_point;
-    global_base_point_index := Index(good_affine_rat_pts_xy, base_point);
-  end if;
+  //else 
+  //  bQ := set_point(base_point[1], base_point[2], data1); // base point given
+  //  bQ_xy := base_point;
+  //  global_base_point_index := Index(good_affine_rat_pts_xy, base_point);
+  //end if;
   local_base_point_index_1 := FindQpointQp(bQ_1,Qppoints_1);
   local_base_point_index_2 := FindQpointQp(bQ_2,Qppoints_2);       // Index of global base point in list of local points.
 
@@ -319,6 +320,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   //end if;
     
   vprintf QCMod, 2: "\n Nice correspondences:\n%o\n\n", correspondences;
+  number_of_correspondences := #correspondences;
+  vprintf QCMod, 2: "\n number_of_correspondences:\n%o\n\n", number_of_correspondences;
 
   Tq_small := ExtractBlock(Tq,1,1,g,g);                // Hecke operator at q on H^0(X,Omega^1)
   char_poly_Tq := CharacteristicPolynomial(Tq_small);  
@@ -353,9 +356,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       eqsplit := equivariant_splitting(Tq);
     //end if; // unit_root_splitting
   //end if; // IsZero(eqsplit)
-  // Test equivariance of splitting 
-  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
-  //vprintf QCMod, 2: "\nparent: %o\n", BaseRing(eqsplit);
 
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
@@ -428,9 +428,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     until assigned betafil2;
     Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
 
-    vprintf QCMod: " eta =  %o,%o.\n", eta1,eta2; 
-    vprintf QCMod: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
-    vprintf QCMod: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
+    vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
+    vprintf QCMod, 2: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
+    vprintf QCMod, 2: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
 
     Append(~valetas1, minvalp(eta1, v1));
     Append(~valbetafils1, minvalp(betafil1, v1));
@@ -448,14 +448,23 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ===                  FROBENIUS                      ===
     // ==========================================================
 
-    b01 := teichmueller_pt(bQ,data1);
-    b02 := teichmueller_pt(bQ,data2);
+    b01 := teichmueller_pt(bQ_1,data1);
+    b02 := teichmueller_pt(bQ_2,data2);
     vprintf QCMod: " Computing Frobenius structure for correspondence %o.\n", l;
-    b0pt1 := [K!c : c in xy_coordinates(b01, data1)];
-    b0pt2 := [K!c : c in xy_coordinates(b02, data2)]; // xy-coordinates of P
-    G1, NG1 := FrobeniusStructure(data1,Z,eta1,b0pt1 : N:=Nhodge); 
-    G2, NG2 := FrobeniusStructure(data2,Z,eta2,b0pt2 : N:=Nhodge); 
+    // xy-coordinates of Teichmueller points in discs of base point under
+    // the 2 embeddings into Qp. Here we approximate elements of Qp using
+    // integers. This is required for FrobeniusStructure, which
+    // approximates p-adics using IntegerRing(p^n).
+    b0pt1 := [Rationals()!c : c in xy_coordinates(b01, data1)];
+    b0pt2 := [Rationals()!c : c in xy_coordinates(b02, data2)]; 
+    Z1 := QpMatrix(Z, Nhodge, v1);
+    Z1 := ChangeRing(Z1, Rationals());
+    Z2 := QpMatrix(Z, Nhodge, v2);
+    Z2 := ChangeRing(Z2, Rationals());
+    G1, NG1 := FrobeniusStructure(data1,Z1,eta1,b0pt1 : N:=Nhodge); 
+    G2, NG2 := FrobeniusStructure(data2,Z2,eta2,b0pt2 : N:=Nhodge); 
     G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
+                                      //
     for i := 1 to numberofpoints_1 do
       if is_bad(Qppoints_1[i],data1) then
         G_list1[i]:=0;
@@ -467,7 +476,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
     G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
     for i := 1 to numberofpoints_2 do
-      if is_bad(bad_Qppoints_2[i],data2) then
+      //if is_bad(bad_Qppoints_2[i],data2) then // TODO: ???
+      if is_bad(Qppoints_2[i],data2) then
         G_list2[i]:=0;
       else
         P  := teichpoints_2[i]; // P is the Teichmueller point in this disk
@@ -477,12 +487,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
     Ncurrent := Min(Min(Nhodge, NG1),NG2);
 
-    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ,b01,Z,eta1,data1:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ_1,b01,Z,eta1,data1:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
 
-    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ,b02,Z,eta2,data2:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ_2,b02,Z,eta2,data2:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
     end for;
