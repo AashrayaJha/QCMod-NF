@@ -325,36 +325,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   Salpha := quo<PolynomialRing(S) | PolynomialRing(Rationals())!char_poly_Tq>;
 
   // Compute an End0(J)-equivariant splitting of the Hodge filtration.
-  //Just making this run for the moment wihtout consdiering functionality, 
-  //since will probaby not give unit-root splitting.
-
-  if IsZero(eqsplit) then
-    if unit_root_splitting then 
-      // Compute the unit root splitting 
-      FQp := ChangeRing(ChangeRing(Submatrix(data1`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
-      char_poly_frob := CharacteristicPolynomial(FQp);
-      fact := Factorisation(char_poly_frob);
-      assert #fact ge 2;
-      non_unit_root_char_poly := &*[t[1]^t[2] : t in fact | &and[Valuation(Coefficient(t[1],i)) gt 0 : i in [0..Degree(t[1])-1]]];
-      assert Degree(non_unit_root_char_poly) eq g;
-      Mp := EchelonForm(ChangeRing(Evaluate(non_unit_root_char_poly, FQp), pAdicField(p, N-2))); 
-      assert Rank(Mp) eq g;
-      // basis of the unit root subspace wrt symplectic basis
-      W_wrt_simpl := Transpose(Submatrix(ChangeRing(Mp, Rationals()), 1,1,g,2*g));
-      // the splitting matrix is the unique matrix leaving the holomorphic
-      // differentials invariant and vanishing along the unit root subspace.
-      W_lower := ExtractBlock(W_wrt_simpl, g+1, 1, g, g);
-      W_upper_minus := [-Vector(RowSequence(W_wrt_simpl)[i]) : i in [1..g]];
-      split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
-      eqsplit1 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
-    else 
-      //eqsplit := eq_split(Tq); // Bug with X0*(303)
-      eqsplit1 := equivariant_splitting(Tq);
-    end if; // unit_root_splitting
-  end if; // IsZero(eqsplit)
-
-if IsZero(eqsplit) then
-    if unit_root_splitting then 
+  //
+//if IsZero(eqsplit) then
+/*    if unit_root_splitting then 
       // Compute the unit root splitting 
       FQp := ChangeRing(ChangeRing(Submatrix(data2`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
       char_poly_frob := CharacteristicPolynomial(FQp);
@@ -372,26 +345,25 @@ if IsZero(eqsplit) then
       W_upper_minus := [-Vector(RowSequence(W_wrt_simpl)[i]) : i in [1..g]];
       split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
       eqsplit2 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
-    else 
+      */
+    //else 
       //eqsplit := eq_split(Tq); // Bug with X0*(303)
-      eqsplit2 := equivariant_splitting(Tq);
-    end if; // unit_root_splitting
-  end if; // IsZero(eqsplit)
+      eqsplit := equivariant_splitting(Tq);
+    //end if; // unit_root_splitting
+  //end if; // IsZero(eqsplit)
   // Test equivariance of splitting 
-  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit1;
-  vprintf QCMod, 2: "\nparent: %o\n", Type(eqsplit1);
-  big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
-  check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
-  min_val_check_equiv := Min([Min([Valuation(check_equiv[i,j]) : j in [1..g]]): i in [1..2*g]]);
-  assert min_val_check_equiv ge N-3; 
-  //assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
-  minvaleqsplit := minvalp(eqsplit, p);
+  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
+  //vprintf QCMod, 2: "\nparent: %o\n", BaseRing(eqsplit);
 
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
-  check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
-  min_val_check_equiv := Min([Min([Valuation(check_equiv[i,j]) : j in [1..g]]): i in [1..2*g]]);
-  assert min_val_check_equiv ge N-3; 
+  check_equiv := (big_split*Transpose(Tq) - Transpose(Tq)*big_split);
+  //check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
+  min_val_check_equiv1 := Min([Min([Valuation(check_equiv[i,j], v1) : j in [1..g]]): i in [1..2*g]]);
+  min_val_check_equiv2 := Min([Min([Valuation(check_equiv[i,j], v2) : j in [1..g]]): i in [1..2*g]]);
+  vprintf QCMod, 3: "min_val_check_equiv = %o, %o\n", min_val_check_equiv1, min_val_check_equiv2;
+  assert min_val_check_equiv1 ge N-3; 
+  assert min_val_check_equiv2 ge N-3; 
   //assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
   vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   minvaleqsplit := minvalp(eqsplit, p);
