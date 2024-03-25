@@ -578,9 +578,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ==========================================================
 end for;
 
-return Qpoints_1;
 
-end intrinsic;
 /*
     minvalchangebasis := 0;
     if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
@@ -971,6 +969,7 @@ end intrinsic;
 
   */
 
+end intrinsic;
 
 intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
   -> BoolElt
