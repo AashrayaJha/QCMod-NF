@@ -115,7 +115,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   _,_,_,_:=H1Basis(Q,v2); 
   //The second iteration is just a check for Tuitman's conditions being satisfied at both places.
 
-  print "this has computed H1basis";
+  //print "this has computed H1basis";
   if #basis0*#basis1 gt 0 then // Use the given basis
     h1basis := basis0 cat basis1;
   end if;
@@ -378,12 +378,13 @@ if IsZero(eqsplit) then
     end if; // unit_root_splitting
   end if; // IsZero(eqsplit)
   // Test equivariance of splitting 
+  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit1;
+  vprintf QCMod, 2: "\nparent: %o\n", Type(eqsplit1);
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
   check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
   min_val_check_equiv := Min([Min([Valuation(check_equiv[i,j]) : j in [1..g]]): i in [1..2*g]]);
   assert min_val_check_equiv ge N-3; 
   //assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
-  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   minvaleqsplit := minvalp(eqsplit, p);
 
   // Test equivariance of splitting 
