@@ -590,7 +590,10 @@ if IsZero(eqsplit) then
     // ===                  HEIGHTS                        ===
     // ==========================================================
 
+return Qpoints_1;
 
+end intrinsic;
+/*
     minvalchangebasis := 0;
     if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
 
@@ -890,43 +893,6 @@ if IsZero(eqsplit) then
   vprintf QCMod: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
 
 
-  
-  // ==========================================================
-  // ===                 SANITY CHECK                       ===
-  // ==========================================================
-
-  /*
-   * Commented out, since we now check that all known rational points are recovered below.
-   * This check was not entirely stable due to a missing precision analysis for the
-   * evaluation of the QC function.
-   *
-  for i := 1 to number_of_correspondences do
-    vprintf QCMod: "\n Sanity check at rational points for correspondence %o.  ", i;
-    // TODO: bound precision loss in evaluation
-    F_list := F_lists[i]; 
-    for j in [1..#good_Qpoints] do
-      P := good_Qpoints[j]; 
-      ind := FindQpointQp(P,Qppoints); 
-      Pp := Qppoints[ind];
-      //vals := [];
-      if ind gt 0 and (is_bad(Qppoints[ind],data) eq false) and (P`inf eq false) then		
-//      for contrib in away_contributions do
-//        Append(~vals,  Valuation(Qp_small!Evaluate(F_list[ind]-contrib,P`x - Pp`x))); 
-//      end for;
-        val := Valuation(Qp_small!Evaluate(F_list[ind], P`x - Pp`x)); 
-        // F_list[ind] = contrib for some away contribution contrib
-        vprintf QCMod, 2: "\nValuation of the quadratic Chabauty function evaluated at (x,y) = %o is \n%o\n", good_affine_rat_pts_xy[j], p,  val;
-
-        assert val ge Nend-1;  // possible precision loss in evaluating F
-        //assert exists(v){ val : val in vals | val ge Nend-1}; // possible precision loss in evaluating F
-
-      end if;
-    end for;
-  end for; //  i := 1 to number_of_correspondences 
-  vprint QCMod: "\nSanity checks passed.\n";
-  */
-  
-
   // ==========================================================
   // ===               COMMON SOLUTIONS                     ===
   // ==========================================================
@@ -1015,8 +981,7 @@ if IsZero(eqsplit) then
     return good_affine_rat_pts_xy, true, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_Qppoints;
   end if;
 
-end intrinsic;
-
+  */
 
 
 intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
@@ -1106,4 +1071,41 @@ intrinsic QCModQuartic(Q::RngUPolElt[RngUPol], S::ModSym :
   return false, _, _, _; 
 end intrinsic;
 
+
+  
+  // ==========================================================
+  // ===                 SANITY CHECK                       ===
+  // ==========================================================
+
+  /*
+   * Commented out, since we now check that all known rational points are recovered below.
+   * This check was not entirely stable due to a missing precision analysis for the
+   * evaluation of the QC function.
+   *
+  for i := 1 to number_of_correspondences do
+    vprintf QCMod: "\n Sanity check at rational points for correspondence %o.  ", i;
+    // TODO: bound precision loss in evaluation
+    F_list := F_lists[i]; 
+    for j in [1..#good_Qpoints] do
+      P := good_Qpoints[j]; 
+      ind := FindQpointQp(P,Qppoints); 
+      Pp := Qppoints[ind];
+      //vals := [];
+      if ind gt 0 and (is_bad(Qppoints[ind],data) eq false) and (P`inf eq false) then		
+//      for contrib in away_contributions do
+//        Append(~vals,  Valuation(Qp_small!Evaluate(F_list[ind]-contrib,P`x - Pp`x))); 
+//      end for;
+        val := Valuation(Qp_small!Evaluate(F_list[ind], P`x - Pp`x)); 
+        // F_list[ind] = contrib for some away contribution contrib
+        vprintf QCMod, 2: "\nValuation of the quadratic Chabauty function evaluated at (x,y) = %o is \n%o\n", good_affine_rat_pts_xy[j], p,  val;
+
+        assert val ge Nend-1;  // possible precision loss in evaluating F
+        //assert exists(v){ val : val in vals | val ge Nend-1}; // possible precision loss in evaluating F
+
+      end if;
+    end for;
+  end for; //  i := 1 to number_of_correspondences 
+  vprint QCMod: "\nSanity checks passed.\n";
+  */
+  
 
