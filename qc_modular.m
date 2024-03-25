@@ -450,8 +450,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     b01 := teichmueller_pt(bQ_1,data1);
     b02 := teichmueller_pt(bQ_2,data2);
     vprintf QCMod: " Computing Frobenius structure for correspondence %o.\n", l;
-    b0pt1 := [K!c : c in xy_coordinates(b01, data1)];
-    b0pt2 := [K!c : c in xy_coordinates(b02, data2)]; // xy-coordinates of P
+    b0pt1 := [Rationals()!c : c in xy_coordinates(b01, data1)];
+    b0pt2 := [Rationals()!c : c in xy_coordinates(b02, data2)]; // xy-coordinates of P
     G1, NG1 := FrobeniusStructure(data1,Z,eta1,b0pt1 : N:=Nhodge); 
     G2, NG2 := FrobeniusStructure(data2,Z,eta2,b0pt2 : N:=Nhodge); 
     G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
