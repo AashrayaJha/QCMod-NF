@@ -476,7 +476,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
     G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
     for i := 1 to numberofpoints_2 do
-      if is_bad(bad_Qppoints_2[i],data2) then
+      //if is_bad(bad_Qppoints_2[i],data2) then // TODO: ???
+      if is_bad(Qppoints_2[i],data2) then
         G_list2[i]:=0;
       else
         P  := teichpoints_2[i]; // P is the Teichmueller point in this disk
