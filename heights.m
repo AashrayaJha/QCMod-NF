@@ -324,7 +324,7 @@ height:=function(Phi,betafil,gammafil,splitting,data)
   // matrix Phi and splitting of the Hodge filtration determined by gamma_fil, beta_fil.
 
 
-  p:=data`p; g:=data`g;
+  p:=data`p; g:=data`g; v:=data`v;
 
   S:=BaseRing(Phi);
   splitting:=ChangeRing(splitting,S);

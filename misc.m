@@ -572,7 +572,7 @@ function QpMatrix(M,N,v)
 
   p:=Norm(v);
   Qp:=pAdicField(p,N);
-  K:=BaseRing(M);
+  K:=BaseRing(Parent(M[1]));
   Kv,loc:=Completion(K,v);
 
   m:=#Rows(M);
@@ -586,6 +586,39 @@ function QpMatrix(M,N,v)
   end for;
 
   return MQp;
+
+end function;
+
+function QpSequence(b,N,v)
+
+  p:=Norm(v);
+  Qp:=pAdicField(p,N);
+  K:=FieldOfFractions(Parent(b[1]));
+  Kv,loc:=Completion(K,v);
+  m:=#b;
+  b_p:=[0:i in [1..m]];
+  for i in [1..m] do
+      b_p[i]:= Qp!loc(b[i]);
+  end for;
+  return b_p,Parent(b_p[1]);
+
+end function;
+
+function QpPolynomial(f,N,v)
+
+p:=Norm(v);
+Qp:=pAdicField(p,N);
+K:=BaseRing(f);
+Kv,loc:=Completion(K,v);
+R<x>:=PolynomialRing(Kv);
+f_p:=R!0;
+coeffs:=Coefficients(f);
+
+for i in [0..#coeffs-1] do
+  f_p:=f_p+loc(coeffs[i+1])*x^i;
+end for;
+
+return f_p;
 
 end function;
 
