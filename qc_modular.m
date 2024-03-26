@@ -690,7 +690,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             E1_E2_subspace := new_E1_E2_subspace; 
             vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
             printf "This is gammafil parent %o,and %o", gammafil1,Parent(gammafil1);
-            gammafil1:=[*QpPolynomial(gammafil1[i],N,v1): i in [1..Dimension(Parent(gammafil1))]*];
+
             gammafilP_1 := evalf0(ChangeRing(Vector(gammafil1)),LaurentSeriesRing(BaseRing(gammafil1)),Qpti,data1);
             printf "Reaches first ht";
             // printf "%o",Parent(QpMatrix(Eltseq(betafil1),Ni,v1));
@@ -1018,10 +1018,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   else
     return good_affine_rat_pts_xy, true, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_Qppoints;
   end if;
-
+end intrinsic;
   */
 
-end intrinsic;
+
 
 intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
   -> BoolElt
