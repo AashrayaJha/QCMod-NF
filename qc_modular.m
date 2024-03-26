@@ -1021,6 +1021,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
   */
 
+end intrinsic;
 
 intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
   -> BoolElt
