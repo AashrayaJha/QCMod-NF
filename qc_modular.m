@@ -625,7 +625,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           // E1(sigma1(Pi))
           Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
                               else good_Qpoints_1[i+1];
-          pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti, Z1,eta1,data1:prec:=prec,N:=Nhodge);
+          pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
 
           MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
           PhiP1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
@@ -635,7 +635,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           // E1(sigma2(Pi))
           Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
                               else good_Qpoints_2[i+1];
-          pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti, Z2,eta2,data2:prec:=prec,N:=Nhodge);
+          pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
 
           MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
           PhiP2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);

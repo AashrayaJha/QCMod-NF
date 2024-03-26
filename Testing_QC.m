@@ -2,8 +2,8 @@ AttachSpec("QCMod.spec");
 load "data/NF-example-coleman-data.m";
 load "data/New_hecke.m";
 
-data_1:=data_1;
-data_2:=data_2;
+//data_1:=data_1;
+//data_2:=data_2;
 
 Q:=data_1`Q;
 p:=data_1`p;
