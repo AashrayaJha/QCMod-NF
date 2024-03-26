@@ -657,11 +657,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end if; 
   end for;  // k := 1 to numberofpoints 
      //for l to number_of_correspondences
-  return Qpoints_1,G1,G2;
 
-end intrinsic;
     //#height_coeffs eq 0 or not use_log_basis then 
-    /*
     // heights contains the list of heights of auxiliary points 
     if #height_coeffs eq 0 then // Compute heights of auxiliary points.
       if #heights lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
@@ -736,7 +733,9 @@ end intrinsic;
     // Append(~Nexpansions_2, Ncurrent);
 
   end for; //for l to number_of_correspondences
-*/
+           //
+  return Qpoints_1,G1,G2;
+end intrinsic;
 
   /*end for; // l := 1 to number_of_correspondences 
 
