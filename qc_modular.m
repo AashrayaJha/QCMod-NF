@@ -655,11 +655,11 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       vprintf QCMod, 2: " Using point %o at correspondence %o to generate.\n", good_affine_rat_pts_xy_no_bpt[min_i], l;
 
     end if; 
-    end for;  // k := 1 to numberofpoints 
+  end for;  // k := 1 to numberofpoints 
      //for l to number_of_correspondences
-    return Qpoints_1,G1,G2;
+  return Qpoints_1,G1,G2;
 
-    end intrinsic;
+end intrinsic;
     //#height_coeffs eq 0 or not use_log_basis then 
     /*
     // heights contains the list of heights of auxiliary points 
