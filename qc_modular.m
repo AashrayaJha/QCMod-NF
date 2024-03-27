@@ -761,7 +761,7 @@ gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
             NE1E2Ps := Min([NE1E2Ps, NE1E2P1, NE1E2P2]);
           end if;
           i +:= 1;
-        until #heights eq g or i gt #ks_1; 
+        until #E1_E2_subspace eq d*g or i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
