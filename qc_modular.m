@@ -354,12 +354,15 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       W_lower := ExtractBlock(W_wrt_simpl, g+1, 1, g, g);
       W_upper_minus := [-Vector(RowSequence(W_wrt_simpl)[i]) : i in [1..g]];
       split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
-      eqsplit1 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
+      eqsplit := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
     else 
       //eqsplit := eq_split(Tq); // Bug with X0*(303)
-      eqsplit1 := equivariant_splitting(Tq);
+      eqsplit := equivariant_splitting(Tq);
     end if; // unit_root_splitting
   end if; // IsZero(eqsplit)
+
+  eqsplit1 := QpMatrix(eqsplit,Ncorr,v1);
+  eqsplit2 := QpMatrix(eqsplit,Ncorr,v2);
 
  /* if IsZero(eqsplit) then
     if unit_root_splitting then 
@@ -743,7 +746,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
             printf "Reaches first ht";
             vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
-            height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit,data1);
+            height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
             printf "Computed first ht";
             NhtP1 := AbsolutePrecision(height_P_1); 
             Append(~heights1, height_P_1); // height of A_Z(b, P)
@@ -752,7 +755,7 @@ gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
 gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
             printf "Reaches second ht";
             vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
-            height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit,data2);
+            height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
             NhtP2 := AbsolutePrecision(height_P_2); 
             Append(~heights2, height_P_2); // height of A_Z(b, P)
                                            //
