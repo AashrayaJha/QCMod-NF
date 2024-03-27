@@ -439,8 +439,11 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     heights2 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
     E1P := 0;
     super_space := VectorSpace(Qp, d*g);
+    //super_space := VectorSpace(Qp, g);
     E1_E2_subspace := sub<super_space | [Zero(super_space)]>;
     E1_E2_Ps := [* *]; // E1 tensor E2 of auxiliary points
+    E1_E2_Ps1 := [* *]; // E1 tensor E2 of auxiliary points
+    E1_E2_Ps2 := [* *]; // E1 tensor E2 of auxiliary points
   end if;
   
 
@@ -622,6 +625,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ===                     HEIGHTS                        ===
     // ==========================================================
     minvalchangebasis := 0;
+    // TODO: bring back (u+1,0) (the 7th point)
     if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
 
       if IsZero(E1P) then  // Find a point with non-zero E1 to write down a basis of the Lie algebra. 
@@ -698,77 +702,91 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //#height_coeffs eq 0 or not use_log_basis then 
     // heights contains the list of heights of auxiliary points 
     if #height_coeffs eq 0 then // Compute heights of auxiliary points.
-      if Dimension(E1_E2_subspace) lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
+//      if Dimension(E1_E2_subspace) lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
+//      TODO: Use the above. 
+      if #heights1 lt 2*g+3 then  // add E1_E2(P) to known subspace until dimension is g.
         i := 1;
         repeat 
           // E1_tensor_E2(P1)
           Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
                       else good_Qpoints_1[i+1];
 
-          pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
-          MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
-          PhiP1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
-          E1Pi1 := Vector(BaseRing(PhiP1),g,[PhiP1[j+1,1] : j in [1..g]]);
-          Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
-          Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
-          Qpi := pAdicField(p, Ni1);
-          Qpix := PolynomialRing(Qpi);
-          Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
-          E1_E2_P1:= E1_tensor_E2(Phii1,QpSequence(Eltseq(betafil1),N,v1),changebasis1,data1,Qp_ext);
-          NE1E2P1 := Min(Ni1,minprec(E1_E2_P1));
+          if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix
 
-          // E1_tensor_E2(P2)
-          Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
-                      else good_Qpoints_2[i+1];
+            pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
+            MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
+            PhiP1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
+            E1Pi1 := Vector(BaseRing(PhiP1),g,[PhiP1[j+1,1] : j in [1..g]]);
+            Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
+            Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
+            Qpi := pAdicField(p, Ni1);
+            Qpix := PolynomialRing(Qpi);
+            Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
+            E1_E2_P1:= E1_tensor_E2(Phii1,QpSequence(Eltseq(betafil1),N,v1),changebasis1,data1,Qp_ext);
+            NE1E2P1 := Min(Ni1,minprec(E1_E2_P1));
 
-          pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
-          MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
-          PhiP2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
-          E1Pi2 := Vector(BaseRing(PhiP2),g,[PhiP2[j+1,1] : j in [1..g]]);
-          Phii2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
-          Ni2 := Min([Ncurrent, Precision(BaseRing(Phii2)), minprec(Phii2)]);
-          Qpi := pAdicField(p, Ni2);
-          Qpix := PolynomialRing(Qpi);
-          Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
-          E1_E2_P2:= E1_tensor_E2(Phii2,QpSequence(Eltseq(betafil2),N,v2),changebasis2,data2,Qp_ext);
-          NE1E2P2 := Min(Ni2,minprec(E1_E2_P2));
+            // E1_tensor_E2(P2)
+            Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
+                        else good_Qpoints_2[i+1];
 
-          NLA := Integers()!Min([Precision(BaseRing(E1_E2_subspace)), NE1E2P1, NE1E2P2]);
-          // p^NLA is the precision for the linear algebra computation.
-          new_super_space := VectorSpace(pAdicField(p, NLA), d*g);
-          old_basis := ChangeUniverse(Basis(E1_E2_subspace), new_super_space); 
-          new_E1_E2_subspace := sub<new_super_space | old_basis cat [new_super_space![Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2)]]>;
-          if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
-            E1_E2_subspace := new_E1_E2_subspace; 
-            vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
-            //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
+            pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
+            MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
+            PhiP2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
+            E1Pi2 := Vector(BaseRing(PhiP2),g,[PhiP2[j+1,1] : j in [1..g]]);
+            Phii2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
+            Ni2 := Min([Ncurrent, Precision(BaseRing(Phii2)), minprec(Phii2)]);
+            Qpi := pAdicField(p, Ni2);
+            Qpix := PolynomialRing(Qpi);
+            Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
+            E1_E2_P2:= E1_tensor_E2(Phii2,QpSequence(Eltseq(betafil2),N,v2),changebasis2,data2,Qp_ext);
+            NE1E2P2 := Min(Ni2,minprec(E1_E2_P2));
 
-            x1, y1 := Explode(xy_coordinates(Qpti1, data1));
-gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
-            //vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
-            height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
-            NhtP1 := AbsolutePrecision(height_P_1); 
-            Append(~heights1, height_P_1); // height of A_Z(b, P)
-                                           //
-            x2, y2 := Explode(xy_coordinates(Qpti2, data2));
-gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
-            //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
-            height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
-            NhtP2 := AbsolutePrecision(height_P_2); 
-            Append(~heights2, height_P_2); // height of A_Z(b, P)
-                                           //
-            Append(~E1_E2_Ps, Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2));
-            Nhts := Min([Nhts, NhtP1, NhtP2]);
-            NE1E2Ps := Min([NE1E2Ps, NE1E2P1, NE1E2P2]);
+            NLA := Integers()!Min([Precision(BaseRing(E1_E2_subspace)), NE1E2P1, NE1E2P2]);
+            // p^NLA is the precision for the linear algebra computation.
+            new_super_space := VectorSpace(pAdicField(p, NLA), d*g);
+            old_basis := ChangeUniverse(Basis(E1_E2_subspace), new_super_space); 
+            new_E1_E2_subspace := sub<new_super_space | old_basis cat [new_super_space![Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2)]]>;
+            //new_E1_E2_subspace := sub<new_super_space | old_basis cat [new_super_space![Eltseq(E1_E2_P1)]]>;
+            //if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
+            if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or Dimension(E1_E2_subspace) eq d*g then  // TODO: only use first check
+              E1_E2_subspace := new_E1_E2_subspace; 
+              vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+              //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
+
+              x1, y1 := Explode(xy_coordinates(Qpti1, data1));
+  gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
+              //vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
+              height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
+              NhtP1 := AbsolutePrecision(height_P_1); 
+              Append(~heights1, height_P_1); // height of A_Z(b, P)
+                                             //
+              x2, y2 := Explode(xy_coordinates(Qpti2, data2));
+  gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
+              //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
+              height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
+              NhtP2 := AbsolutePrecision(height_P_2); 
+              Append(~heights2, height_P_2); // height of A_Z(b, P)
+                                             //
+              Append(~E1_E2_Ps, Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2));
+              Append(~E1_E2_Ps1, Eltseq(E1_E2_P1));
+              Append(~E1_E2_Ps2, Eltseq(E1_E2_P2));
+              Nhts := Min([Nhts, NhtP1, NhtP2]);
+              NE1E2Ps := Min([NE1E2Ps, NE1E2P1, NE1E2P2]);
+            end if;
           end if;
           i +:= 1;
-        until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
+        //until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
+        until #heights1 eq 2*g+3 or i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
+    local_height_list_2 := [*0 : k in [1..numberofpoints_2]*];
+    E1_E2_list_2 := [*0 : k in [1..numberofpoints_2]*];
+    E1_list_2 := [*0 : k in [1..numberofpoints_2]*];
+    E2_list_2 := [*0 : k in [1..numberofpoints_2]*];
     for k := 1 to numberofpoints_1 do
       if G_list1[k] ne 0 then
 
@@ -792,43 +810,79 @@ gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
      
     Append(~local_height_lists_1, local_height_list_1);
     Append(~E1_E2_lists_1, E1_E2_list_1);
-    Append(~E1_lists_1, E1_list_1);
-    Append(~E2_lists_1, E2_lists_1);
+    //Append(~E1_lists_1, E1_list_1);
+    //Append(~E2_lists_1, E2_lists_1);
     Append(~Nexpansions1, Ncurrent);
 
     // Append(~local_height_lists_2, local_height_list_2);
     // Append(~E1_E2_lists_2, E1_E2_list_2);
     // Append(~E1_lists_2, E1_list_2);
     // Append(~E2_lists_2, E2_list_2);
-    // Append(~Nexpansions_2, Ncurrent);
+     Append(~Nexpansions2, Ncurrent);
 
   end for; //for l to number_of_correspondences
            //
-  return Qpoints_1,G1,G2;
-end intrinsic;
 
-  /*end for; // l := 1 to number_of_correspondences 
+  vprintf QCMod, 2: " E1_E2_Ps1=%o,\n", E1_E2_Ps1;
+  vprintf QCMod, 2: " E1_E2_Ps2=%o,\n", E1_E2_Ps2;
 
-  if #height_coeffs eq 0 and #heights lt d*g then
+  //if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt d*g then
+  if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt g then
     error "Not enough rational points on the curve!"; // to span the symmetric square of the Mordell-Weil group";
   end if;
 
   if #height_coeffs eq 0 then 
     // Write the height pairing as a linear combination of the basis of symmetric bilinear
     // pairings dual to the E1_E2-basis of the auxiliary points. 
-    E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2) : E1_E2 in E1_E2_Ps]);
+    E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps[i]) : i in [1..d*g]]);
+  //E1_E2_Ps_matrix1 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps1[i]) : i in [1..g]]);
+  //E1_E2_Ps_matrix2 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps2[i]) : i in [1..g]]);
+    printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
     mat := E1_E2_Ps_matrix^(-1) ;
+    //mat1 := E1_E2_Ps_matrix1^(-1) ;
+    //mat2 := E1_E2_Ps_matrix2^(-1) ;
+    //matprec := Min(minprec(mat1), minprec(mat2));
     matprec := minprec(mat);
+    printf "heights1=%o\n", heights1;
+    printf "heights2=%o\n", heights2;
+    printf "[matprec, NE1E2Ps, Nhts]=%o\n", [matprec, NE1E2Ps, Nhts];
     Qpht := pAdicField(p, Min([matprec, NE1E2Ps, Nhts]));
-    heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
-    height_coeffs := ChangeRing(mat, Qpht)*heights_vector;
-    // so the global height is of the form sum_i height_coeff[i]*Psi[i], where 
-    // Psi[1],...,Psi[g] is the dual basis to E1_E2(P1),...,E1_E2(Pg)
-  end if;
-  Nhtcoeffs := minprec(height_coeffs); // Precision of height_coeffs
-  c3 := minval(height_coeffs);
-  min_root_prec := N;  // smallest precision of roots of QC function
+    //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
+    heights_vector1 := Matrix(Qpht, d*g,1, [heights1[i] : i in [1..d*g]]);
+    heights_vector2 := Matrix(Qpht, d*g,1, [heights2[i] : i in [1..d*g]]);
+heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
+heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
+    heights_vector_cyc := Matrix(Qpht, d*g,1, [heights1[i]+heights2[i] : i in [1..d*g]]);
+    heights_vector_anti := Matrix(Qpht, d*g,1, [heights1[i]-heights2[i] : i in [1..d*g]]);
+    vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
+    vprintf QCMod, 2: " height_vector2=\n%o,\n", heights_vector2;
+    //height_coeffs := ChangeRing(mat, Qpht)*heights_vector;
+    height_coeffs1 := ChangeRing(mat, Qpht)*heights_vector1;
+    height_coeffs2 := ChangeRing(mat, Qpht)*heights_vector2;
+    height_coeffs_cyc := ChangeRing(mat, Qpht)*heights_vector_cyc;
+    height_coeffs_anti := ChangeRing(mat, Qpht)*heights_vector_anti;
+    vprintf QCMod, 2: " height_coeffs1=\n%o,\n", height_coeffs1;
+    vprintf QCMod, 2: " height_coeffs2=\n%o,\n", height_coeffs2;
+    vprintf QCMod, 2: " height_coeffs_cyc=\n%o,\n", height_coeffs_cyc;
+    vprintf QCMod, 2: " height_coeffs_anti=\n%o,\n", height_coeffs_anti;
+    vprint QCMod, 2: "\n checking height_coeffs\n";
+    for j := 1 to #heights1 do
+      //diffj1 := &+[Eltseq(height_coeffs_cyc)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights_cyc[j];
+      //diffj2 := &+[Eltseq(height_coeffs_anti)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights_anti[j];
+      diffj1 := &+[Eltseq(height_coeffs1)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights1[j];
+      diffj2 := &+[Eltseq(height_coeffs2)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights2[j];
+      vprintf QCMod, 2: " difference for j= %o and the first height is %o\n", j, diffj1;
+      vprintf QCMod, 2: " difference for j= %o and the second height is %o\n", j, diffj2;
+    end for;
 
+  end if;
+  Nhtcoeffs := minprec(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2)); // Precision of height_coeffs
+  c3 := minval(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2));
+  min_root_prec := N;  // smallest precision of roots of QC function
+  return height_coeffs1, height_coeffs2;
+end intrinsic;
+
+/*
 
   // Find expansion of the quadratic Chabauty function
 
