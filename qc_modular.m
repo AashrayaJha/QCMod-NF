@@ -5,7 +5,7 @@ freeze;
 
 import "auxpolys.m": auxpolys, log;
 import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
-import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp, QpMatrix,QpSequence,QpPolynomial;
+import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_list, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp, QpMatrix,QpSequence,QpPolynomial;
 import "applications.m": Q_points, Qp_points, roots_with_prec, separate;
 import "heights.m": E1_tensor_E2, expand_algebraic_function, frob_equiv_iso, height;
 
@@ -180,7 +180,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   prec := Max(100, tadicprec(data1, 1));
   S    := LaurentSeriesRing(Qp,prec);
   
-  [data1`basis[i] eq data2`basis[i] : i in [1..45]];
+  //[data1`basis[i] eq data2`basis[i] : i in [1..45]];
 
   // ==========================================================
   // ===                    POINTS                       ===
@@ -431,7 +431,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   maxdeggammafils2 := [];
   minvalgammafils2 := []; 
   if #height_coeffs eq 0 or not use_log_basis then 
-    heights := [* *];    // heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
+    heights1 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
+    heights2 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
     E1P := 0;
     super_space := VectorSpace(Qp, d*g);
     E1_E2_subspace := sub<super_space | [Zero(super_space)]>;
@@ -693,7 +694,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //#height_coeffs eq 0 or not use_log_basis then 
     // heights contains the list of heights of auxiliary points 
     if #height_coeffs eq 0 then // Compute heights of auxiliary points.
-      if #heights lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
+      if #E1_E2_subspace lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
         i := 1;
         repeat 
           // E1_tensor_E2(P1)
@@ -736,18 +737,27 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
             E1_E2_subspace := new_E1_E2_subspace; 
             vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
-            printf "This is gammafil parent %o,and %o", gammafil1,Parent(gammafil1);
+            //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
 
-            gammafilP_1 := evalf0(ChangeRing(gammafil1,LaurentSeriesRing(BaseRing(gammafil1))),Qpti1,data1);
+            x1, y1 := Explode(xy_coordinates(Qpti1, data1));
+gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
             printf "Reaches first ht";
-            gammafilP_1 := evalf0(ChangeRing(Vector(gammafil1)),LaurentSeriesRing(BaseRing(gammafil1)),Qpti1,data1);
-            // printf "%o",Parent(QpMatrix(Eltseq(betafil1),Ni,v1));
-            // printf "%o",Parent(Phii);
+            vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
             height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit,data1);
-            NhtP := AbsolutePrecision(height_P_1); 
-            Append(~heights, height_P_1); // height of A_Z(b, P)
+            printf "Computed first ht";
+            NhtP1 := AbsolutePrecision(height_P_1); 
+            Append(~heights1, height_P_1); // height of A_Z(b, P)
+                                           //
+            x2, y2 := Explode(xy_coordinates(Qpti2, data2));
+gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
+            printf "Reaches second ht";
+            vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
+            height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit,data2);
+            NhtP2 := AbsolutePrecision(height_P_2); 
+            Append(~heights2, height_P_2); // height of A_Z(b, P)
+                                           //
             Append(~E1_E2_Ps, E1_E2_P1 cat E1_E2_P2);
-            Nhts := Min(Nhts, NhtP);
+            Nhts := Min([Nhts, NhtP1, NhtP2]);
             NE1E2Ps := Min([NE1E2Ps, NE1E2P1, NE1E2P2]);
           end if;
           i +:= 1;
