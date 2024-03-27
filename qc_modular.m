@@ -738,8 +738,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
             printf "This is gammafil parent %o,and %o", gammafil1,Parent(gammafil1);
 
-            gammafilP_1 := evalf0(ChangeRing(Vector(gammafil1)),LaurentSeriesRing(BaseRing(gammafil1)),Qpti1,data1);
+            gammafilP_1 := evalf0(ChangeRing(gammafil1,LaurentSeriesRing(BaseRing(gammafil1))),Qpti1,data1);
             printf "Reaches first ht";
+            gammafilP_1 := evalf0(ChangeRing(Vector(gammafil1)),LaurentSeriesRing(BaseRing(gammafil1)),Qpti1,data1);
             // printf "%o",Parent(QpMatrix(Eltseq(betafil1),Ni,v1));
             // printf "%o",Parent(Phii);
             height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit,data1);
