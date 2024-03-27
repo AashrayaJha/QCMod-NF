@@ -423,7 +423,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   E2_lists_2 := [* *]; 
   NE1E2Ps := Ncorr;  // Precision of E1 tensor E2 of auxiliary points
   Nhts := Ncorr; // Precision of local heights of auxiliary points
-  Nexpansions := []; // Precision of power series expansion of local heights 
+  Nexpansions1 := []; // Precision of power series expansion of local heights 
+  Nexpansions2 := []; // Precision of power series expansion of local heights 
   c1s := [];
   valetas1 := [];
   valbetafils1 := [];
@@ -697,7 +698,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //#height_coeffs eq 0 or not use_log_basis then 
     // heights contains the list of heights of auxiliary points 
     if #height_coeffs eq 0 then // Compute heights of auxiliary points.
-      if #E1_E2_subspace lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
+      if Dimension(E1_E2_subspace) lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
         i := 1;
         repeat 
           // E1_tensor_E2(P1)
@@ -744,27 +745,24 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
             x1, y1 := Explode(xy_coordinates(Qpti1, data1));
 gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
-            printf "Reaches first ht";
-            vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
+            //vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
             height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
-            printf "Computed first ht";
             NhtP1 := AbsolutePrecision(height_P_1); 
             Append(~heights1, height_P_1); // height of A_Z(b, P)
                                            //
             x2, y2 := Explode(xy_coordinates(Qpti2, data2));
 gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
-            printf "Reaches second ht";
-            vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
+            //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
             height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
             NhtP2 := AbsolutePrecision(height_P_2); 
             Append(~heights2, height_P_2); // height of A_Z(b, P)
                                            //
-            Append(~E1_E2_Ps, E1_E2_P1 cat E1_E2_P2);
+            Append(~E1_E2_Ps, Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2));
             Nhts := Min([Nhts, NhtP1, NhtP2]);
             NE1E2Ps := Min([NE1E2Ps, NE1E2P1, NE1E2P2]);
           end if;
           i +:= 1;
-        until #E1_E2_subspace eq d*g or i gt #ks_1; 
+        until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
@@ -774,13 +772,21 @@ gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
     for k := 1 to numberofpoints_1 do
       if G_list1[k] ne 0 then
 
-        local_height_list_1[k] := height(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),gammafil_listb_to_z1[k],eqsplit,data1);
-        if use_log_basis then 
-          E1_list_1[k] := [PhiAZb_to_z1[k,j,1] : j in [2..g+1]];
-          E2_list_1[k] := [PhiAZb_to_z1[k,2*g+2,g+1+j] - loc1(betafil1[j]) : j in [1..g]]; 
-        else 
-          E1_E2_list_1[k] := E1_tensor_E2(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),changebasis,data1,Salpha);
-        end if;
+        local_height_list_1[k] := height(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),gammafil_listb_to_z1[k],eqsplit1,data1);
+//        if use_log_basis then 
+//          E1_list_1[k] := [PhiAZb_to_z1[k,j,1] : j in [2..g+1]];
+//          E2_list_1[k] := [PhiAZb_to_z1[k,2*g+2,g+1+j] - loc1(betafil1[j]) : j in [1..g]]; 
+//        else 
+          E1_E2_list_1[k] := E1_tensor_E2(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),changebasis1,data1,Salpha);
+//       end if;
+        local_height_list_2[k] := height(PhiAZb_to_z2[k],QpSequence(Eltseq(betafil2),N,v2),gammafil_listb_to_z2[k],eqsplit2,data2);
+//        if use_log_basis then 
+//          E1_list_1[k] := [PhiAZb_to_z1[k,j,1] : j in [2..g+1]];
+//          E2_list_1[k] := [PhiAZb_to_z1[k,2*g+2,g+1+j] - loc1(betafil1[j]) : j in [1..g]]; 
+//        else 
+          E1_E2_list_2[k] := E1_tensor_E2(PhiAZb_to_z2[k],QpSequence(Eltseq(betafil2),N,v2),changebasis2,data2,Salpha);
+//       end if;
+
       end if;
     end for;  // k := 1 to numberofpoints 
      
@@ -788,7 +794,7 @@ gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
     Append(~E1_E2_lists_1, E1_E2_list_1);
     Append(~E1_lists_1, E1_list_1);
     Append(~E2_lists_1, E2_lists_1);
-    Append(~Nexpansions_1, Ncurrent);
+    Append(~Nexpansions1, Ncurrent);
 
     // Append(~local_height_lists_2, local_height_list_2);
     // Append(~E1_E2_lists_2, E1_E2_list_2);
