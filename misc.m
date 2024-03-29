@@ -380,6 +380,13 @@ function eval_Q(Q, x0, y0, v, N)
   return Evaluate(Qx0y, y0);
 end function;
 
+function eval_list(L, x0, y0, v, N)
+  result := Parent(x0)!0;
+  for i := 1 to #L do
+    result +:= eval_poly_Qp(L[i], x0, v, N)*y0^(i-1);
+  end for;
+  return result;
+end function;
 
 
 
