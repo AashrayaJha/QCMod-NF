@@ -661,6 +661,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           NE1Pi2 := Min([Ncurrent, minprec(E1Pi2)]);
           NE1Pi := Min(NE1Pi1, NE1Pi2);
 
+          //vector with E1(sigma1(Pi)),E1(sigma2(Pi))
           E1Pi := Vector(BaseRing(PhiP2),d*g,Eltseq(E1Pi1) cat Eltseq(E1Pi2));
           
           basisH0star_i1 := [];
@@ -718,7 +719,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
                       else good_Qpoints_1[i+1];
 
-          if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix
+          if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix; this is throwing away the point that gave O(1)
 
             pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
             MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
@@ -761,14 +762,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
               //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
 
               x1, y1 := Explode(xy_coordinates(Qpti1, data1));
-  gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
+              gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
               //vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
               height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
               NhtP1 := AbsolutePrecision(height_P_1); 
               Append(~heights1, height_P_1); // height of A_Z(b, P)
                                              //
               x2, y2 := Explode(xy_coordinates(Qpti2, data2));
-  gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
+              gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
               //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
               height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
               NhtP2 := AbsolutePrecision(height_P_2); 
@@ -786,6 +787,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         until #heights1 eq 2*g+3 or i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
+
+         /* JB 04/03/24: this doesn't seem to be used, so commented it out
+
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_list_1 := [*0 : k in [1..numberofpoints_1]*];
@@ -794,6 +798,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     E1_E2_list_2 := [*0 : k in [1..numberofpoints_2]*];
     E1_list_2 := [*0 : k in [1..numberofpoints_2]*];
     E2_list_2 := [*0 : k in [1..numberofpoints_2]*];
+
+
     for k := 1 to numberofpoints_1 do
       if G_list1[k] ne 0 then
 
@@ -814,7 +820,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
       end if;
     end for;  // k := 1 to numberofpoints 
-     
+    
+   
     Append(~local_height_lists_1, local_height_list_1);
     Append(~E1_E2_lists_1, E1_E2_list_1);
     //Append(~E1_lists_1, E1_list_1);
@@ -826,6 +833,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // Append(~E1_lists_2, E1_list_2);
     // Append(~E2_lists_2, E2_list_2);
      Append(~Nexpansions2, Ncurrent);
+     */
 
   end for; //for l to number_of_correspondences
            //
