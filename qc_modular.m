@@ -102,6 +102,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   r,Delta,s := auxpolys(Q);
   v1:= data1`v;
   v2:= data2`v;
+  //vprintf QCMod, 3: "v1 in qc_modular: %o\n", v1;
+  //vprintf QCMod, 3: "v2 in qc_modular: %o\n", v2;
   K1,loc1:=Completion(K,v1);
   K2,loc2:=Completion(K,v2);
   d:=Degree(K);
@@ -271,8 +273,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     teichpoints_1[i] := is_bad(Qppoints_1[i],data1) select 0  else teichmueller_pt(Qppoints_1[i],data1); // No precision loss
   end for;
   for i in [1..numberofpoints_2] do
-    teichpoints_2[i] := is_bad(Qppoints_2[i],data1) select 0  else teichmueller_pt(Qppoints_2[i],data2); // No precision loss
+    teichpoints_2[i] := is_bad(Qppoints_2[i],data2) select 0  else teichmueller_pt(Qppoints_2[i],data2); // No precision loss
   end for;
+
   // ==========================================================
   // ===                  CORRESPONDENCES                 ===
   // ==========================================================
@@ -361,6 +364,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end if; // unit_root_splitting
   end if; // IsZero(eqsplit)
 
+  //vprintf QCMod, 3: "eqsplit is %o", eqsplit;
+
   eqsplit1 := QpMatrix(eqsplit,Ncorr,v1);
   eqsplit2 := QpMatrix(eqsplit,Ncorr,v2);
 
@@ -390,7 +395,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   end if; // IsZero(eqsplit)
   */
 
- /* // Test equivariance of splitting 
+/*
+  // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
   check_equiv := (big_split*Transpose(Tq) - Transpose(Tq)*big_split);
   //check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
@@ -399,13 +405,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 3: "min_val_check_equiv = %o, %o\n", min_val_check_equiv1, min_val_check_equiv2;
   assert min_val_check_equiv1 ge N-3; 
   assert min_val_check_equiv2 ge N-3; 
-  //assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
-  vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
+  vprintf QCMod, 3: "checking if this is 0: %o", IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split); 
+  assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
+  //vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   
   minvaleqsplit1 := minvalp(eqsplit, v1);
   minvaleqsplit2 := minvalp(eqsplit, v2);
-  */
-
+  
+*/
 
   //Sum of these quantiites below will need to account for both primes, we will fix them 
   //when they actually show up in Hodge/Frobenius/power series. 
@@ -559,7 +566,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     for i := 1 to numberofpoints_1 do
 
-      if G_list1[i] eq 0 then //JB: should this be G_list1 (was G_list)?
+      if G_list1[i] eq 0 then 
         PhiAZb1[i] := 0;
       else 
         pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge);
@@ -573,7 +580,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     for i := 1 to numberofpoints_2 do
 
-      if G_list2[i] eq 0 then //JB: should be G_list2? (changed ut)
+      if G_list2[i] eq 0 then //JB: should be G_list2? 
         PhiAZb2[i] := 0;
       else 
         pti2, Npti2 := ParallelTransport(teichpoints_2[i],Qppoints_2[i],Z2,eta2,data2:prec:=prec,N:=Nhodge);
