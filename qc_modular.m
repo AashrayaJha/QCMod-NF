@@ -7,7 +7,7 @@ import "auxpolys.m": auxpolys, log;
 import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
 import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_list, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp, QpMatrix,QpSequence,QpPolynomial;
 import "applications.m": Q_points, Qp_points, roots_with_prec, separate;
-import "heights.m": E1_tensor_E2, expand_algebraic_function, frob_equiv_iso, height;
+import "heights.m": E1_tensor_E2_NF, expand_algebraic_function, frob_equiv_iso, height;
 
 
 // verbose flag determines how much information is printed during the computation.
@@ -100,13 +100,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   OK := MaximalOrder(K);
   Qp := pAdicField(p,N);
   r,Delta,s := auxpolys(Q);
-  v1:= data1`v;
-  v2:= data2`v;
+  v1 := data1`v;
+  v2 := data2`v;
   //vprintf QCMod, 3: "v1 in qc_modular: %o\n", v1;
   //vprintf QCMod, 3: "v2 in qc_modular: %o\n", v2;
-  K1,loc1:=Completion(K,v1);
-  K2,loc2:=Completion(K,v2);
-  d:=Degree(K);
+  K1,loc1 := Completion(K,v1);
+  K2,loc2 := Completion(K,v2);
+  d := Degree(K);
 
   require Norm(v1) eq p: "p should split in K.";
 
@@ -441,22 +441,22 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   valbetafils2 := [];
   maxdeggammafils2 := [];
   minvalgammafils2 := []; 
+  dim := 2*d*g;
   if #height_coeffs eq 0 or not use_log_basis then 
     heights1 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
     heights2 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
-    E1P := 0;
-    super_space := VectorSpace(Qp, d*g);
+    basis_found := false;
+    super_space := VectorSpace(Qp, dim);
     //super_space := VectorSpace(Qp, g);
     E1_E2_subspace := sub<super_space | [Zero(super_space)]>;
-    E1_E2_Ps := [* *]; // E1 tensor E2 of auxiliary points
-    E1_E2_Ps1 := [* *]; // E1 tensor E2 of auxiliary points
-    E1_E2_Ps2 := [* *]; // E1 tensor E2 of auxiliary points
+    E1_E2_Ps := [ ]; // E1 tensor E2 of auxiliary points
+    //E1_E2_Ps1 := [* *]; // E1 tensor E2 of auxiliary points
+    //E1_E2_Ps2 := [* *]; // E1 tensor E2 of auxiliary points
   end if;
   
 
-  //for l := 1 to number_of_correspondences do
-   // TODO: Change back to the above!
-  for l := 1 to 1 do
+  for l := 1 to number_of_correspondences do
+  //for l := 1 to 1 do
     Z := correspondences[l];
 
     // ==========================================================
@@ -612,7 +612,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
 
     gammafil_listb_to_z1 := [* 0 : k in [1..numberofpoints_1] *]; // evaluations of gammafil at local coordinates for all points 
-    vprint QCMod, 3: "Computing expansions of the filtration-respecting function gamma_fil.\n";
+    vprintf QCMod, 3: "Computing expansions of gamma_fil for embedding 1.\n";
     for i := 1 to numberofpoints_1 do
       if G_list1[i] ne 0 then
         gammafil_listb_to_z1[i] := expand_algebraic_function(Qppoints_1[i], gammafil1, data1, Nhodge, prec);
@@ -621,7 +621,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
 
     gammafil_listb_to_z2 := [* 0 : k in [1..numberofpoints_2] *]; // evaluations of gammafil at local coordinates for all points 
-    vprint QCMod, 3: "Computing expansions of the filtration-respecting function gamma_fil.\n";
+    vprintf QCMod, 3: "Computing expansions of gamma_fil for embedding 2.\n";
     for i := 1 to numberofpoints_2 do
       if G_list2[i] ne 0 then
         gammafil_listb_to_z2[i] := expand_algebraic_function(Qppoints_2[i], gammafil2, data2, Nhodge, prec);
@@ -635,7 +635,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // TODO: bring back (u+1,0) (the 7th point)
     if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
 
-      if IsZero(E1P) then  // Find a point with non-zero E1 to write down a basis of the Lie algebra. 
+      if not basis_found then  // Find a point with non-zero E1 to write down a basis of the Lie algebra. 
                            // To minimize precision loss, want small valuation of
                            // determinant of change of basis matrix.
         min_val_det_i := Ncurrent;
@@ -662,7 +662,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           NE1Pi := Min(NE1Pi1, NE1Pi2);
 
           //vector with E1(sigma1(Pi)),E1(sigma2(Pi))
-          E1Pi := Vector(BaseRing(PhiP2),d*g,Eltseq(E1Pi1) cat Eltseq(E1Pi2));
+          //E1Pi := Vector(BaseRing(PhiP2),d*g,Eltseq(E1Pi1) cat Eltseq(E1Pi2));
           
           basisH0star_i1 := [];
           basisH0star_i2 := [];
@@ -675,32 +675,39 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           end for; 
           // TODO: If this breaks, it might be due to different base rings.
           // change this. take min precision above
-          basisH0star_i := BlockMatrix(d,d,[Matrix(basisH0star_i1), 
-              ZeroMatrix(BaseRing(E1Pi2),g), ZeroMatrix(BaseRing(E1Pi2),g), 
-              Matrix(basisH0star_i2)]);
-          val_det_i := Valuation(Determinant(Matrix(basisH0star_i)));
+      //    basisH0star_i := BlockMatrix(d,d,[Matrix(basisH0star_i1), 
+      ////        ZeroMatrix(BaseRing(E1Pi2),g), ZeroMatrix(BaseRing(E1Pi2),g), 
+       //       Matrix(basisH0star_i2)]);
+          val_det_i := Min([Valuation(Determinant(Matrix(M))) : 
+                                    M in [basisH0star_i1, basisH0star_i2]]);
           if val_det_i lt min_val_det_i then
             // Better point found
+            basis_found := true;
             min_val_det_i := val_det_i; min_i := i; 
-            E1P := E1Pi; NH0star := NE1Pi;
+            NH0star := NE1Pi;
             E1P1 := E1Pi1; E1P2 := E1Pi2; 
             basisH0star1 := basisH0star_i1;
             basisH0star2 := basisH0star_i2;
-            basisH0star := basisH0star_i;
+            //basisH0star := basisH0star_i;
           end if;
           if IsZero(val_det_i) then break; end if;
         end for;
         if min_val_det_i ge Ncurrent then  // precision loss too high to obtain meaningful result.
           error "No good basis for H^0(Omega^1)^* generated by powers of iota(Tq) acting on E1(P) found";
         end if;
-      end if; // IsZero(E1P)
+      end if; // basis_found
 
 
-      changebasis:=Matrix(basisH0star)^(-1);
-      changebasis1:=Matrix(basisH0star1)^(-1);
-      changebasis2:=Matrix(basisH0star2)^(-1);
-      minvalchangebasis := minval(changebasis);
-      vprintf QCMod, 2: " Using point %o at correspondence %o to generate.\n", good_affine_rat_pts_xy_no_bpt[min_i], l;
+      //changebasis:=Matrix(basisH0star)^(-1);
+      changebasis1 := Matrix(basisH0star1)^(-1);
+      changebasis2 := Matrix(basisH0star2)^(-1);
+      changebases := [changebasis1, changebasis2];
+      //vprintf QCMod, 2: " changebasis1= %o .\n", changebasis1;
+      //vprintf QCMod, 2: " changebasis2= %o .\n", changebasis2;
+      //vprintf QCMod, 2: " diff = %o .\n", changebasis1-changebasis2;
+
+      minvalchangebasis := Min(minval(changebasis1), minval(changebasis2));
+      vprintf QCMod, 2: " Using point %o to generate.\n", good_affine_rat_pts_xy_no_bpt[min_i];
 
     end if; 
   //end for;  // k := 1 to numberofpoints 
@@ -712,7 +719,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     if #height_coeffs eq 0 then // Compute heights of auxiliary points.
 //      if Dimension(E1_E2_subspace) lt d*g then  // add E1_E2(P) to known subspace until dimension is g.
 //      TODO: Use the above. 
-      if #heights1 lt 2*g+3 then  // add E1_E2(P) to known subspace until dimension is g.
+      if #heights1 lt dim then  // add E1_E2(P) to known subspace until dimension is g.
         i := 1;
         repeat 
           // E1_tensor_E2(P1)
@@ -720,7 +727,30 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
                       else good_Qpoints_1[i+1];
 
           if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix; this is throwing away the point that gave O(1)
+            pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
+            MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
+            Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
+            Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
+            Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
+                        else good_Qpoints_2[i+1];
 
+            pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
+            MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
+            Phii2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
+            Ni2 := Min([Ncurrent, Precision(BaseRing(Phii2)), minprec(Phii2)]);
+            Ni := Min(Ni1, Ni2);
+            Qpi := pAdicField(p, Ni);
+            Qpix := PolynomialRing(Qpi);
+            Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
+            Phiis := [Phii1, Phii2]; 
+            betafils := [QpSequence(Eltseq(betafil1),Ni,v1), 
+                          QpSequence(Eltseq(betafil2),Ni,v2)]; // TODO: Ni or N?
+            E1_E2_P_Qpext := E1_tensor_E2_NF(Phiis,betafils,changebases,Qp_ext);
+            //E1_E2_P_Qpext contains 4=2*d elements of Qp_ext
+            E1_E2_P_Qp := &cat[Eltseq(E) : E in E1_E2_P_Qpext]; 
+            //E1_E2_P_Qp contains 12=2*d*g elements of Qp
+            NE1E2P := Min(Ni,minprec(E1_E2_P_Qp));
+          /*
             pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
             MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
             PhiP1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
@@ -746,19 +776,28 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             Qpi := pAdicField(p, Ni2);
             Qpix := PolynomialRing(Qpi);
             Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
-            E1_E2_P2:= E1_tensor_E2(Phii2,QpSequence(Eltseq(betafil2),N,v2),changebasis2,data2,Qp_ext);
+            E1_E2_P2:= E1_tensor_E2(Phii2,QpSequence(Eltseq(betafil2),N,v2),changebasis2,ata2,Qp_ext);
             NE1E2P2 := Min(Ni2,minprec(E1_E2_P2));
+            */
 
-            NLA := Integers()!Min([Precision(BaseRing(E1_E2_subspace)), NE1E2P1, NE1E2P2]);
+            NLA := Integers()!Min([Precision(BaseRing(E1_E2_subspace)), NE1E2P]);
             // p^NLA is the precision for the linear algebra computation.
-            new_super_space := VectorSpace(pAdicField(p, NLA), d*g);
+            new_super_space := VectorSpace(pAdicField(p, NLA), dim);
             old_basis := ChangeUniverse(Basis(E1_E2_subspace), new_super_space); 
-            new_E1_E2_subspace := sub<new_super_space | old_basis cat [new_super_space![Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2)]]>;
-            //new_E1_E2_subspace := sub<new_super_space | old_basis cat [new_super_space![Eltseq(E1_E2_P1)]]>;
+            new_E1_E2_subspace := sub<new_super_space | old_basis cat 
+                                                  [new_super_space!E1_E2_P_Qp]>;
+            //new_E1_E2_subspace := sub<new_super_space | old_basis cat [new_super_space![Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2)]]>;
             //if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
-            if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or Dimension(E1_E2_subspace) eq d*g then  // TODO: only use first check
+            if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or 
+                  Dimension(E1_E2_subspace) eq dim then  // TODO: only use first check. The second one is there so that we can test whether the pairing we solve for is actually the height pairing. This is done by computing E1_E2 and the heights for all available points.
+              if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
+                vprintf QCMod, 2: " Using point %o at correspondence %o to fit 
+                  the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+              else 
+                vprintf QCMod, 2: " Not using point %o at correspondence %o to fit 
+                  the height pairing, because we already have the right dimension.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+              end if;
               E1_E2_subspace := new_E1_E2_subspace; 
-              vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
               //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
 
               x1, y1 := Explode(xy_coordinates(Qpti1, data1));
@@ -767,24 +806,24 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
               height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
               NhtP1 := AbsolutePrecision(height_P_1); 
               Append(~heights1, height_P_1); // height of A_Z(b, P)
-                                             //
+
               x2, y2 := Explode(xy_coordinates(Qpti2, data2));
               gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
               //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
               height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
               NhtP2 := AbsolutePrecision(height_P_2); 
               Append(~heights2, height_P_2); // height of A_Z(b, P)
-                                             //
-              Append(~E1_E2_Ps, Eltseq(E1_E2_P1) cat Eltseq(E1_E2_P2));
-              Append(~E1_E2_Ps1, Eltseq(E1_E2_P1));
-              Append(~E1_E2_Ps2, Eltseq(E1_E2_P2));
+
+              Append(~E1_E2_Ps, E1_E2_P_Qp);
               Nhts := Min([Nhts, NhtP1, NhtP2]);
-              NE1E2Ps := Min([NE1E2Ps, NE1E2P1, NE1E2P2]);
+              NE1E2Ps := Min(NE1E2Ps, NE1E2P);
             end if;
+          else 
+              vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", good_affine_rat_pts_xy_no_bpt[i], l;
           end if;
           i +:= 1;
         //until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
-        until #heights1 eq 2*g+3 or i gt #ks_1; 
+        until i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
 
@@ -838,18 +877,18 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   end for; //for l to number_of_correspondences
            //
 
-  vprintf QCMod, 2: " E1_E2_Ps1=%o,\n", E1_E2_Ps1;
-  vprintf QCMod, 2: " E1_E2_Ps2=%o,\n", E1_E2_Ps2;
+  //vprintf QCMod, 2: " E1_E2_Ps1=%o,\n", E1_E2_Ps1;
+  //vprintf QCMod, 2: " E1_E2_Ps2=%o,\n", E1_E2_Ps2;
 
   //if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt d*g then
-  if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt g then
+  if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt dim then
     error "Not enough rational points on the curve!"; // to span the symmetric square of the Mordell-Weil group";
   end if;
 
   if #height_coeffs eq 0 then 
     // Write the height pairing as a linear combination of the basis of symmetric bilinear
     // pairings dual to the E1_E2-basis of the auxiliary points. 
-    E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps[i]) : i in [1..d*g]]);
+    E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), dim, dim, [E1_E2_Ps[i] : i in [1..dim]]); 
   //E1_E2_Ps_matrix1 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps1[i]) : i in [1..g]]);
   //E1_E2_Ps_matrix2 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps2[i]) : i in [1..g]]);
     printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
@@ -863,12 +902,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     printf "[matprec, NE1E2Ps, Nhts]=%o\n", [matprec, NE1E2Ps, Nhts];
     Qpht := pAdicField(p, Min([matprec, NE1E2Ps, Nhts]));
     //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
-    heights_vector1 := Matrix(Qpht, d*g,1, [heights1[i] : i in [1..d*g]]);
-    heights_vector2 := Matrix(Qpht, d*g,1, [heights2[i] : i in [1..d*g]]);
+    heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
+    heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
 heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
 heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
-    heights_vector_cyc := Matrix(Qpht, d*g,1, [heights1[i]+heights2[i] : i in [1..d*g]]);
-    heights_vector_anti := Matrix(Qpht, d*g,1, [heights1[i]-heights2[i] : i in [1..d*g]]);
+    heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
+    heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
     vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
     vprintf QCMod, 2: " height_vector2=\n%o,\n", heights_vector2;
     //height_coeffs := ChangeRing(mat, Qpht)*heights_vector;
@@ -882,10 +921,10 @@ heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
     vprintf QCMod, 2: " height_coeffs_anti=\n%o,\n", height_coeffs_anti;
     vprint QCMod, 2: "\n checking height_coeffs\n";
     for j := 1 to #heights1 do
-      //diffj1 := &+[Eltseq(height_coeffs_cyc)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights_cyc[j];
-      //diffj2 := &+[Eltseq(height_coeffs_anti)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights_anti[j];
-      diffj1 := &+[Eltseq(height_coeffs1)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights1[j];
-      diffj2 := &+[Eltseq(height_coeffs2)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..d*g]] - heights2[j];
+      //diffj1 := &+[Eltseq(height_coeffs_cyc)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_cyc[j];
+      //diffj2 := &+[Eltseq(height_coeffs_anti)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_anti[j];
+      diffj1 := &+[Eltseq(height_coeffs1)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights1[j];
+      diffj2 := &+[Eltseq(height_coeffs2)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights2[j];
       vprintf QCMod, 2: " difference for j= %o and the first height is %o\n", j, diffj1;
       vprintf QCMod, 2: " difference for j= %o and the second height is %o\n", j, diffj2;
     end for;
