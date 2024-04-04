@@ -343,26 +343,26 @@ height:=function(Phi,betafil,gammafil,splitting,data)
 end function;
 
 
-E1_tensor_E2_NF := function(Phips,betafils,changebasiss,Salpha)
+E1_tensor_E2_NF := function(Phips,betafils,changebases,Salpha)
 
-  changebasiss := [ChangeRing(M, Salpha) : M in changebasiss];
+  changebases := [ChangeRing(M, Salpha) : M in changebases];
   g := (Nrows(Phips[1]) div 2) - 1;
   assert g eq 3; // TODO: change
   d := #betafils;
   assert d eq 2; // only quadratic fields at this point
-  E1s := [Vector(Salpha,[Phips[j][i,1] : i in [2..g+1]])*changebasiss[j] : j in [1..d] ]; 
-  E2s := [Vector(Salpha,[Phips[i][2*g+2,g+1+j] - betafils[i][j] : j in [1..g]])*changebasiss[i] : i in [1..d]];
+  E1s := [Vector(Salpha,[Phips[j][i,1] : i in [2..g+1]])*changebases[j] : j in [1..d] ]; 
+  E2s := [Vector(Salpha,[Phips[i][2*g+2,g+1+j] - betafils[i][j] : j in [1..g]])*changebases[i] : i in [1..d]];
   alpha := Salpha.1;
   // E1s = [E1(sigma1(P)), E1(sigma2(P))], entries are in Qp^g
   // E2s = [E2(sigma1(P)), E2(sigma2(P))], entries are in Qp^g
   E1s_Salpha := [&+[E1s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
   E2s_Salpha := [&+[E2s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
-  // E1s = [E1(sigma1(P)), E1(sigma2(P))], entries are in Salpha
+  // E1s_Salpha = [E1(sigma1(P)), E1(sigma2(P))], entries are in Salpha
   // E2s = [E2(sigma1(P)), E2(sigma2(P))], entries are in Salpha
   E1_E2s_Salpha := [];
   for i := 1 to #E1s_Salpha do
     for j := 1 to #E2s_Salpha do
-      Append(~E1_E2s_Salpha, E1s_Salpha[i]*E2s_Salpha[j])    
+      Append(~E1_E2s_Salpha, E1s_Salpha[i]*E2s_Salpha[j]);
     end for;
   end for;
   // E1_E2s_Salpha = [E1(sigma1(P)\otimes E2(sigma1(P)), E1(sigma1(P)\otimes E2(sigma2(P)), E1(sigma2(P)\otimes E2(sigma1(P)), E1(sigma2(P)\otimes E2(sigma2(P))], entries are elements of S_alpha
