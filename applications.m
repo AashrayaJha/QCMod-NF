@@ -356,7 +356,7 @@ function Q_points(data, bound : known_points := []);
     end for;
   end for;
   
-  X:=Scheme(A2,QA2);
+  X:=Scheme(A2,QA2);  
   pts := [X!pt : pt in known_points];
   if K eq RationalField() then
     pts cat:= PointSearch(X, bound);
@@ -406,6 +406,7 @@ function Q_points(data, bound : known_points := []);
         if Degree(place) eq 1 then
           b := [Evaluate(c, place) : c in binffun];
           P := set_bad_point(1/xval,b,true,data);
+          
           Append(~pointlist,P);
         end if;
       end for;
