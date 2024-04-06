@@ -154,7 +154,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       vprint QCMod, 4: "try again";
     end try;
   until assigned cpm;
-  vprint QCMod, 4: " Cup product matrix", cpm;
+  vprint QCMod, 3: " Cup product matrix", cpm;
   if cpm ne standard_sympl_mat then 
     coefficients := SymplecticBasisH1(cpm); // Create coefficients of a symplectic basis in terms of h1basis
     new_complementary_basis := [&+[coefficients[i,j]*h1basis[j] : j in [1..2*g]] : i in [1..g]];
@@ -165,7 +165,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     if not &and[&and[Valuation(c, v2) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
       error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
     end if;
-    vprintf QCMod, 4: " Symplectic basis of H^1:\n%o\n", sympl_basis;
+    vprintf QCMod, 3: " Symplectic basis of H^1:\n%o\n", sympl_basis;
     basis0 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [1..g]]; // basis of regular differentials
     basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basis of complementary subspace
   end if;
@@ -224,7 +224,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   bad_Qpindices_2 := [i : i in [1..#Qppoints_2] | is_bad(Qppoints_2[i], data2) and not Qppoints_2[i]`inf];
   // Affine points where Frobenius lift is defined:
   good_Qpoints_1 := [P : P in Qpoints_1 | not is_bad(P, data1) and not P`inf];
-  printf "this is the number of good_Qpoints_1 %o\n", #good_Qpoints_1;
   good_Q_Qp_indices_1 := [FindQpointQp(P,Qppoints_1) : P in good_Qpoints_1];
   numberofpoints_1 := #Qppoints_1;
 
@@ -303,7 +302,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   //
   Qpcorr := pAdicField(p, Ncorr);
   mat_space := KMatrixSpace(Qpcorr, 2*g, 2*g);
-  vprintf QCMod, 4: "\nHecke operator at %o acting on H^1:\n%o\n", q, Tq;
+  vprintf QCMod, 2: "\nHecke operator at %o acting on H^1:\n%o\n", q, Tq;
   if IsDiagonal(Tq) or Degree(CharacteristicPolynomial(Tq)) lt 2*g then
     error "p-Adic approximation of Hecke operator does not generate the endomorphism algebra. Please pick a different prime. ";
   end if;
@@ -325,7 +324,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
   //end if;
     
-  vprintf QCMod, 4: "\n Nice correspondences:\n%o\n\n", correspondences;
+  vprintf QCMod, 2: "\n Nice correspondences:\n%o\n\n", correspondences;
   number_of_correspondences := #correspondences;
   vprintf QCMod, 2: "\n number_of_correspondences:\n%o\n\n", number_of_correspondences;
 
@@ -456,7 +455,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   end if;
   
 
-  for l in [1..number_of_correspondences] do
+  for l := 1 to number_of_correspondences do
   //for l := 1 to 1 do
     Z := correspondences[l];
 
@@ -483,10 +482,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       end try;
     until assigned betafil2;
     Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
-    vprintf QCMod, 2: "Found eta,beta_fil,gamma_fil.\n";
-    vprintf QCMod, 4: " eta =  %o,%o.\n\n", eta1,eta2; 
-    vprintf QCMod, 4: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
-    vprintf QCMod, 4: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
+
+    vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
+    vprintf QCMod, 2: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
+    vprintf QCMod, 2: " gamma_fil =  %o,%o.\n\n", gammafil1,gammafil2; 
 
     Append(~valetas1, minvalp(eta1, v1));
     Append(~valbetafils1, minvalp(betafil1, v1));
@@ -517,8 +516,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     Z1 := ChangeRing(Z1, Rationals());
     Z2 := QpMatrix(Z, Nhodge, v2);
     Z2 := ChangeRing(Z2, Rationals());
-    G1, NG1 := FrobeniusStructure(data1,Z1,eta1,b0pt1 : N:=Nhodge);  
-    //printf "This is G1[4,5] %o\n",G1[4,5];
+    G1, NG1 := FrobeniusStructure(data1,Z1,eta1,b0pt1 : N:=Nhodge); 
     G2, NG2 := FrobeniusStructure(data2,Z2,eta2,b0pt2 : N:=Nhodge); 
     G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
                                       //
@@ -548,7 +546,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     for i := 1 to 2*g do
       PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
-    //printf "This is PhiAZB_To_b01 %o", PhiAZb_to_b01;
+
     PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ_2,b02,Z2,eta2,data2:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
@@ -572,22 +570,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         PhiAZb1[i] := 0;
       else 
         pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge);
-        isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent);
-        
+        isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent); //JB: changed to G_list1
         MNi1 := Npti1 lt Nisoi1 select Parent(pti1) else Parent(isoi1);
-        
         PhiAZb1[i] := MNi1!(pti1*PhiAZb_to_b01*isoi1);
-        // if i eq 17 then
-        // printf "This is G_list1 %o\n", G_list1;
-        // printf "This pti1 %o\n ",pti1;
-        // printf "This is isoi1 %o\n",isoi1;
-        // printf "This is PhiAZb1 %o\n", PhiAZb1[i];
-        // end if;
         Nfrob_equiv_iso1 := Min(Nfrob_equiv_iso, minprec(PhiAZb1[i]));
         minvalPhiAZbs1[i] := minval(PhiAZb1[i]);
       end if;
     end for;
-    
+
     for i := 1 to numberofpoints_2 do
 
       if G_list2[i] eq 0 then //JB: should be G_list2? 
@@ -736,16 +726,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
                       else good_Qpoints_1[i+1];
 
-          //if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix; this is throwing away the point that gave O(1)
+          if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix; this is throwing away the point that gave O(1)
             pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
             MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
             Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
-            // if i eq 8 then
-            //   printf "This is Phii1 %o\n", Phii1;
-            //   printf "This is pti1 %o\n", pti1;
-            //   printf "This is the point %o\n", Qppoints_1[ks_1[i]]; 
-            //   printf "This is PhiAZb%o\n", PhiAZb1[ks_1[i]];
-            // end if;  
             Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
             Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
                         else good_Qpoints_2[i+1];
@@ -778,7 +762,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
               if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
                 vprintf QCMod, 2: " Using point %o at correspondence %o to fit 
                   the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
-                  printf "Dimension is %o", Dimension(new_E1_E2_subspace);
               else 
                 vprintf QCMod, 2: " Not using point %o at correspondence %o to fit 
                   the height pairing, because we already have the right dimension.\n", good_affine_rat_pts_xy_no_bpt[i], l;
@@ -788,11 +771,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
               x1, y1 := Explode(xy_coordinates(Qpti1, data1));
               gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
-              // if i in [7..8] then
-              //   printf "Ni1 is %o\n", Ni1;
-              //   printf "x1,y1 is %o,%o\n", x1,y1;
-              //   printf "gammafilP_1 is %o\n", gammafilP_1;
-              // end if;
               //vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
               height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
               NhtP1 := AbsolutePrecision(height_P_1); 
@@ -813,15 +791,15 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
               vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", good_affine_rat_pts_xy_no_bpt[i], l;
 
             end if;
-          // else 
-          //     vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of a bug.\n", good_affine_rat_pts_xy_no_bpt[i], l;
-          // end if;
+          else 
+              vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of a bug.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+          end if;
           i +:= 1;
         //until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
         until i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
-  
+
          /* JB 04/03/24: this doesn't seem to be used, so commented it out
 
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
@@ -886,7 +864,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), dim, dim, [E1_E2_Ps[i] : i in [1..dim]]); 
   //E1_E2_Ps_matrix1 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps1[i]) : i in [1..g]]);
   //E1_E2_Ps_matrix2 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps2[i]) : i in [1..g]]);
-    vprintf QCMod, 4:"E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
+    printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
     mat := E1_E2_Ps_matrix^(-1) ;
     //mat1 := E1_E2_Ps_matrix1^(-1) ;
     //mat2 := E1_E2_Ps_matrix2^(-1) ;
@@ -899,8 +877,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
     heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
     heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
-    heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
-    heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
+heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
+heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
     heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
     heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
     vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
