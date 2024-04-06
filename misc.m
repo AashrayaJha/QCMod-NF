@@ -619,8 +619,8 @@ R<x>:=PolynomialRing(Kv);
 f_p:=R!0;
 coeffs:=Coefficients(f);
 
-for i in [0..#coeffs-1] do
-  f_p:=f_p+loc(coeffs[i+1])*x^i;
+for i in [1..#coeffs-1] do
+  f_p:=f_p+loc(coeffs[i])*x^(i-1);
 end for;
 
 return f_p;
