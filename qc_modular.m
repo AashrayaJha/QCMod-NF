@@ -800,7 +800,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
 
-         /* JB 04/03/24: this doesn't seem to be used, so commented it out
+
+/* JB 04/05/24: edited but need to check and test
 
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
@@ -814,41 +815,39 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     for k := 1 to numberofpoints_1 do
       if G_list1[k] ne 0 then
-
-        local_height_list_1[k] := height(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),gammafil_listb_to_z1[k],eqsplit1,data1);
-//        if use_log_basis then 
-//          E1_list_1[k] := [PhiAZb_to_z1[k,j,1] : j in [2..g+1]];
-//          E2_list_1[k] := [PhiAZb_to_z1[k,2*g+2,g+1+j] - loc1(betafil1[j]) : j in [1..g]]; 
-//        else 
-          E1_E2_list_1[k] := E1_tensor_E2(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),changebasis1,data1,Salpha);
-//       end if;
-        local_height_list_2[k] := height(PhiAZb_to_z2[k],QpSequence(Eltseq(betafil2),N,v2),gammafil_listb_to_z2[k],eqsplit2,data2);
-//        if use_log_basis then 
-//          E1_list_1[k] := [PhiAZb_to_z1[k,j,1] : j in [2..g+1]];
-//          E2_list_1[k] := [PhiAZb_to_z1[k,2*g+2,g+1+j] - loc1(betafil1[j]) : j in [1..g]]; 
-//        else 
-          E1_E2_list_2[k] := E1_tensor_E2(PhiAZb_to_z2[k],QpSequence(Eltseq(betafil2),N,v2),changebasis2,data2,Salpha);
-//       end if;
-
+          local_height_list_1[k] := height(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),gammafil_listb_to_z1[k],eqsplit1,data1);
+          if use_log_basis then 
+              E1_list_1[k] := [PhiAZb_to_z1[k,j,1] : j in [2..g+1]];
+              E2_list_1[k] := [PhiAZb_to_z1[k,2*g+2,g+1+j] - loc1(betafil1[j]) : j in [1..g]]; 
+          else 
+              E1_E2_list_1[k] := E1_tensor_E2_NF(PhiAZb_to_z1[k],QpSequence(Eltseq(betafil1),N,v1),changebasis1,data1,Salpha);
+          end if;
+          local_height_list_2[k] := height(PhiAZb_to_z2[k],QpSequence(Eltseq(betafil2),N,v2),gammafil_listb_to_z2[k],eqsplit2,data2);
+          if use_log_basis then 
+              E1_list_2[k] := [PhiAZb_to_z2[k,j,1] : j in [2..g+1]];
+              E2_list_2[k] := [PhiAZb_to_z2[k,2*g+2,g+1+j] - loc1(betafil2[j]) : j in [1..g]]; 
+          else 
+              E1_E2_list_2[k] := E1_tensor_E2_NF(PhiAZb_to_z2[k],QpSequence(Eltseq(betafil2),N,v2),changebasis2,data2,Salpha);
+          end if;
       end if;
     end for;  // k := 1 to numberofpoints 
     
-   
     Append(~local_height_lists_1, local_height_list_1);
     Append(~E1_E2_lists_1, E1_E2_list_1);
-    //Append(~E1_lists_1, E1_list_1);
-    //Append(~E2_lists_1, E2_lists_1);
+    Append(~E1_lists_1, E1_list_1);
+    Append(~E2_lists_1, E2_lists_1);
     Append(~Nexpansions1, Ncurrent);
 
-    // Append(~local_height_lists_2, local_height_list_2);
-    // Append(~E1_E2_lists_2, E1_E2_list_2);
-    // Append(~E1_lists_2, E1_list_2);
-    // Append(~E2_lists_2, E2_list_2);
+     Append(~local_height_lists_2, local_height_list_2);
+     Append(~E1_E2_lists_2, E1_E2_list_2);
+     Append(~E1_lists_2, E1_list_2);
+     Append(~E2_lists_2, E2_list_2);
      Append(~Nexpansions2, Ncurrent);
-     */
+     
 
   end for; //for l to number_of_correspondences
            //
+ */
 
   //vprintf QCMod, 2: " E1_E2_Ps1=%o,\n", E1_E2_Ps1;
   //vprintf QCMod, 2: " E1_E2_Ps2=%o,\n", E1_E2_Ps2;
@@ -877,8 +876,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
     heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
     heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
-heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
-heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
+    heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
+    heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
     heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
     heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
     vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
