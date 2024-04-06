@@ -19,9 +19,7 @@ f2 := s - t;
 a, b := hensel_lift_n([f1, f2], 5, 10);
 */
 
-
-
-precvec := [**];
+precvec := [];
 k := 1;
 for F in flist do
     R1 := Parent(flist[k]);
@@ -40,17 +38,16 @@ for F in flist do
     k := k + 1;
 end for;
 precision := Min(precvec);
-//slist := ["z" * IntegerToString(i) : i in [1..#flist]];
+print "precision: ", precision;
 R := PolynomialRing(pAdicField(p,precision), #flist);
-//AssignNames(~R, slist);
 flistnew:=[**];
 for F in flist do
     Append(~flistnew,R!F);
 end for;
-Jlist:=[**];
+Jlist:=[];
 for F in flistnew do
-    for cars in Generators(Parent(flistnew[1])) do
-        Append(~Jlist, Derivative(F,cars));
+    for i in [1..#flistnew] do
+        Append(~Jlist, Derivative(F,i));
     end for;
 end for;
 J := Matrix(#flistnew, #flistnew, Jlist);
@@ -64,10 +61,10 @@ roots := [**];
 roots_info := [**];
 nonroots := 0;
 for i in [1..#coords] do
-    valuesval := [Valuation(F(coords[i])): F in flistnew];
+    valuesval := [Valuation(Evaluate(F,coords[i])): F in flistnew];
     min_valuesval := Minimum(valuesval);
-    ord_det_J := Valuation(M(coords[i]));
-    if Min(valuesval) gt 0 and Valuation(M(coords[i])) eq 0 then
+    ord_det_J := Valuation(Evaluate(M,coords[i]));
+    if Min(valuesval) gt 0 and ord_det_J eq 0 then
         roots := Append(roots, coords[i]);
         Append(~roots_info, [min_valuesval - 2*ord_det_J, ord_det_J]);
     elif min_valuesval gt 0 then
@@ -80,25 +77,28 @@ actual_roots := [**];
 for r in roots do
     ind_roots := Index(roots, r);
     rt_info := roots_info[ind_roots];
-    if rt_info[1] eq Infinity then
+    print rt_info[1];
+    if Type(rt_info[1]) eq Intrinsic then
         Append(~actual_roots, Matrix(#flist, 1, r));
     else
         variables := [];
         k := 0;
         i_l := Matrix(#flist, 1, r);
-        Jeval := Matrix(#flistnew, #flistnew, [f(r): f in Jlist]);
-        B:= Transpose(Jeval())*Jeval;
-        const1:=Ceiling(Log(((prec-rt_info[1])/rt_info[0]))/Log(2.)) + 1 ;
+        Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,r): f in Jlist]);
+        B:= Transpose(Jeval)*Jeval;
+        rt_info[2];
+        rt_info[1];
+        const1:=Ceiling(Log( ((prec-rt_info[2])/rt_info[1]))/Log(2.)) + 1 ;
         while k lt const1 and Determinant(B) ne 0 do
-            A := Matrix(#flistnew, 1, [-f(r): f in flistnew]);
+            A := Matrix(#flistnew, 1, [-Evaluate(f,r): f in flistnew]);
             i_l := i_l + B^(-1)*Transpose(Jeval)*A;
             for i in [1..#flist] do
                 Append(~variables, i_l[i, 1]);
             end for;
-            Jeval := Matrix(#flistnew, #flistnew, [f(variables) : f in Jlist]);
+            Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,variables) : f in Jlist]);
             variables := [**];
             k := k+1;
-            BB:= Transpose(Jeval())*Jeval;
+            BB:= Transpose(Jeval)*Jeval;
         end while;
         Append(~actual_roots, i_l);
       end if;
