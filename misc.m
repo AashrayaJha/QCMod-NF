@@ -85,6 +85,11 @@ function alg_dep_powerseries(xt,v)
   xt:=Kt!xtcoeffs;
   return xt  ;
 end function;
+
+
+
+
+
 // Find an equivariant splitting of the Hodge filtration.
 // We need to solve the equation T'*S = S*T, where T is the action induced by a generator
 // of End^0(J) on V = H^1_dR, and T' is the induced action on V/Fil^0. Since T is a 2g x 2g
