@@ -381,7 +381,7 @@ function eval_Q(Q, x0, y0, v, N)
 end function;
 
 function eval_list(L, x0, y0, v, N)
-  result := eval_poly_Qp(L[i], x0, v, N);
+  result := eval_poly_Qp(L[1], x0, v, N);
   for i := 2 to #L do
     result +:= eval_poly_Qp(L[i], x0, v, N)*y0^(i-1);
   end for;
