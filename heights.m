@@ -317,7 +317,7 @@ intrinsic ParallelTransportToZ(P::Rec, Z::AlgMatElt, eta::ModTupFldElt, data::Re
 end intrinsic;
 
 
-height:=function(Phi,betafil,gammafil,splitting,data)
+height := function(Phi,betafil,gammafil,splitting,data)
 
   // This function computes the local p-adic height at p of a 
   // filtered phi-module given its Frobenius 
@@ -343,8 +343,43 @@ height:=function(Phi,betafil,gammafil,splitting,data)
 end function;
 
 
-E1_tensor_E2_NF := function(Phips,betafils,changebases,Salpha)
+E1_NF := function(Phips,changebases,Salpha)
+  
+  vprintf QCMod, 2: " Parent(Phips[1])=%o,\n", Parent(Phips[1]);
 
+  changebases := [ChangeRing(M, Salpha) : M in changebases];
+  g := (Nrows(Phips[1]) div 2) - 1;
+  assert g eq 3; // TODO: change
+  d := #changebases;
+  assert d eq 2; // only quadratic fields at this point
+  E1s := [Vector(Salpha,[Phips[j][i,1] : i in [2..g+1]])*changebases[j] : j in [1..d] ]; 
+  alpha := Salpha.1;
+  // E1s = [E1(sigma1(P)), E1(sigma2(P))], entries are in Qp^g
+  E1s_Salpha := [&+[E1s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
+  // E1s_Salpha = [E1(sigma1(P)), E1(sigma2(P))], entries are in Salpha
+  return E1s_Salpha;
+end function;
+
+
+E2_NF := function(Phips,betafils,changebases,Salpha)
+  changebases := [ChangeRing(M, Salpha) : M in changebases];
+  g := (Nrows(Phips[1]) div 2) - 1;
+  assert g eq 3; // TODO: change
+  d := #betafils;
+  assert d eq 2; // only quadratic fields at this point
+  E2s := [Vector(Salpha,[Phips[i][2*g+2,g+1+j] - betafils[i][j] : j in [1..g]])*changebases[i] : i in [1..d]];
+  alpha := Salpha.1;
+  // E2s = [E2(sigma1(P)), E2(sigma2(P))], entries are in Qp^g
+  E2s_Salpha := [&+[E2s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
+  // E2s_Salpha = [E2(sigma1(P)), E2(sigma2(P))], entries are in Salpha
+  return E2s_Salpha;
+end function;
+
+
+
+E1_tensor_E2_NF := function(E1s, E2s)
+
+/*
   changebases := [ChangeRing(M, Salpha) : M in changebases];
   g := (Nrows(Phips[1]) div 2) - 1;
   assert g eq 3; // TODO: change
@@ -358,16 +393,16 @@ E1_tensor_E2_NF := function(Phips,betafils,changebases,Salpha)
   E1s_Salpha := [&+[E1s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
   E2s_Salpha := [&+[E2s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
   // E1s_Salpha = [E1(sigma1(P)), E1(sigma2(P))], entries are in Salpha
-  // E2s = [E2(sigma1(P)), E2(sigma2(P))], entries are in Salpha
+  // E2s_Salpha = [E2(sigma1(P)), E2(sigma2(P))], entries are in Salpha
+*/
   E1_E2s_Salpha := [];
-  for i := 1 to #E1s_Salpha do
-    for j := 1 to #E2s_Salpha do
-      Append(~E1_E2s_Salpha, E1s_Salpha[i]*E2s_Salpha[j]);
+  for i := 1 to #E1s do
+    for j := 1 to #E2s do
+      Append(~E1_E2s_Salpha, E1s[i]*E2s[j]);
     end for;
   end for;
   // E1_E2s_Salpha = [E1(sigma1(P)\otimes E2(sigma1(P)), E1(sigma1(P)\otimes E2(sigma2(P)), E1(sigma2(P)\otimes E2(sigma1(P)), E1(sigma2(P)\otimes E2(sigma2(P))], entries are elements of S_alpha
   return E1_E2s_Salpha;
-
 end function;
 
 
