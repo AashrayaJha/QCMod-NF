@@ -77,8 +77,7 @@ actual_roots := [**];
 for r in roots do
     ind_roots := Index(roots, r);
     rt_info := roots_info[ind_roots];
-    print rt_info[1];
-    if Type(rt_info[1]) eq Intrinsic then
+    if not IsFinite(rt_info[1]) then
         Append(~actual_roots, Matrix(#flist, 1, r));
     else
         variables := [];
@@ -86,8 +85,6 @@ for r in roots do
         i_l := Matrix(#flist, 1, r);
         Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,r): f in Jlist]);
         B:= Transpose(Jeval)*Jeval;
-        rt_info[2];
-        rt_info[1];
         const1:=Ceiling(Log( ((prec-rt_info[2])/rt_info[1]))/Log(2.)) + 1 ;
         while k lt const1 and Determinant(B) ne 0 do
             A := Matrix(#flistnew, 1, [-Evaluate(f,r): f in flistnew]);
