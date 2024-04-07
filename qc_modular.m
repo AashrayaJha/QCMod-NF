@@ -725,8 +725,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           // E1_tensor_E2(P1)
           Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
                       else good_Qpoints_1[i+1];
-
-          if good_affine_rat_pts_xy_no_bpt[i][2] ne 0 then // TODO: Fix; this is throwing away the point that gave O(1)
             pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
             MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
             Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
@@ -791,16 +789,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
               vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", good_affine_rat_pts_xy_no_bpt[i], l;
 
             end if;
-          else 
-              vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of a bug.\n", good_affine_rat_pts_xy_no_bpt[i], l;
-          end if;
           i +:= 1;
         //until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
         until i gt #ks_1; 
       end if; // #heights lt g 
     end if; // #height_coeffs eq 0
 
-         /* JB 04/03/24: this doesn't seem to be used, so commented it out
+    /* JB 04/05/24: edited but need to check and test
 
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
