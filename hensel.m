@@ -1,17 +1,15 @@
 function hensel_lift_n(flist,p,prec)
 
 // porting Francesca Bianchi's code
-//https://github.com/bianchifrancesca/QC_elliptic_imaginary_quadratic_rank_2/blob/master/auxiliary_functions.sage
+// https://github.com/bianchifrancesca/QC_elliptic_imaginary_quadratic_rank_2/blob/master/auxiliary_functions.sage
 // which says
 // Multivariable Hensel lifter for roots that are simple modulo `p`.
 // This is essentially the code from [S15] with some minor modifications.
 // To do: was lazy in one part and made it for n = 2 (fix this)
 // [S15]: \B. Schmidt, "Solutions to Systems of Multivariate p-adic Power Series". Oxford MSc Thesis, 2015.
+
 /*
-
-**work in progress**
-
-Example
+Example:
 
 R<s, t> := PolynomialRing(pAdicField(5, 10),2);
 f1 := s + t - 2*s*t;
@@ -103,3 +101,20 @@ end for;
 
 return actual_roots, nonroots;      
 end function;
+
+/*
+function two_variable_padic_system_solver(G, H, p, prec1, prec2)
+
+// porting Francesca Bianchi's code
+// https://github.com/bianchifrancesca/QC_elliptic_imaginary_quadratic_rank_2/blob/master/auxiliary_functions.sage
+// which says
+//    Solve systems of two `p`-adic polynomials in two variables
+//    by combining naive lifting of roots with the multivariable
+//    Hensel's lemma. See Appendix A, Algorithm 1 (4) of [BBBM19].
+
+K := pAdicField(p,prec2);
+sols := [];
+x,y := Names(Parent(G));
+Zxy<x,y> := PolynomialRing(Integers(), 2);
+
+    */
