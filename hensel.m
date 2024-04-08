@@ -102,7 +102,7 @@ end for;
 return actual_roots, nonroots;      
 end function;
 
-/*
+
 function two_variable_padic_system_solver(G, H, p, prec1, prec2)
 
 // porting Francesca Bianchi's code
@@ -112,9 +112,72 @@ function two_variable_padic_system_solver(G, H, p, prec1, prec2)
 //    by combining naive lifting of roots with the multivariable
 //    Hensel's lemma. See Appendix A, Algorithm 1 (4) of [BBBM19].
 
+/* work in progress
+
 K := pAdicField(p,prec2);
 sols := [];
 x,y := Names(Parent(G));
 Zxy<x,y> := PolynomialRing(Integers(), 2);
+gprec := Zxy!G;
+hprec := Zxy!H;
 
-    */
+#Find roots modulo p^prec1 by naive lifting
+for i in [1..prec1] do
+    modulus_one_less := p^(i-1);
+    tempsols := [];
+    temp_new_list := [];
+    temp_fct_list := [];
+    if i eq 1 then
+        for k in [0..p-1] do
+            x1 := GF(p)!k;
+            for j in [0..p-1] do
+                y1 := GF(p)!j;
+                if Evaluate(gprec,[x1,y1]) mod p eq 0 then
+                    if Evaluate(hprec, [x1, y1]) mod p eq 0 then
+                        Append(~tempsols, Vector([Integers()!x1, Integers()!y1]));
+                        Append(~temp_fct_list, [gprec, hprec]);
+                        Append(~temp_new_list, Vector([Integers()!x1, Integers()!y1]));
+                    end if;
+                end if;
+            end for;
+        end for;
+        sols := tempsols;
+        fct_list := temp_fct_list;
+        new_list := temp_new_list;
+    else
+        for ind in [1..#sols] do
+            gnew := Zxy!(fct_list[ind][1](sols[ind][1] + p*x, sols[ind][2] + p*y)/p);
+            hnew := Zxy(fct_list[ind][2](sols[ind][1] + p*x, sols[ind][2] + p*y)/p);
+            for k in [0..p-1] do
+                x1 := GF(p)!(k);
+                for j in [0..p-1] do
+                    y1 := GF(p)(j):
+                    one := Evaluate(gnew, [x1, y1]);
+                    if one mod p eq 0 then
+                        two := Evaluate(hnew, [x1, y1]);
+                        if two mod p eq 0 then
+                            xnew := new_list[ind][1] + k*modulus_one_less;
+                            ynew := new_list[ind][2] + j*modulus_one_less;
+                            Append(~tempsolutions, Vector([Integers()!x1, Integers()!y1]));
+                            Append(~temp_fct_list, [gnew, hnew]);
+                            Append(~temp_new_list [xnew, ynew]);
+                        end if;
+                    end if;
+                end for;
+            end for;
+        end for;
+        sols := tempsols;
+        fct_list := temp_fct_list;
+        new_list := temp_new_list;
+
+#Reduce the roots modulo prec1-3 to avoid spurious sols
+sols := [(K!x + O(K!p^(prec1-3)), K!y + O(K!p^(prec1-3))) : (x,y) in new_list]
+sols ;= sorted(set(sols));
+
+#Now apply multivariable Hensel on the roots that are
+#simple modulo prec1-3
+flist := [G,H];
+precvec := [];
+k := 0;
+
+/*
