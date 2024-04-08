@@ -5,7 +5,6 @@ function hensel_lift_n(flist,p,prec)
 // which says
 // Multivariable Hensel lifter for roots that are simple modulo `p`.
 // This is essentially the code from [S15] with some minor modifications.
-// To do: was lazy in one part and made it for n = 2 (fix this)
 // [S15]: \B. Schmidt, "Solutions to Systems of Multivariate p-adic Power Series". Oxford MSc Thesis, 2015.
 
 /*
@@ -50,11 +49,7 @@ for F in flistnew do
 end for;
 J := Matrix(#flistnew, #flistnew, Jlist);
 M := Determinant(J);
-if #flistnew eq 2 then
-    coords:=[[i,j] : i in [0..p-1], j in [0..p-1]];
-else 
-    return "To do!";
-end if;
+coords:=[i : i in CartesianPower([0..p-1],#flistnew)];
 roots := [**];
 roots_info := [**];
 nonroots := 0;
@@ -148,9 +143,9 @@ for i in [1..prec1] do
             gnew := Zxy!(fct_list[ind][1](sols[ind][1] + p*x, sols[ind][2] + p*y)/p);
             hnew := Zxy(fct_list[ind][2](sols[ind][1] + p*x, sols[ind][2] + p*y)/p);
             for k in [0..p-1] do
-                x1 := GF(p)!(k);
+                x1 := GF(p)!k;
                 for j in [0..p-1] do
-                    y1 := GF(p)(j):
+                    y1 := GF(p)!j;
                     one := Evaluate(gnew, [x1, y1]);
                     if one mod p eq 0 then
                         two := Evaluate(hnew, [x1, y1]);
