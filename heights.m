@@ -345,7 +345,7 @@ end function;
 
 E1_NF := function(Phips,changebases,Salpha)
   
-  vprintf QCMod, 2: " Parent(Phips[1])=%o,\n", Parent(Phips[1]);
+  //vprintf QCMod, 2: " Parent(Phips[1])=%o,\n", Parent(Phips[1]);
 
   changebases := [ChangeRing(M, Salpha) : M in changebases];
   g := (Nrows(Phips[1]) div 2) - 1;
