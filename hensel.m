@@ -108,12 +108,19 @@ function two_variable_padic_system_solver(G, H, p, prec1, prec2)
 //    Hensel's lemma. See Appendix A, Algorithm 1 (4) of [BBBM19].
 
 /*
-Example:
+Examples:
 
-R<s, t> := PolynomialRing(pAdicField(5, 10),2);
+R<s, t> := PolynomialRing(pAdicField(5, 10), 2);
 f1 := s + t - 2*s*t;
 f2 := s - t;
 a, b := two_variable_padic_system_solver(f1, f2, 5, 4, 10);
+
+R<s, t> := PolynomialRing(pAdicField(5, 10), 2);
+f1 := s - 11* t + 5*s*t;
+f2 := s - t;
+a, b := two_variable_padic_system_solver(f1, f2, 5, 6, 10);
+
+
 */
 
 K := pAdicField(p,prec2);
@@ -121,9 +128,10 @@ sols := [];
 nn:= Names(Parent(G));
 x := nn[1];
 y := nn[2];
+Qxy<x,y> := PolynomialRing(RationalField(),2);
 Zxy<x,y> := PolynomialRing(Integers(), 2);
-gprec := Zxy!G;
-hprec := Zxy!H;
+gprec := Qxy!G;
+hprec := Qxy!H;
 
 //Find roots modulo p^prec1 by naive lifting
 for i in [1..prec1] do
@@ -150,21 +158,21 @@ for i in [1..prec1] do
         new_list := temp_new_list;
     else
         for ind in [1..#sols] do
-            gnew := Zxy!(Evaluate(fct_list[ind][1], [sols[ind][1] + p*x, sols[ind][2] + p*y])/p);
-            hnew := Zxy!(Evaluate(fct_list[ind][2], [sols[ind][1] + p*x, sols[ind][2] + p*y])/p);
+            gnew := Zxy!(Qxy!Evaluate(fct_list[ind][1], [sols[ind][1] + p*x, sols[ind][2] + p*y])/p);
+            hnew := Zxy!(Qxy!Evaluate(fct_list[ind][2], [sols[ind][1] + p*x, sols[ind][2] + p*y])/p);
             for k in [0..p-1] do
                 x1 := GF(p)!k;
                 for j in [0..p-1] do
                     y1 := GF(p)!j;
                     one := Evaluate(gnew, [x1, y1]);
-                    if one mod p eq 0 then
+                    if one eq 0 then
                         two := Evaluate(hnew, [x1, y1]);
-                        if two mod p eq 0 then
+                        if two  eq 0 then
                             xnew := new_list[ind][1] + k*modulus_one_less;
                             ynew := new_list[ind][2] + j*modulus_one_less;
-                            Append(~tempsolutions, Vector([Integers()!x1, Integers()!y1]));
+                            Append(~tempsols, Vector([Integers()!x1, Integers()!y1]));
                             Append(~temp_fct_list, [gnew, hnew]);
-                            Append(~temp_new_list [xnew, ynew]);
+                            Append(~temp_new_list, [xnew, ynew]);
                         end if;
                     end if;
                 end for;
@@ -177,7 +185,7 @@ for i in [1..prec1] do
 end for;
 
 // Reduce the roots modulo prec1-3 to avoid spurious sols
-sols := [(K!pt[1] + O(K!p^(prec1-3)), K!pt[2] + O(K!p^(prec1-3))) : pt in new_list];
+sols := SetToSequence(SequenceToSet([[pt[1] + O(K!p^(prec1-3)), pt[2] + O(K!p^(prec1-3))] : pt in new_list]));
 
 // Now apply multivariable Hensel on the roots that are
 // simple modulo prec1-3
@@ -258,7 +266,7 @@ for r in roots do
             k := k+1;
             B := Transpose(Jeval)*Jeval;
         end while;
-        Append(~actual_roots,(K!(i_l[1][1]), K!(i_l[2][1])));
+        Append(~actual_roots,[K!(i_l[1][1]), K!(i_l[2][1])]);
     end if;
 end for;
 
