@@ -902,17 +902,19 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
     heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
     heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
-heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
-heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
-    heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
-    heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
     vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
     vprintf QCMod, 2: " height_vector2=\n%o,\n", heights_vector2;
     //height_coeffs := ChangeRing(mat, Qpht)*heights_vector;
     height_coeffs1 := ChangeRing(mat, Qpht)*heights_vector1;
     height_coeffs2 := ChangeRing(mat, Qpht)*heights_vector2;
+    /*
+    heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
+    heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
+    heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
+    heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
     height_coeffs_cyc := ChangeRing(mat, Qpht)*heights_vector_cyc;
     height_coeffs_anti := ChangeRing(mat, Qpht)*heights_vector_anti;
+    */
     vprintf QCMod, 2: " height_coeffs1=\n%o,\n", height_coeffs1;
     vprintf QCMod, 2: " height_coeffs2=\n%o,\n", height_coeffs2;
     //vprintf QCMod, 2: " height_coeffs_cyc=\n%o,\n", height_coeffs_cyc;
@@ -991,7 +993,7 @@ heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
 
   end for;
   "example",   F1_lists[2][5][6];
-  " there might be an issue with this -- many coefficients are 0. have to check."
+  " there might be an issue with this -- many coefficients are 0. have to check.";
   return height_coeffs1, height_coeffs2;
 end intrinsic;
 /*
