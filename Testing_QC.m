@@ -35,4 +35,4 @@ known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 //print "starting QCModAffine";
 
 SetVerbose("QCMod",3);
-pts := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data);
+common_zeroes, all_zeroes, double_zeroes := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data);
