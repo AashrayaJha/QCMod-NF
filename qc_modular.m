@@ -181,7 +181,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
 
   prec := Max(100, tadicprec(data1, 1));
-prec := 50;
+prec := 30;
   S<t>    := LaurentSeriesRing(Qp,prec);
   S1<z1>    := LaurentSeriesRing(Qp,prec);
   S12<z2>    := LaurentSeriesRing(S1,prec);
@@ -967,7 +967,7 @@ prec := 50;
             // end for;        
 
             // else
-            "l,m=", l,m;
+            //"l,m=", l,m;
             E1s := [to_S12alpha(E1_lists_1[k][l],1),
                                     to_S12alpha(E1_lists_2[k][m],2)];
             E2s := [to_S12alpha(E2_lists_1[k][l],1), 
@@ -1042,7 +1042,8 @@ prec := 50;
     end function;
 
 
-    zero_list := [* *];
+    zero_list := [ ];
+    double_zero_list := [ ];
     sol_list  := [* *];
    
     Nend := Integers()!Min(Nexpansions[k], Nhtcoeffs); // Precision used for root finding 
@@ -1072,7 +1073,7 @@ prec := 50;
       end for;
 
       min_val := Min([minval(Coefficients(c)) : c in coefs]);
-      return p^min_val*s2^Valuation(f)*poly, min_val;
+      return p^(-min_val)*s2^Valuation(f)*poly, min_val;
     end function;
     //
     // ==========================================================
@@ -1090,13 +1091,18 @@ prec := 50;
             f2 := make_power_series(F2_list[i,m]);
             f1_poly, min_val1 := make_poly(f1);
             f2_poly, min_val2 := make_poly(f2);
+            // TODO: Check make_power_series and make_poly
+            //"f1_poly", f1_poly;
             rts, drts := hensel_lift_n([f1_poly,f2_poly], p, 5);
-            rts;
-            drts;
-            two_variable_padic_system_solver(f1_poly, f2_poly, p, 5, 5);
+            if drts gt 0 then
+              rts, drts := two_variable_padic_system_solver(f1_poly, f2_poly, p, 5, 5);
+              if drts gt 0 then 
+                Append(~double_zero_list, [k,i,m]);
+              end if;
+            end if;
+            zero_list[i][m] := rts;
 
       
-            //"f1", f1;
 
             //f1 := Evaluate(Qptt!(F1_list[i]),p*Qptt.1);
             /*
@@ -1201,9 +1207,17 @@ prec := 50;
     Append(~sols_lists, sol_list);
   end for;  // k := 1 to number_of_correspondences do
   //vprintf QCMod: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
+  common_zeroes := [**];
+  for i := 1 to numberofpoints_1 do
+    common_zeroes[i] := [**];
+    for m := 1 to numberofpoints_2 do
+      common_zeroes[i,m] := [r : r in zeroes_lists[1,i,m] | r in zeroes_lists[2,i,m]];
+    end for;
+  end for;
 
 
-  return height_coeffs1, height_coeffs2;
+  return common_zeroes, zeroes_lists, double_zero_list;
+
 end intrinsic;
 
   // ==========================================================
