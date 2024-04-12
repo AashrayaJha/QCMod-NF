@@ -66,13 +66,15 @@ for i in [1..#coords] do
     end if;
 end for;
 
-actual_roots := [**];
+//actual_roots := [**];
+actual_roots := [];
 
 for r in roots do
     ind_roots := Index(roots, r);
     rt_info := roots_info[ind_roots];
     if not IsFinite(rt_info[1]) then
-        Append(~actual_roots, Matrix(#flist, 1, r));
+        //Append(~actual_roots, Matrix(#flist, 1, r));
+        Append(~actual_roots, Eltseq(r));
     else
         variables := [];
         k := 0;
@@ -87,11 +89,13 @@ for r in roots do
                 Append(~variables, i_l[i, 1]);
             end for;
             Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,variables) : f in Jlist]);
-            variables := [**];
+            //variables := [**];
+            variables := [];
             k := k+1;
             BB:= Transpose(Jeval)*Jeval;
         end while;
-        Append(~actual_roots, i_l);
+        //Append(~actual_roots, i_l);
+        Append(~actual_roots, Eltseq(i_l));
       end if;
 end for;
 
