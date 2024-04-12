@@ -8,6 +8,7 @@ import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, t
 import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_list, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp, QpMatrix,QpSequence,QpPolynomial;
 import "applications.m": Q_points, Qp_points, roots_with_prec, separate;
 import "heights.m": E1_NF, E2_NF,  E1_tensor_E2_NF, expand_algebraic_function, frob_equiv_iso, height;
+import "hensel.m": hensel_lift_n, two_variable_padic_system_solver;
 
 
 // verbose flag determines how much information is printed during the computation.
@@ -180,16 +181,16 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
 
   prec := Max(100, tadicprec(data1, 1));
-  S    := LaurentSeriesRing(Qp,prec);
+prec := 50;
+  S<t>    := LaurentSeriesRing(Qp,prec);
   S1<z1>    := LaurentSeriesRing(Qp,prec);
   S12<z2>    := LaurentSeriesRing(S1,prec);
 
-  function to_S12(f, z)
+  function to_S12(f, i)
     // f is an element of S = Qp[t]
-    // coerce f into S12 by replacing t by z
-    val := Valuation(f);
-    prec := Precision(f)[2];
-    return S12!&+[z^i*Coefficient(f, i) : i in [val..prec]];
+    // coerce f into S12 by replacing t by z_i
+    if i eq 1 then return S12!f; end if;
+    return z2^Valuation(f)*S12!Coefficients(f);
   end function;
 
   // ==========================================================
@@ -238,6 +239,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   good_Qpoints_2 := [P : P in Qpoints_2 | not is_bad(P, data2) and not P`inf];
   good_Q_Qp_indices_2 := [FindQpointQp(P,Qppoints_2) : P in good_Qpoints_2];
   numberofpoints_2 := #Qppoints_2;
+  assert numberofpoints_1 eq numberofpoints_2;
 
   // Find xy-coordinates of the small affine rational points as rational numbers.
   // Use LLL for this.
@@ -343,10 +345,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   Salpha := quo<PolynomialRing(S) | PolynomialRing(Rationals())!char_poly_Tq>;
   S12alpha := quo<PolynomialRing(S12) | PolynomialRing(Rationals())!char_poly_Tq>;
 
-  function to_S12alpha(f, z)
+  function to_S12alpha(f, i)
     // f is an element of Salpha = Qp[t]/(char_poly_Tq)
     // coerce it into S12alpha by replacing t by z
-    eltseq_f12 := [to_S12(e, z) : e in Eltseq(f)];
+    eltseq_f12 := [to_S12(e, i) : e in Eltseq(f)];
     return &+[eltseq_f12[i]*S12alpha.1^(i-1) : i in [1..#eltseq_f12]];
   end function;
   
@@ -385,6 +387,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
   eqsplit1 := QpMatrix(eqsplit,Ncorr,v1);
   eqsplit2 := QpMatrix(eqsplit,Ncorr,v2);
+  minvaleqsplit1 := minvalp(eqsplit, v1);
+  minvaleqsplit2 := minvalp(eqsplit, v2);
 
  /* if IsZero(eqsplit) then
     if unit_root_splitting then 
@@ -426,8 +430,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
   //vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   
-  minvaleqsplit1 := minvalp(eqsplit, v1);
-  minvaleqsplit2 := minvalp(eqsplit, v2);
   
 */
 
@@ -448,17 +450,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   E2_lists_2 := [* *]; 
   NE1E2Ps := Ncorr;  // Precision of E1 tensor E2 of auxiliary points
   Nhts := Ncorr; // Precision of local heights of auxiliary points
-  Nexpansions1 := []; // Precision of power series expansion of local heights 
-  Nexpansions2 := []; // Precision of power series expansion of local heights 
-  c1s := [];
-  valetas1 := [];
-  valbetafils1 := [];
-  maxdeggammafils1 := [];
-  minvalgammafils1 := []; 
-  valetas2 := [];
-  valbetafils2 := [];
-  maxdeggammafils2 := [];
-  minvalgammafils2 := []; 
+  Nexpansions := []; // Precision of power series expansion of local heights 
+  c1s1 := []; c1s2 := [];
+  valetas1 := []; valbetafils1 := [];
+  maxdeggammafils1 := []; minvalgammafils1 := []; 
+  valetas2 := []; valbetafils2 := [];
+  maxdeggammafils2 := []; minvalgammafils2 := []; 
   dim := d^2*g;
   if #height_coeffs eq 0 or not use_log_basis then 
     heights1 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
@@ -612,7 +609,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     Ncurrent := Min(Nfrob_equiv_iso1, Nfrob_equiv_iso2);
 
-    Append(~c1s, Min(minvalPhiAZbs1 cat minvalPhiAZbs2));
+    Append(~c1s1, minvalPhiAZbs1);
+    Append(~c1s2, minvalPhiAZbs2);
 
 
     PhiAZb_to_z1 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
@@ -649,7 +647,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ==========================================================
     // ===                     HEIGHTS                        ===
     // ==========================================================
-    minvalchangebasis := 0;
+    minvalchangebasis1 := 0; minvalchangebasis2 := 0;
     if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
 
       if not basis_found then  // Find a point with non-zero E1 to write down a basis of the Lie algebra. 
@@ -719,11 +717,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       //changebasis:=Matrix(basisH0star)^(-1);
       changebasis1 := Matrix(basisH0star1)^(-1);
       changebasis2 := Matrix(basisH0star2)^(-1);
-      changebases := [changebasis1, changebasis2];
       //vprintf QCMod, 2: " changebasis1= %o .\n", changebasis1;
       //vprintf QCMod, 2: " changebasis2= %o .\n", changebasis2;
+      minvalchangebasis1 := minval(changebasis2);
+      minvalchangebasis2 := minval(changebasis2);
+      changebases := [changebasis1, changebasis2];
 
-      minvalchangebasis := Min(minval(changebasis1), minval(changebasis2));
       vprintf QCMod, 2: " Using point %o to generate.\n", good_affine_rat_pts_xy_no_bpt[min_i];
 
     end if; 
@@ -866,11 +865,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     Append(~E1_lists_1, E1_list_1); 
     // actually, all E1_list_1 should be the same, since E1 doesn't depend on Z
     Append(~E2_lists_1, E2_list_1);
-    Append(~Nexpansions1, Ncurrent);
     // Append(~E1_E2_lists_2, E1_E2_list_2);
     Append(~E1_lists_2, E1_list_2);
     Append(~E2_lists_2, E2_list_2);
-    Append(~Nexpansions2, Ncurrent);
+    Append(~Nexpansions, Ncurrent);
 
   end for; //for l to number_of_correspondences
            //
@@ -931,7 +929,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
   end if;
   Nhtcoeffs := minprec(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2)); // Precision of height_coeffs
-  c3 := minval(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2));
+  c3_1 := minval(Eltseq(height_coeffs1));
+  c3_2 := minval(Eltseq(height_coeffs2));
   min_root_prec := N;  // smallest precision of roots of QC function
 
 
@@ -968,16 +967,19 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             // end for;        
 
             // else
-            E1s := [to_S12alpha(E1_lists_1[k][l],z1),
-                                    to_S12alpha(E1_lists_2[k][m],z2)];
-            E2s := [to_S12alpha(E2_lists_1[k][l],z1), 
-                                    to_S12alpha(E2_lists_2[k][m],z2)];
-            E1_E2 := Eltseq(E1_tensor_E2_NF(E1s, E2s));
-            global_height_1 := &+[height_coeffs1[j,1]*E1_E2[j]:j in [1..g]];
-            global_height_2 := &+[height_coeffs2[j,1]*E1_E2[j]:j in [1..g]];
+            "l,m=", l,m;
+            E1s := [to_S12alpha(E1_lists_1[k][l],1),
+                                    to_S12alpha(E1_lists_2[k][m],2)];
+            E2s := [to_S12alpha(E2_lists_1[k][l],1), 
+                                    to_S12alpha(E2_lists_2[k][m],2)];
+            E1_E2_S12alpha := E1_tensor_E2_NF(E1s, E2s);
+            E1_E2_S12 := &cat[Eltseq(E) : E in E1_E2_S12alpha]; 
+            //Parent(E1_E2);
+            global_height_1 := &+[height_coeffs1[j,1]*E1_E2_S12[j]:j in [1..dim]];
+            global_height_2 := &+[height_coeffs2[j,1]*E1_E2_S12[j]:j in [1..dim]];
             // end if;
-            hv1 := to_S12(local_height_lists_1[k,l], z1);
-            hv2 := to_S12(local_height_lists_2[k,l], z2);
+            hv1 := to_S12(local_height_lists_1[k,l], 1);
+            hv2 := to_S12(local_height_lists_2[k,l], 2);
             F1_list[l][m] := global_height_1 - hv1;
             F2_list[l][m] := global_height_2 - hv2;
           end if;
@@ -991,161 +993,223 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // - correspondence k
     // - in the residue polydisk D(l) x D(m) 
 
-  end for;
-  "example",   F1_lists[2][5][6];
-  " there might be an issue with this -- many coefficients are 0. have to check.";
-  return height_coeffs1, height_coeffs2;
-end intrinsic;
 /*
+ TODO:
+ * Precision analysis: Find right input precision for power series.
+ * bounds on precision loss and on valuations of coeffs should still be the
+ * same, except that now we have power series in 2 variables. 
+ * What changes is the precision required to guarantee output
+ * precision.
+ * coerce F1_lists[k,i,j] and F2_lists[k,i,j] into Zp[x,y] with 'correct'
+ * precision.
+ * Check: How did Francesca do this step for QCNF?
+ * Check if solutions are rational, etc. 
     vprintf QCMod, 3: " Power series expansions of the quadratic Chabauty functions at correspondence %o in all good affine disks, capped at precision %o\n", k, 3;
     for i := 1 to #F_list do
       if F_list[i] ne 0 then 
         vprintf QCMod, 3: " disk %o\n expansion: %o \n\n", [GF(p)!(Qppoints_1[i]`x), GF(p)!(Qppoints_1[i]`b[2])], ChangePrecision(F_list[i], 3);
       end if;
     end for;
+ */
 
-    Append(~F_lists, F_list);
 
-    c2 := Min([0, valbetafils[k], minvaleqsplit, valbetafils[k]+ minvaleqsplit]); 
-     
-    i0 := 0;
-    i0_threshold := Min([valetas[k], valbetafils[k]/2, (minvalgammafils[k]-c2)/2]);
+    c2_1 := Min([0, valbetafils1[k], minvaleqsplit1, valbetafils1[k]+ minvaleqsplit1]); 
+    i0_1:= 0;
+    i0_threshold_1 := Min([valetas1[k], valbetafils1[k]/2, (minvalgammafils1[k]-c2_1)/2]);
     repeat 
-      i0 +:= 1;
-    until -Floor(log(p,i0)) le i0_threshold;
+      i0_1 +:= 1;
+    until -Floor(log(p,i0_1)) le i0_threshold_1;
 
-    function valF(i) 
-      // lower bound on valuations of coefficients in entries of F_list
-      assert i ge i0;
-      valgammafili := i le maxdeggammafils[k] select minvalgammafils[k] else 0;
-      return -2*Floor(log(p,i)) +c1s[k] + Min(c2,c3+2*minvalchangebasis);
+    function valF1(i) 
+      // lower bound on valuations of coefficients in entries of F1_list
+      assert i ge i0_1;
+      valgammafili_1 := i le maxdeggammafils1[k] select minvalgammafils1[k] else 0;
+      return -2*Floor(log(p,i)) +c1s1[k] + Min(c2_1,c3_1+2*minvalchangebasis1);
     end function;
+
+    c2_2 := Min([0, valbetafils2[k], minvaleqsplit2, valbetafils2[k]+ minvaleqsplit2]); 
+    i0_2:= 0;
+    i0_threshold_2 := Min([valetas2[k], valbetafils2[k]/2, (minvalgammafils2[k]-c2_2)/2]);
+    repeat 
+      i0_2 +:= 1;
+    until -Floor(log(p,i0_2)) le i0_threshold_2;
+
+    function valF2(i) 
+      // lower bound on valuations of coefficients in entries of F2_list
+      assert i ge i0_2;
+      valgammafili_2 := i le maxdeggammafils2[k] select minvalgammafils2[k] else 0;
+      return -2*Floor(log(p,i)) +c1s2[k] + Min(c2_2,c3_2+2*minvalchangebasis2);
+    end function;
+
 
     zero_list := [* *];
     sol_list  := [* *];
    
     Nend := Integers()!Min(Nexpansions[k], Nhtcoeffs); // Precision used for root finding 
-
     vprintf QCMod: " The quadratic Chabauty function for correspondence %o is correct to precision %o^%o.\n",  k, p, Nend;
     Qp_small   := pAdicField(p,Nend); 
-    Qptt := PowerSeriesRing(Qp_small,prec);
-    Zp_small   := pAdicRing(p,Nend);
-    Zpt  := PolynomialRing(Zp_small);
-    Qpt  := PolynomialRing(Qp_small);
+    Qpt1<t1> := PowerSeriesRing(Qp_small,prec);
+    Qpt12<t2> := PowerSeriesRing(Qpt1,prec);
+    Qps12<s1,s2> := PolynomialRing(Qp_small, 2);
+
+    function make_power_series(f)
+      // f = f(z1,z2) is an element of S12.  
+      // Coerce into Qpt12
+      series := Qpt12!&+[(p*z2)^j*Evaluate(Coefficient(Qpt12!f,j), p*z1) 
+                                          : j in [Valuation(f)..Degree(f)]];
+      return series;
+    end function;
+
+    function make_poly(f)
+      // f = f(t1,t2) is an element of Qpt12.  
+      // Coerce into Qps12
+      coefs := Coefficients(f);
+      poly := Qps12!0;
+      for j in [1..#coefs] do
+        coefsj := Coefficients(coefs[j]);
+        poly +:= s2^(j-1) * s1^(Valuation(coefs[j])) * 
+                          &+[s1^(i-1)*coefsj[i]:i in [1..#coefsj]];
+      end for;
+
+      min_val := Min([minval(Coefficients(c)) : c in coefs]);
+      return p^min_val*s2^Valuation(f)*poly, min_val;
+    end function;
     //
     // ==========================================================
     // ===                 FIND ZEROES                     ===
     // ==========================================================
 
-    for i := 1 to numberofpoints do
+    for i := 1 to numberofpoints_1 do
       sol_list[i] := []; 
       zero_list[i] := []; 
-      if G_list[i] ne 0 then
-        Pp := Qppoints[i];
-        // find affine local coordinates 
-        xt, bt := local_coord(Pp,prec,data);
-        W0invxt := Evaluate(W0^(-1), xt);
-        b_vector := Matrix(Parent(xt), Degree(Q), 1, bt);
-        yt := &+[W0invxt[2,j]*b_vector[j,1] : j in [1..Degree(Q)]];
+      if G_list1[i] ne 0 then
+        for m := 1 to numberofpoints_2 do
+          if G_list1[m] ne 0 then
+            "i,m", i, m;
+            f1 := make_power_series(F1_list[i,m]);
+            f2 := make_power_series(F2_list[i,m]);
+            f1_poly, min_val1 := make_poly(f1);
+            f2_poly, min_val2 := make_poly(f2);
+            rts, drts := hensel_lift_n([f1_poly,f2_poly], p, 5);
+            rts;
+            drts;
+            two_variable_padic_system_solver(f1_poly, f2_poly, p, 5, 5);
 
-        if not &and[Valuation(Coefficient(F_list[i],j)) - valF(j) 
-                      ge 0 : j in [i0..Degree(F_list[i])]] then
-          error "Valuations of coefficients violate lower bound,
-              so the quadratic Chabauty function cannot be correct. 
-                This is a bug -- please report!"; 
-        end if;
-        //for contrib in away_contributions do
-        // solve F_list[i] = 0
-        //f := Evaluate(Qptt!(F_list[i]-contrib),p*Qptt.1);
-        //
-        f := Evaluate(Qptt!(F_list[i]),p*Qptt.1);
-        precf := Precision(f)[1];
-        // Compute roots of f(t) = F(pt)
-        bound_val_coeffs_f := valF(precf) + precf;
-        if bound_val_coeffs_f lt N then  // Lemma 4.7
-          error "TODO: Lower p-adic precision if t-adic prec is too small";
-        end if;
-        roots, root_prec, f := roots_with_prec(f, Nend);
-        
-        if not IsEmpty(roots) then
-          roots_precs := [root_prec];
-          if #roots gt 1 then 
-            // Recenter and rescale so that there is precisely one root
-            // in the unit ball
-            sep_ints := separate([rt[1] : rt in roots]);
-            // sep_int[i] is the smallest n such that roots[i] is distinct
-            // from the other roots modulo p^n
-            for j := 1 to #roots do
-              r := roots[j,1];
-              // move r to 0
-              f_shifted :=Evaluate(f, Qptt.1+r);
-              // new_f = f(p^(s+1)*(t+r)), s  = sep_ints[j]
-              new_f:= Evaluate(f_shifted, p^(1+sep_ints[j])*Qptt.1);
-              precnewf := Precision(new_f)[1];
-              bound_val_coeffs_new_f := precnewf*(sep_ints[j]+1) + valF(precnewf);        
-              
-              if bound_val_coeffs_new_f lt N then  // Lemma 4.7
-                error "TODO: Lower p-adic precision if t-adic prec is too small";
-              end if;
-              // Compute roots of f(p^(s+1)*(t+r))
-              new_roots, new_root_prec := roots_with_prec(new_f, Nend);
-              // check that there is only one root. otherwise there's a bug.
-              assert #new_roots eq 1; 
-              // if the shifted and scaled root isn't quite zero, decrease precision
-              // accordingly.
-              new_root_prec := Min(new_root_prec, Valuation(new_roots[1,1]));
-              roots_precs[j] := Max(new_root_prec+sep_ints[j]+1, root_prec);
-              min_root_prec := Min(min_root_prec, roots_precs[j]);
-              // minimal precision to which a root of F is known.
-            end for;
-          else 
-            min_root_prec := Min(min_root_prec, root_prec);
-          end if; // #roots gt 1
-          known := false;
-          for j := 1 to #roots do
-            r := roots[j,1];
-            ChangePrecision(~roots[j,1], roots_precs[j]);  // Lemma 4.7
-            // p*r is correct to roots_precs[j]+1 digits
-            Qproot := pAdicField(p, roots_precs[j] + 1); 
-            // So pt is provably correct to the precision of Qproot
-            pt := [Qproot!Evaluate(c, p*r) : c in [xt, yt]];
-            for k := 1 to #sol_list do 
-              // Check if this solution is already known
-              if #sol_list[k] gt 0 then 
-                for l := 1 to #sol_list[k] do
-                  sol := sol_list[k,l,1];
-                  if are_congruent(pt, sol) then
-                    // pt already known -> multiple root
-                    sol_list[k,l,2] := true;
-                    known := true;
-                  end if;
-                end for;
-              end if;
-            end for; // k := 1 to #sol_list do 
-            if not known then
-              if roots[j][2] le 0 then  // TODO: want <= root_prec??
-                Append(~sol_list[i], <pt, true>); // multiple root
-              else 
-                Append(~sol_list[i], <pt, false>); // simple root
-              end if;
+      
+            //"f1", f1;
+
+            //f1 := Evaluate(Qptt!(F1_list[i]),p*Qptt.1);
+            /*
+             * TODO: Fix this. We have power series in 2 variables.
+            if not &and[Valuation(Coefficient(F1_list[i],j)) - valF(j) 
+                          ge 0 : j in [i0..Degree(F1_list[i])]] then
+              error "Valuations of coefficients violate lower bound,
+                  so the quadratic Chabauty function cannot be correct. 
+                    This is a bug -- please report!"; 
             end if;
-          end for; // j:=1 to #roots
-        end if; // not IsEmpty(roots)
-        zero_list[i] := roots;
-        //end if; // number_of_roots gt 0
-      end if; // G_list[i] ne 0
+            */
+            /*
+            precf1 := Precision(f1)[1];
+            bound_val_coeffs_f := valF(precf) + precf;
+            if bound_val_coeffs_f lt N then  // Lemma 4.7
+              error "TODO: Lower p-adic precision if t-adic prec is too small";
+            end if;
+
+            // find affine local coordinates 
+            Pp := Qppoints[i];
+            xt, bt := local_coord(Pp,prec,data);
+            W0invxt := Evaluate(W0^(-1), xt);
+            b_vector := Matrix(Parent(xt), Degree(Q), 1, bt);
+            yt := &+[W0invxt[2,j]*b_vector[j,1] : j in [1..Degree(Q)]];
+
+            // Compute common roots of f1(t) = F1(pt) and f2(t) = F2(pt)
+            roots, root_prec, f := roots_with_prec(f, Nend);
+            
+            if not IsEmpty(roots) then
+              roots_precs := [root_prec];
+              if #roots gt 1 then 
+                // Recenter and rescale so that there is precisely one root
+                // in the unit ball
+                sep_ints := separate([rt[1] : rt in roots]);
+                // sep_int[i] is the smallest n such that roots[i] is distinct
+                // from the other roots modulo p^n
+                for j := 1 to #roots do
+                  r := roots[j,1];
+                  // move r to 0
+                  f_shifted :=Evaluate(f, Qptt.1+r);
+                  // new_f = f(p^(s+1)*(t+r)), s  = sep_ints[j]
+                  new_f:= Evaluate(f_shifted, p^(1+sep_ints[j])*Qptt.1);
+                  precnewf := Precision(new_f)[1];
+                  bound_val_coeffs_new_f := precnewf*(sep_ints[j]+1) + valF(precnewf);        
+                  
+                  if bound_val_coeffs_new_f lt N then  // Lemma 4.7
+                    error "TODO: Lower p-adic precision if t-adic prec is too small";
+                  end if;
+                  // Compute roots of f(p^(s+1)*(t+r))
+                  new_roots, new_root_prec := roots_with_prec(new_f, Nend);
+                  // check that there is only one root. otherwise there's a bug.
+                  assert #new_roots eq 1; 
+                  // if the shifted and scaled root isn't quite zero, decrease precision
+                  // accordingly.
+                  new_root_prec := Min(new_root_prec, Valuation(new_roots[1,1]));
+                  roots_precs[j] := Max(new_root_prec+sep_ints[j]+1, root_prec);
+                  min_root_prec := Min(min_root_prec, roots_precs[j]);
+                  // minimal precision to which a root of F is known.
+                end for;
+              else 
+                min_root_prec := Min(min_root_prec, root_prec);
+              end if; // #roots gt 1
+              known := false;
+              for j := 1 to #roots do
+                r := roots[j,1];
+                ChangePrecision(~roots[j,1], roots_precs[j]);  // Lemma 4.7
+                // p*r is correct to roots_precs[j]+1 digits
+                Qproot := pAdicField(p, roots_precs[j] + 1); 
+                // So pt is provably correct to the precision of Qproot
+                pt := [Qproot!Evaluate(c, p*r) : c in [xt, yt]];
+                for k := 1 to #sol_list do 
+                  // Check if this solution is already known
+                  if #sol_list[k] gt 0 then 
+                    for l := 1 to #sol_list[k] do
+                      sol := sol_list[k,l,1];
+                      if are_congruent(pt, sol) then
+                        // pt already known -> multiple root
+                        sol_list[k,l,2] := true;
+                        known := true;
+                      end if;
+                    end for;
+                  end if;
+                end for; // k := 1 to #sol_list do 
+                if not known then
+                  if roots[j][2] le 0 then  // TODO: want <= root_prec??
+                    Append(~sol_list[i], <pt, true>); // multiple root
+                  else 
+                    Append(~sol_list[i], <pt, false>); // simple root
+                  end if;
+                end if;
+              end for; // j:=1 to #roots
+            end if; // not IsEmpty(roots)
+            zero_list[i] := roots;
+            */
+            //end if; // number_of_roots gt 0
+          end if; // G_list1[m] ne 0
+        end for;  // m:=1 to numberofpoints 
+      end if; // G_list1[i] ne 0
     end for;  // i:=1 to numberofpoints 
 
     Append(~zeroes_lists, zero_list);
     Append(~sols_lists, sol_list);
   end for;  // k := 1 to number_of_correspondences do
-  vprintf QCMod: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
+  //vprintf QCMod: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
 
+
+  return height_coeffs1, height_coeffs2;
+end intrinsic;
 
   // ==========================================================
   // ===               COMMON SOLUTIONS                     ===
   // ==========================================================
-
+/*
   for l := 1 to number_of_correspondences do 
     vprintf QCMod, 3: "\n The list of solutions constructed from correspondence %o is \n %o \n\n", l, sols_lists[l]; 
   end for;
