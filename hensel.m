@@ -49,7 +49,8 @@ for F in flistnew do
 end for;
 J := Matrix(#flistnew, #flistnew, Jlist);
 M := Determinant(J);
-coords:=[i : i in CartesianPower([0..p-1],#flistnew)];
+//coords:=[i : i in CartesianPower([0..p-1],#flistnew)];
+coords:=[[i,j] : i,j in [0..p-1]];
 roots := [**];
 roots_info := [**];
 nonroots := 0;
@@ -75,6 +76,8 @@ for r in roots do
     else
         variables := [];
         k := 0;
+"#flist",#flist;
+        "r",r;
         i_l := Matrix(#flist, 1, r);
         Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,r): f in Jlist]);
         B:= Transpose(Jeval)*Jeval;
