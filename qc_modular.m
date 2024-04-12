@@ -887,21 +887,21 @@ prec := 30;
     E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), dim, dim, [E1_E2_Ps[i] : i in [1..dim]]); 
   //E1_E2_Ps_matrix1 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps1[i]) : i in [1..g]]);
   //E1_E2_Ps_matrix2 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps2[i]) : i in [1..g]]);
-    printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
+    //printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
     mat := E1_E2_Ps_matrix^(-1) ;
     //mat1 := E1_E2_Ps_matrix1^(-1) ;
     //mat2 := E1_E2_Ps_matrix2^(-1) ;
     //matprec := Min(minprec(mat1), minprec(mat2));
     matprec := minprec(mat);
-    printf "heights1=%o\n\n", heights1;
-    printf "heights2=%o\n\n", heights2;
-    printf "[matprec, NE1E2Ps, Nhts]=%o\n", [matprec, NE1E2Ps, Nhts];
+    //printf "heights1=%o\n\n", heights1;
+    //printf "heights2=%o\n\n", heights2;
+    //printf "[matprec, NE1E2Ps, Nhts]=%o\n", [matprec, NE1E2Ps, Nhts];
     Qpht := pAdicField(p, Min([matprec, NE1E2Ps, Nhts]));
     //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
     heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
     heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
-    vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
-    vprintf QCMod, 2: " height_vector2=\n%o,\n", heights_vector2;
+    //vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
+    //vprintf QCMod, 2: " height_vector2=\n%o,\n", heights_vector2;
     //height_coeffs := ChangeRing(mat, Qpht)*heights_vector;
     height_coeffs1 := ChangeRing(mat, Qpht)*heights_vector1;
     height_coeffs2 := ChangeRing(mat, Qpht)*heights_vector2;
@@ -913,22 +913,25 @@ prec := 30;
     height_coeffs_cyc := ChangeRing(mat, Qpht)*heights_vector_cyc;
     height_coeffs_anti := ChangeRing(mat, Qpht)*heights_vector_anti;
     */
-    vprintf QCMod, 2: " height_coeffs1=\n%o,\n", height_coeffs1;
-    vprintf QCMod, 2: " height_coeffs2=\n%o,\n", height_coeffs2;
+    //vprintf QCMod, 2: " height_coeffs1=\n%o,\n", height_coeffs1;
+    //vprintf QCMod, 2: " height_coeffs2=\n%o,\n", height_coeffs2;
     //vprintf QCMod, 2: " height_coeffs_cyc=\n%o,\n", height_coeffs_cyc;
     //vprintf QCMod, 2: " height_coeffs_anti=\n%o,\n", height_coeffs_anti;
+    Nhtcoeffs := minprec(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2)); // Precision of height_coeffs
     vprint QCMod, 2: "\n checking height_coeffs\n";
     for j := 1 to #heights1 do
       //diffj1 := &+[Eltseq(height_coeffs_cyc)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_cyc[j];
       //diffj2 := &+[Eltseq(height_coeffs_anti)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_anti[j];
       diffj1 := &+[Eltseq(height_coeffs1)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights1[j];
       diffj2 := &+[Eltseq(height_coeffs2)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights2[j];
+      assert Valuation(diffj1) ge Nhtcoeffs; // 
+      assert Valuation(diffj2) ge Nhtcoeffs; 
       vprintf QCMod, 2: " difference for j= %o and the first height is %o\n", j, diffj1;
       vprintf QCMod, 2: " difference for j= %o and the second height is %o\n", j, diffj2;
     end for;
 
   end if;
-  Nhtcoeffs := minprec(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2)); // Precision of height_coeffs
+                                                                           "Nhtcoeffs", Nhtcoeffs;
   c3_1 := minval(Eltseq(height_coeffs1));
   c3_2 := minval(Eltseq(height_coeffs2));
   min_root_prec := N;  // smallest precision of roots of QC function
@@ -1000,7 +1003,6 @@ prec := 30;
  * same, except that now we have power series in 2 variables. 
  * What changes is the precision required to guarantee output
  * precision.
- * coerce F1_lists[k,i,j] and F2_lists[k,i,j] into Zp[x,y] with 'correct'
  * precision.
  * Check: How did Francesca do this step for QCNF?
  * Check if solutions are rational, etc. 
@@ -1042,7 +1044,7 @@ prec := 30;
     end function;
 
 
-    zero_list := [ ];
+    zero_list := [* *];
     double_zero_list := [ ];
     sol_list  := [* *];
    
@@ -1092,10 +1094,9 @@ prec := 30;
             f1_poly, min_val1 := make_poly(f1);
             f2_poly, min_val2 := make_poly(f2);
             // TODO: Check make_power_series and make_poly
-            //"f1_poly", f1_poly;
             rts, drts := hensel_lift_n([f1_poly,f2_poly], p, 5);
             if drts gt 0 then
-              rts, drts := two_variable_padic_system_solver(f1_poly, f2_poly, p, 5, 5);
+              time rts, drts := two_variable_padic_system_solver(f1_poly, f2_poly, p, 5, 5);
               if drts gt 0 then 
                 Append(~double_zero_list, [k,i,m]);
               end if;
@@ -1211,7 +1212,9 @@ prec := 30;
   for i := 1 to numberofpoints_1 do
     common_zeroes[i] := [**];
     for m := 1 to numberofpoints_2 do
-      common_zeroes[i,m] := [r : r in zeroes_lists[1,i,m] | r in zeroes_lists[2,i,m]];
+       if IsDefined(zeroes_lists[1,i], m) and IsDefined(zeroes_lists[2,i], m) then 
+       common_zeroes[i,m] :=[r : r in zeroes_lists[1,i,m] | r in zeroes_lists[2,i,m]];
+       end if;
     end for;
   end for;
 
