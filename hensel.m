@@ -76,8 +76,6 @@ for r in roots do
     else
         variables := [];
         k := 0;
-"#flist",#flist;
-        "r",r;
         i_l := Matrix(#flist, 1, r);
         Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,r): f in Jlist]);
         B:= Transpose(Jeval)*Jeval;
