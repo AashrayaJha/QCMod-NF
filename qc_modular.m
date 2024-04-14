@@ -181,7 +181,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
 
   prec := Max(100, tadicprec(data1, 1));
-prec := 30;
+  prec := 60;
   S<t>    := LaurentSeriesRing(Qp,prec);
   S1<z1>    := LaurentSeriesRing(Qp,prec);
   S12<z2>    := LaurentSeriesRing(S1,prec);
@@ -982,7 +982,7 @@ prec := 30;
             global_height_2 := &+[height_coeffs2[j,1]*E1_E2_S12[j]:j in [1..dim]];
             // end if;
             hv1 := to_S12(local_height_lists_1[k,l], 1);
-            hv2 := to_S12(local_height_lists_2[k,l], 2);
+            hv2 := to_S12(local_height_lists_2[k,m], 2);
             F1_list[l][m] := global_height_1 - hv1;
             F2_list[l][m] := global_height_2 - hv2;
           end if;
@@ -1002,7 +1002,6 @@ prec := 30;
  * bounds on precision loss and on valuations of coeffs should still be the
  * same, except that now we have power series in 2 variables. 
  * What changes is the precision required to guarantee output
- * precision.
  * precision.
  * Check: How did Francesca do this step for QCNF?
  * Check if solutions are rational, etc. 
@@ -1058,7 +1057,7 @@ prec := 30;
     function make_power_series(f)
       // f = f(z1,z2) is an element of S12.  
       // Coerce into Qpt12
-      series := Qpt12!&+[(p*z2)^j*Evaluate(Coefficient(Qpt12!f,j), p*z1) 
+      series := Qpt12!&+[(p*t2)^j*Evaluate(Coefficient(Qpt12!f,j), p*t1) 
                                           : j in [Valuation(f)..Degree(f)]];
       return series;
     end function;
@@ -1070,11 +1069,14 @@ prec := 30;
       poly := Qps12!0;
       for j in [1..#coefs] do
         coefsj := Coefficients(coefs[j]);
-        poly +:= s2^(j-1) * s1^(Valuation(coefs[j])) * 
-                          &+[s1^(i-1)*coefsj[i]:i in [1..#coefsj]];
+        if #coefsj gt 0 then
+          poly +:= s2^(j-1) * s1^(Valuation(coefs[j])) * 
+                            &+[s1^(i-1)*coefsj[i]:i in [1..#coefsj]];
+        end if;
       end for;
 
-      min_val := Min([minval(Coefficients(c)) : c in coefs]);
+      // TODO: Only take c 
+      min_val := Min([minval(Coefficients(c)) : c in coefs | c ne 0]);
       return p^(-min_val)*s2^Valuation(f)*poly, min_val;
     end function;
     //
@@ -1089,43 +1091,41 @@ prec := 30;
         for m := 1 to numberofpoints_2 do
           if G_list1[m] ne 0 then
             "i,m", i, m;
-            f1 := make_power_series(F1_list[i,m]);
-            f2 := make_power_series(F2_list[i,m]);
-            f1_poly, min_val1 := make_poly(f1);
-            f2_poly, min_val2 := make_poly(f2);
+            time f1 := make_power_series(F1_list[i,m]);
+            time f2 := make_power_series(F2_list[i,m]);
+            time f1_poly, min_val1 := make_poly(f1);
+            time f2_poly, min_val2 := make_poly(f2);
             // TODO: Check make_power_series and make_poly
-            rts, drts := hensel_lift_n([f1_poly,f2_poly], p, 5);
-            if drts gt 0 then
-              time rts, drts := two_variable_padic_system_solver(f1_poly, f2_poly, p, 5, 5);
-              if drts gt 0 then 
-                Append(~double_zero_list, [k,i,m]);
+              time rts, drts := hensel_lift_n([f1_poly,f2_poly], p, Nend-3);
+              if drts gt 0 then
+                time rts, drts := two_variable_padic_system_solver(f1_poly, f2_poly, p, Nend-3, Nend-3);
+                if drts gt 0 then 
+                  Append(~double_zero_list, [k,i,m]);
+                end if;
               end if;
-            end if;
-            zero_list[i][m] := rts;
+              zero_list[i][m] := rts;
 
-      
+              //f1 := Evaluate(Qptt!(F1_list[i]),p*Qptt.1);
+              /*
+               * TODO: Fix this. We have power series in 2 variables.
+              if not &and[Valuation(Coefficient(F1_list[i],j)) - valF(j) 
+                            ge 0 : j in [i0..Degree(F1_list[i])]] then
+                error "Valuations of coefficients violate lower bound,
+                    so the quadratic Chabauty function cannot be correct. 
+                      This is a bug -- please report!"; 
+              end if;
+              */
+              /*
+              precf1 := Precision(f1)[1];
+              bound_val_coeffs_f := valF(precf) + precf;
+              if bound_val_coeffs_f lt N then  // Lemma 4.7
+                error "TODO: Lower p-adic precision if t-adic prec is too small";
+              end if;
 
-            //f1 := Evaluate(Qptt!(F1_list[i]),p*Qptt.1);
-            /*
-             * TODO: Fix this. We have power series in 2 variables.
-            if not &and[Valuation(Coefficient(F1_list[i],j)) - valF(j) 
-                          ge 0 : j in [i0..Degree(F1_list[i])]] then
-              error "Valuations of coefficients violate lower bound,
-                  so the quadratic Chabauty function cannot be correct. 
-                    This is a bug -- please report!"; 
-            end if;
-            */
-            /*
-            precf1 := Precision(f1)[1];
-            bound_val_coeffs_f := valF(precf) + precf;
-            if bound_val_coeffs_f lt N then  // Lemma 4.7
-              error "TODO: Lower p-adic precision if t-adic prec is too small";
-            end if;
-
-            // find affine local coordinates 
-            Pp := Qppoints[i];
-            xt, bt := local_coord(Pp,prec,data);
-            W0invxt := Evaluate(W0^(-1), xt);
+              // find affine local coordinates 
+              Pp := Qppoints[i];
+              xt, bt := local_coord(Pp,prec,data);
+              W0invxt := Evaluate(W0^(-1), xt);
             b_vector := Matrix(Parent(xt), Degree(Q), 1, bt);
             yt := &+[W0invxt[2,j]*b_vector[j,1] : j in [1..Degree(Q)]];
 
@@ -1208,6 +1208,7 @@ prec := 30;
     Append(~sols_lists, sol_list);
   end for;  // k := 1 to number_of_correspondences do
   //vprintf QCMod: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
+  /*
   common_zeroes := [**];
   for i := 1 to numberofpoints_1 do
     common_zeroes[i] := [**];
@@ -1217,9 +1218,10 @@ prec := 30;
        end if;
     end for;
   end for;
+  */
 
 
-  return common_zeroes, zeroes_lists, double_zero_list;
+  return zeroes_lists, double_zero_list;
 
 end intrinsic;
 

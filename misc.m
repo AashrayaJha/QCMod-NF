@@ -507,7 +507,7 @@ function are_congruent(pt1, pt2)
     min_prec := Min(minprec(pt1), minprec(pt2));
   end if;
   min_diff := Min([Valuation(d) : d in [pt1[1]-pt2[1], pt1[2]-pt2[2]]]);
-  if min_diff ge min_prec then
+  if min_diff ge min_prec-3 then
     return true;
   end if;
   return false;

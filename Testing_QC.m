@@ -35,4 +35,25 @@ known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 //print "starting QCModAffine";
 
 SetVerbose("QCMod",3);
-common_zeroes, all_zeroes, double_zeroes := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data);
+all_zeroes, double_zeroes := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 18);
+
+common_zeroes := [**];
+for i in [1..#all_zeroes[1]] do 
+  common_zeroes[i] := [**];
+  for j in [1..#all_zeroes[1]] do
+    common_zeroes[i][j] := [**];
+    if #all_zeroes[1,i]*#all_zeroes[2,i] gt 0 then
+      if IsDefined(all_zeroes[1,i],j) and IsDefined(all_zeroes[2,i],j) then
+        for pair1 in all_zeroes[1,i,j] do
+          for pair2 in all_zeroes[2,i,j] do
+            if Min(Valuation(pair1[1]-pair2[1]), Valuation(pair1[2]-pair2[2])) ge 2 then 
+         //   if are_congruent(pair1, pair2) then
+              Append(~common_zeroes[i,j], pair1);
+            end if;
+          end for;
+        end for;
+      end if;
+    end if;
+  end for;
+end for;
+      
