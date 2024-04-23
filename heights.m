@@ -427,9 +427,9 @@ expand_algebraic_function:=function(P,g,data,N,prec)
   v := data`v;
   xt,bt,index:=local_coord(P,prec,data); 
 
-  Qt<t>:=LaurentSeriesRing(pAdicField(p,N),prec);
-  xt:=Qt!xt;
-  bt:=[Qt!bt[i]:i in [1..#bt]];
+  Qpt<t>:=LaurentSeriesRing(pAdicField(p,N),prec);
+  xt:=Qpt!xt;
+  bt:=[Qpt!bt[i]:i in [1..#bt]];
   return &+[eval_poly_Qp(g[i], xt, v, N)*bt[i]:i in [1..NumberOfColumns(g)]];
 end function;
 
