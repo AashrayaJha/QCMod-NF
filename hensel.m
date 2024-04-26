@@ -21,7 +21,6 @@ f1 := s - 11* t + 5*s*t;
 f2 := s - t;
 a, b := hensel_lift_n([f1, f2], 5, 10);
 // same as Sage outputs
-
 */
 
 precvec := [];
@@ -57,7 +56,7 @@ for F in flistnew do
 end for;
 J := Matrix(#flistnew, #flistnew, Jlist);
 M := Determinant(J);
-coords:=[i : i in CartesianPower([0..p-1],#flistnew)];
+coords:=[[i,j] : i,j in [0..p-1]];
 roots := [**];
 roots_info := [**];
 nonroots := 0;
@@ -73,13 +72,13 @@ for i in [1..#coords] do
     end if;
 end for;
 
-actual_roots := [**];
+actual_roots := [];
 
 for r in roots do
     ind_roots := Index(roots, r);
     rt_info := roots_info[ind_roots];
     if not IsFinite(rt_info[1]) then
-        Append(~actual_roots, Matrix(#flist, 1, r));
+        Append(~actual_roots, Eltseq(r));
     else
         variables := [];
         k := 0;
@@ -94,11 +93,11 @@ for r in roots do
                 Append(~variables, i_l[i, 1]);
             end for;
             Jeval := Matrix(#flistnew, #flistnew, [Evaluate(f,variables) : f in Jlist]);
-            variables := [**];
+            variables := [];
             k := k+1;
             BB:= Transpose(Jeval)*Jeval;
         end while;
-        Append(~actual_roots, i_l);
+        Append(~actual_roots, Eltseq(i_l));
       end if;
 end for;
 
