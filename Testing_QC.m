@@ -1,6 +1,11 @@
 AttachSpec("QCMod.spec");
 load "data/NF-example-coleman-data.m";
 load "data/New_hecke.m";
+SetLogFile("debugging_20.log");
+
+import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
+import "misc.m": are_congruent, equivariant_splitting, eval_mat_R, eval_list, eval_Q, FindQpointQp, function_field, alg_approx_Qp, minprec, minval, minvalp, QpMatrix,QpSequence,QpPolynomial;
+
 
 //data_1:=data_1;
 //data_2:=data_2;
@@ -35,7 +40,38 @@ known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 //print "starting QCModAffine";
 
 SetVerbose("QCMod",3);
-all_zeroes, double_zeroes, E1_lists_1, E1_lists_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 13);
+all_zeroes, double_zeroes, sols, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 15);
+
+Qpts := [];
+for i := 1 to 11 do
+  pt1 := xy_coordinates(global_pts_local[i,1], data_1);
+  pt2 := xy_coordinates(global_pts_local[i,2], data_2);
+  Append(~Qpts, [pt1, pt2]);
+end for;
+
+/*
+"Check if known points are recovered";
+"First correspondence";
+for i in [1..#Qpts] do
+  for j in [1..#sols[1]] do
+    minval1 := Min(Valuation(Qpts[i,1,1]-sols[1,j,1,1]), Valuation(Qpts[i,1,2]-sols[1,j,1,2]));
+    minval2 := Min(Valuation(Qpts[i,2,1]-sols[1,j,2,1]), Valuation(Qpts[i,2,2]-sols[1,j,2,2]));
+    if minval1 ge 2 and minval2 ge 2 then
+      print "i,j", i,j,minval1,minval2;
+    end if;
+  end for;
+end for;
+
+"Second correspondence";
+
+for i in [1..#Qpts] do
+  for j in [1..#sols[2,i]] do
+    if are_congruent(Qpts[i,1], sols[2,j,1]) and 
+            are_congruent(Qpts[i,2], sols[2,j,2]) then
+      "i,j", i,j;
+    end if;
+  end for;
+end for;
 
 common_zeroes := [**];
 for i in [1..#all_zeroes[1]] do 
@@ -57,3 +93,4 @@ for i in [1..#all_zeroes[1]] do
   end for;
 end for;
       
+*/

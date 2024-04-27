@@ -105,7 +105,7 @@ return actual_roots, nonroots;
 end function;
 
 
-function two_variable_padic_system_solver(G, H, p, prec1, prec2)
+function two_variable_padic_system_solver(G, H, p, prec1, prec2 : safety := 3)
 
 // porting Francesca Bianchi's code
 // https://github.com/bianchifrancesca/QC_elliptic_imaginary_quadratic_rank_2/blob/master/auxiliary_functions.sage
@@ -198,11 +198,11 @@ for i in [1..prec1] do
     end if;
 end for;
 
-// Reduce the roots modulo prec1-3 to avoid spurious sols
-sols := SetToSequence(SequenceToSet([[pt[1] + O(K!p^(prec1-3)), pt[2] + O(K!p^(prec1-3))] : pt in new_list]));
+// Reduce the roots modulo prec1-safety to avoid spurious sols
+sols := SetToSequence(SequenceToSet([[pt[1] + O(K!p^(prec1-safety)), pt[2] + O(K!p^(prec1-safety))] : pt in new_list]));
 
 // Now apply multivariable Hensel on the roots that are
-// simple modulo prec1-3
+// simple modulo prec1-safety
 flist := [G,H];
 precvec := [];
 k := 1;
