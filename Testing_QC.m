@@ -60,7 +60,9 @@ for i in [1..#Qpts] do
     end if;
   end for;
 end for;
-
+"All checks passed: images of known affine points among solutions";
+"Number of known affine points", #Qpts;
+"Number of solutions", #sols;
 "Any multiple roots?";
 &or[s[2] : s in sols];
 

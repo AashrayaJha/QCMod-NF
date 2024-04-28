@@ -1152,10 +1152,11 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   // ==========================================================
 
   /*
-   * Commented out, since we now check that all known rational points are recovered below.
+   * Will comment this out, since we now check that all known rational points are recovered below.
    * This check was not entirely stable due to a missing precision analysis for the
    * evaluation of the QC function.
    */
+  printf "\n\n Now for some redundant sanity checks (remove these!)\n\n"; 
   global_pts_local := [* *];
   for i := 1 to number_of_correspondences do
     printf "\n Sanity check at rational points for correspondence %o.\n  ", i; 
