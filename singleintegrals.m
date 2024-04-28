@@ -1471,8 +1471,8 @@ tadicprec:=function(data,e : N := 0);
   while Floor(prec/e)+1-Floor(Log(p,prec+1)) lt N do
     prec:=prec+1;
   end while;
-  prec:=Maximum([prec,100]); // 100 arbitrary, avoid problems with small precisions 
-  //prec:=Maximum([prec,50]); // 100 arbitrary, avoid problems with small precisions 
+  //prec:=Maximum([prec,100]); // 100 arbitrary, avoid problems with small precisions 
+  prec:=Maximum([prec,50]); // 50 arbitrary, avoid problems with small precisions 
 
   return prec;
 

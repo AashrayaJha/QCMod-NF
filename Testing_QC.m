@@ -40,8 +40,9 @@ known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 //print "starting QCModAffine";
 
 SetVerbose("QCMod",3);
-all_zeroes, double_zeroes, sols, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 15);
+sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 15);
 
+// Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];
 for i := 1 to 11 do
   pt1 := xy_coordinates(global_pts_local[i,1], data_1);
@@ -49,19 +50,21 @@ for i := 1 to 11 do
   Append(~Qpts, [pt1, pt2]);
 end for;
 
-/*
 "Check if known points are recovered";
-"First correspondence";
 for i in [1..#Qpts] do
-  for j in [1..#sols[1]] do
-    minval1 := Min(Valuation(Qpts[i,1,1]-sols[1,j,1,1]), Valuation(Qpts[i,1,2]-sols[1,j,1,2]));
-    minval2 := Min(Valuation(Qpts[i,2,1]-sols[1,j,2,1]), Valuation(Qpts[i,2,2]-sols[1,j,2,2]));
-    if minval1 ge 2 and minval2 ge 2 then
-      print "i,j", i,j,minval1,minval2;
+  for j in [1..#sols] do
+    minval1 := Min(Valuation(Qpts[i,1,1]-sols[j,1,1,1]), Valuation(Qpts[i,1,2]-sols[j,1,1,2]));
+    minval2 := Min(Valuation(Qpts[i,2,1]-sols[j,1,2,1]), Valuation(Qpts[i,2,2]-sols[j,1,2,2]));
+    assert minval1 ge 4 and minval2 ge 4 then
+      //print "i,j", i,j,minval1,minval2;
     end if;
   end for;
 end for;
 
+"Any multiple roots?";
+&or[s[2] : s in sols];
+
+/*
 "Second correspondence";
 
 for i in [1..#Qpts] do

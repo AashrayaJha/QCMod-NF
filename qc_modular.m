@@ -181,7 +181,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
 
   prec := Max(100, tadicprec(data1, 1));
-  prec := 35;
+  prec := Max(tadicprec(data2, 1), tadicprec(data1, 1));
   S<t>    := LaurentSeriesRing(Qp,prec);
   S1<z1>    := LaurentSeriesRing(Qp,prec);
   S12<z2>    := LaurentSeriesRing(S1,prec);
@@ -943,9 +943,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   // JSM 04/08/24: edited 
 
 
-  zero_list := [* *];
-  double_zero_list := [* *];
-  sol_list  := [* *];
+  zero_list := [[] : i in [1..numberofpoints_1]];
+  double_zero_list := [ ];
+  sol_list  := [ ];
   vprintf QCMod, 3: "Computing expansions of quadratic Chabauty functions..\n";
   for k := 1 to number_of_correspondences do
 
@@ -1074,7 +1074,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ==========================================================
 
     for i := 1 to numberofpoints_1 do
-      zero_list[i] := []; 
       if G_list1[i] ne 0 then
         for m := 1 to numberofpoints_2 do
           if G_list1[m] ne 0 then
@@ -1097,47 +1096,48 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
 
               // Check if functions vanish at zeroes of first system
-              for r in zero_list[i,m] do
-                val1 := Valuation(Evaluate(g1_poly, r));
-                val2 := Valuation(Evaluate(g2_poly, r));
-                if val1 ge Nend -3 and val2 ge Nend-3 then
-                  // common root to prec Nend -3
-                  "val1,val2", val1,val2;
+              if #zero_list[i,m] gt 0 then
+                for r in zero_list[i,m] do
+                  val1 := Valuation(Evaluate(g1_poly, r));
+                  val2 := Valuation(Evaluate(g2_poly, r));
+                  if val1 ge Nend -4 and val2 ge Nend-4 then
+                    // common root to prec Nend -3
+                    "val1,val2", val1,val2;
 
-                  // find affine local coordinates 
-                  Pp1 := Qppoints_1[i];
-                  xt1, bt1 := local_coord(Pp1,prec,data1);
-                  // Commented out the following 3 lines, since W0=I_4 in our
-                  // example. 
-                  // TODO: Need to uncomment for other examples, and need to
-                  // change the base ring of W0 from F(x) to Qp(x).
-                  //W0invxt1 := Evaluate(W0^(-1), xt1);
-                  //b_vector1 := Matrix(Parent(xt1), Degree(Q), 1, bt1);
-                  //yt1 := &+[W0invxt1[2,j]*b_vector1[j,1] : j in [1..Degree(Q)]];
-                  yt1 := bt1[2];
-                  Pp2 := Qppoints_2[m];
-                  xt2, bt2 := local_coord(Pp2,prec,data2);
-                  //W0invxt2 := Evaluate(W0^(-1), xt2);
-                  //b_vector2 := Matrix(Parent(xt2), Degree(Q), 1, bt2);
-                  //yt2 := &+[W0invxt2[2,j]*b_vector2[j,1] : j in [1..Degree(Q)]];
-                  yt2 := bt2[2];
-                  print "r", r;
-                  pt1 := [Qp_small!Evaluate(c, p*r[1]) : c in [xt1, yt1]];
-                  pt2 := [Qp_small!Evaluate(c, p*r[2]) : c in [xt2, yt2]];
-                  // TODO: bring this back
-                  //for k := 1 to #sol_list do // Check if this solution is already known if #sol_list[k] gt 0 then for l := 1 to #sol_list[k] do sol := sol_list[k,l,1]; if are_congruent(pt, sol) then // pt already known -> multiple root sol_list[k,l,2] := true; known := true; end if; end for; end if; end for; // k := 1 to #sol_list do 
-                  if [k,i,m] in double_zero_list  then  // 
-                    // multiple roots for correspondence 1. check if ther
-                    // are multiple roots for correspondence 2. 
-                    time roots2, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
-                    // TODO: Check if r among roots2
-                    double_root := droots gt 0;
-                  else 
+                    // find affine local coordinates 
+                    Pp1 := Qppoints_1[i];
+                    xt1, bt1 := local_coord(Pp1,prec,data1);
+                    // Commented out the following 3 lines, since W0=I_4 in our
+                    // example. 
+                    // TODO: Need to uncomment for other examples, and need to
+                    // change the base ring of W0 from F(x) to Qp(x).
+                    //W0invxt1 := Evaluate(W0^(-1), xt1);
+                    //b_vector1 := Matrix(Parent(xt1), Degree(Q), 1, bt1);
+                    //yt1 := &+[W0invxt1[2,j]*b_vector1[j,1] : j in [1..Degree(Q)]];
+                    yt1 := bt1[2];
+                    Pp2 := Qppoints_2[m];
+                    xt2, bt2 := local_coord(Pp2,prec,data2);
+                    //W0invxt2 := Evaluate(W0^(-1), xt2);
+                    //b_vector2 := Matrix(Parent(xt2), Degree(Q), 1, bt2);
+                    //yt2 := &+[W0invxt2[2,j]*b_vector2[j,1] : j in [1..Degree(Q)]];
+                    yt2 := bt2[2];
+                    print "r", r;
+                    pt1 := [Qp_small!Evaluate(c, p*r[1]) : c in [xt1, yt1]];
+                    pt2 := [Qp_small!Evaluate(c, p*r[2]) : c in [xt2, yt2]];
+                    // TODO: bring this back
+                    //for k := 1 to #sol_list do // Check if this solution is already known if #sol_list[k] gt 0 then for l := 1 to #sol_list[k] do sol := sol_list[k,l,1]; if are_congruent(pt, sol) then // pt already known -> multiple root sol_list[k,l,2] := true; known := true; end if; end for; end if; end for; // k := 1 to #sol_list do 
                     double_root := false;
-                  end if;
-                  Append(~sol_list, <[pt1,pt2], double_root>); // simple root
-                end if; // val1 ge Nend -3 and val2 ge Nend-3 then
-              end for; // r in zero_list[1][i,m] 
+                    if [k,i,m] in double_zero_list  then  // 
+                      // multiple roots in this disc for correspondence 1. check if ther
+                      // are multiple roots in this disc  for correspondence 2. 
+                      time roots2, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
+                      // TODO: Check if r among roots2
+                      double_root := droots gt 0;
+                    end if;
+                    Append(~sol_list, <[pt1,pt2], double_root>); // simple root
+                  end if; // val1 ge Nend -3 and val2 ge Nend-3 then
+                end for; // r in zero_list[1][i,m] 
+              end if; // #zero_list[i,m] gt 0 then
             end if; // k eq 1 
           end if; // G_list1[m] ne 0
         end for;  // m:=1 to numberofpoints 
@@ -1253,7 +1253,7 @@ prec1 := Nend-1;
   end for; //  i := 1 to number_of_correspondences 
   
 
-  return zero_list, double_zero_list, sol_list, global_pts_local,F1_lists, F2_lists, Qppoints_1, Qppoints_2  ;
+  return sol_list, zero_list, double_zero_list, global_pts_local,F1_lists, F2_lists, Qppoints_1, Qppoints_2  ;
 
 end intrinsic;
 
