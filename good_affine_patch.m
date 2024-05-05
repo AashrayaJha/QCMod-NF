@@ -63,7 +63,8 @@ A := [[K!1,1], [1,-11]];
 // the only bad disks are at infinity.
 
 bool, Q_trans, new_data1, new_data2, new_Qppoints_1, new_Qppoints_2 := good_transform(Q, A, [v_1,v_2]);
-"transformed Q", Q_trans;
+"transformed Q:";
+Q_trans;
 // Check that there are no bad disks
 assert bool;
 // Check that the curves are actually isomorphic
