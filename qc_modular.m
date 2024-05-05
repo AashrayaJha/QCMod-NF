@@ -214,6 +214,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end try;
   until computed_Qp_points;
 
+  computed_Qp_points := false;
   repeat 
     try 
       Qppoints_2 := Qp_points(data2 : Nfactor := Nfactor); // One Q_p-point for every residue disk.
