@@ -86,7 +86,7 @@ intrinsic H1Basis(Q::RngUPolElt[RngUPol], v::RngOrdIdl)
   Jinf,Tinf,Tinfinv:=jordan_inf(Ginf);
   J0,T0,T0inv:=jordan_0(r,G0);
 
-  basis:=basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,false,[],[],[]);
+  basis:=basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,false,false,[],[],[]);
   return basis,g,r,W0;
 end intrinsic;
 
@@ -105,7 +105,7 @@ intrinsic H1Basis(Q::RngUPolElt[RngUPol], p::RngIntElt)
 end intrinsic;
 
 intrinsic ColemanData(Q::RngUPolElt[RngUPol], v::RngOrdIdl, N::RngIntElt :
-                      useU:=false, basis0:=[], basis1:=[], basis2:=[], heights:=false)
+                      useU:=false, useY:=false, basis0:=[], basis1:=[], basis2:=[], heights:=false)
   -> Rec
   {Takes a polynomial Q in two variables x,y over the rationals which is monic in y.
   Returns the Coleman data of (the projective nonsingular model of) the curve defined
@@ -143,7 +143,7 @@ intrinsic ColemanData(Q::RngUPolElt[RngUPol], v::RngOrdIdl, N::RngIntElt :
 
   delta:=Floor(log(p,-(ord_0_mat(W)+1)*einf))+Floor(log(p,(Floor((2*g-2)/d)+1)*einf));
 
-  basis,integrals,quo_map:=basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,useU,basis0,basis1,basis2);
+  basis,integrals,quo_map:=basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,useU,useY,basis0,basis1,basis2);
   Nmax:=max_prec(d,p,N,g,W0,Winf,e0,einf);
 
   frobmatb0r:=froblift(Q,v,Nmax-1,r,Delta,s,W0);
