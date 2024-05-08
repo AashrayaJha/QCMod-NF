@@ -1,17 +1,14 @@
-//AttachSpec("~/GitHub/CHIMP/CHIMp.spec");
 AttachSpec("QCMod.spec");
 
-//load "data/NF-example-coleman-data.m";
-//load "data/NF-example-coleman-data-13_40.m";
-//load "data/NF-example-coleman-data-13_80.m";
-//load "data/NF-example-coleman-data-13_120.m";
-//load "data/NF-example-coleman-data-13-patch-2_160.m";
-
-//AK_160 is the same as AK_250, both of which guess entries without any errors. 
+//load coleman data for sufficiently high precision. 
+load "data/NF-example-coleman-data-13-patch-2_160.m";
 
 import "misc.m": algdepQp,lindepQp, alg_approx_Qp;
 data_1:=data_1;
 //data_2:=data_2;
+
+//initially did it for both embeddings, in hopes that one could recover the numbers with trace and norms.
+//This is a good check, but first just find the correspondence.
 
 Q:=data_1`Q; g:=data_1`g; d:=Degree(Q); p:=data_1`p; v:=data_1`v; 
 q:=p; N:=data_1`N;
@@ -25,29 +22,10 @@ F1inv := Transpose(F1)^(-1);
 Aq_1 := Transpose(F1)+q*F1inv;   // Eichler-Shimura -> Hecke operator
 prec_loss_bd1 := Valuation(Norm(Determinant(F1inv)), p);
 
-// F2 := data_2`F;
-// if q eq p then F2 := Submatrix(data_2`F,1,1,2*g,2*g); end if;// Necessary when q=p
-// F2inv := Transpose(F2)^(-1);
-// Aq_2 := Transpose(F2)+q*F2inv;   // Eichler-Shimura -> Hecke operator
-// prec_loss_bd2 := Valuation(Norm(Determinant(F2inv)), p);
-
 AK := ZeroMatrix(K, 2*g, 2*g); 
 bad_indices:=[**];
 
-// A_sum := Aq_1+Aq_2;
-// A_prod:=ZeroMatrix(Rationals(),6,6); 
-// for i in [1..6] do
-//     for j in [1..6] do
-//         A_prod[i][j]:=Aq_1[i][j]*Aq_2[i][j];
-//     end for;
-// end for;     
-
-//D_prod := LCM([LCM([Denominator(A_prod[j,k]):k in [1..2*g]]):j in [1..2*g]]);
-//D_prod was previously used to normalise everything ot an integer, but have gotten rid
-//of it because it was causing errors.
-
-//AK *:= D_prod;
-
+//Hecke correspondence
 for j in [1..2*g] do
     for k in [1..2*g] do
         try
@@ -57,7 +35,9 @@ for j in [1..2*g] do
         end try;                   
     end for;
 end for;
+//Finish Hecke correpondence. 
 
+// Start computing nice correspondences 
 C:=ZeroMatrix(K,2*g,2*g);
 for i:=1 to g do
 C[i,g+i]:=1;
@@ -79,6 +59,63 @@ for i in [1..2] do
         end for;
     end for;
 end for;
+
+//print results
+out:=Sprintf("AK_patch_3_200:=%m;",AK);
+output_file:="data/New_hecke_good_patch.m";
+out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
+Write(output_file,out_Zs);
+
+//below are functions for verifying results via trace and norm using both embeddings. 
+
+function make_poly_quadratic(trace,norm)
+    R<x>:=PolynomialRing(Rationals());
+return x^2-trace*x+norm;
+end function;
+
+function Matrix_from_trace_norm(trace,norm,A,v)
+// If the trace and norm matrices have been recognised as elements over the rationals, reconstruct
+// the matrix of the original A with the minimal polynomial using the trace and norm matrices.
+K := NumberField(Order(v));
+Kv, loc := Completion(K, v);
+n:= #Rows(trace);
+M:=ZeroMatrix(K,n,n);
+bad_indices_1:=[**];
+for i in [1..n] do
+    for j in [1..n] do
+        Tr:=trace[i][j];
+        Nm:=norm[i][j];
+        a_Qp:=A[i][j];
+        
+        poly:=make_poly_quadratic(Tr,Nm);
+        poly:=ChangeRing(poly,K);
+        alist := [-Coefficient(fac[1], 0)/Coefficient(fac[1], 1) : fac in Factorization(poly) | Degree(fac[1]) eq 1];
+        try 
+            // Sort roots by how close they are in Qp to the original value
+            Sort(~alist, func< a, b | Valuation(loc(a_Qp) - Qp!loc(b)) - Valuation(loc(a_Qp) - Qp!loc(a)) >);
+            M[i][j]:=alist[1]; // Sort roots by how close they are in Qp to the original value
+        catch e
+            Append(~bad_indices_1,[i,j]);
+        end try;    
+    end for ;
+end for;
+
+return M;
+end function;
+
+// F2 := data_2`F;
+// if q eq p then F2 := Submatrix(data_2`F,1,1,2*g,2*g); end if;// Necessary when q=p
+// F2inv := Transpose(F2)^(-1);
+// Aq_2 := Transpose(F2)+q*F2inv;   // Eichler-Shimura -> Hecke operator
+// prec_loss_bd2 := Valuation(Norm(Determinant(F2inv)), p);
+  
+// A_sum := Aq_1+Aq_2;
+// A_prod:=ZeroMatrix(Rationals(),6,6); 
+// for i in [1..6] do
+//     for j in [1..6] do
+//         A_prod[i][j]:=Aq_1[i][j]*Aq_2[i][j];
+//     end for;
+// end for;     
 
 // [A_prod1[i][j]:=Aq_1[i][j]*Aq_2[i][j]: i in [1..6] and j in [1..6]];
 // Alist:=[*A_sum,A_prod*];
@@ -131,49 +168,7 @@ end for;
 
 // out_prod:=Sprintf("AQ_prod_40:=%m;",A_Qprod);
 // out_sum:=Sprintf("AQ_sum_40:=%m;",A_Qsum);
-out:=Sprintf("AK_patch_3_200:=%m;",AK);
-output_file:="data/New_hecke.m";
-out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
-Write(output_file,out_Zs);
+
 //Write(output_file,out_sum);
 //Write(output_file,out_prod);
-
-function make_poly_quadratic(trace,norm)
-    R<x>:=PolynomialRing(Rationals());
-return x^2-trace*x+norm;
-end function;
-
-function Matrix_from_trace_norm(trace,norm,A,v)
-// If the trace and norm matrices have been recognised as elements over the rationals, reconstruct
-// the matrix of the original A with the minimal polynomial using the trace and norm matrices.
-K := NumberField(Order(v));
-Kv, loc := Completion(K, v);
-n:= #Rows(trace);
-M:=ZeroMatrix(K,n,n);
-bad_indices_1:=[**];
-for i in [1..n] do
-    for j in [1..n] do
-        Tr:=trace[i][j];
-        Nm:=norm[i][j];
-        a_Qp:=A[i][j];
-        
-        poly:=make_poly_quadratic(Tr,Nm);
-        poly:=ChangeRing(poly,K);
-        alist := [-Coefficient(fac[1], 0)/Coefficient(fac[1], 1) : fac in Factorization(poly) | Degree(fac[1]) eq 1];
-        try 
-            Sort(~alist, func< a, b | Valuation(loc(a_Qp) - Qp!loc(b)) - Valuation(loc(a_Qp) - Qp!loc(a)) >);
-            M[i][j]:=alist[1]; // Sort roots by how close they are in Qp to the original value
-        catch e
-            Append(~bad_indices_1,[i,j]);
-        end try;    
-    end for ;
-end for;
-
-return M;
-end function;
-
-// Sort roots by how close they are in Qp to the original value
-  
-
-
 

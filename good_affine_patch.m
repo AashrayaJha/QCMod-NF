@@ -18,6 +18,7 @@ function transform(Q, A)
       Q_dehom +:= Coefficient(Coefficient(Q,i),j)*Y^i*X^j;
     end for;
   end for;
+  //We should probably have A^(-1), since det(A) is not always 1
   transformed_vars := [A[2,2]*X-A[1,2]*Z,Y,-A[2,1]*X+A[1,1]*Z];
   Q_hom := Homogenization(Q_dehom, Z);
   Q_trans_hom:=Evaluate(Q_hom, transformed_vars);
