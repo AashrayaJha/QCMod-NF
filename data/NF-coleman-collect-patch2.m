@@ -23,7 +23,8 @@ t1 := Cputime();
 "Constructing symplectic basis of H1...";
 h1basis, g, r, W0 := H1Basis(Q, v);
 prec := 2*g;
-cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := prec, split := true);
+// jsm: changed split to false, otherwise this takes forever
+cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := prec, split := false);
 sympl := SymplecticBasisH1(cpm);
 new_complementary_basis := [&+[sympl[i,j]*h1basis[j] : j in [1..2*g]] : i in [1..g]];
 sympl_basis := [h1basis[i] : i in [1..g]] cat new_complementary_basis;
