@@ -1,10 +1,10 @@
 AttachSpec("QCMod.spec");
 
 //load coleman data for sufficiently high precision. 
-load "data/NF-example-coleman-data-13_patch2_250.m";
+load "data/NF-example-coleman-data-13_patch2_400.m";
 
 import "misc.m": algdepQp,lindepQp, alg_approx_Qp;
-data_1:=data_1;
+data_1:=data;
 //data_2:=data_2;
 
 //initially did it for both embeddings, in hopes that one could recover the numbers with trace and norms.
@@ -62,8 +62,8 @@ for i in [1..2] do
 end for;
 
 //print results
-out:=Sprintf("AK_patch_3_200:=%m;",AK);
-output_file:="data/New_hecke_patch2.m";
+out:=Sprintf("AK_patch_3_400:=%m;",AK);
+output_file:="data/New_hecke_patch2_400.m";
 out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
 Write(output_file,out_Zs);
 
