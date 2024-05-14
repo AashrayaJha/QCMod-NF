@@ -147,9 +147,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   if assigned cpm then delete cpm; end if;
   repeat 
     try 
-      cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec);
+      //cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec);
       // If this takes very long, try 
-      // cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec, split := false);
+       cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec, split := false);
     catch e;
       cpm_prec +:= g;
       vprint QCMod, 4: "try again";

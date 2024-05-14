@@ -14,16 +14,23 @@ K<u> := CyclotomicField(3);
 OK := Integers(K);
 Kx<x> := PolynomialRing(K);
 Kxy<y> := PolynomialRing(Kx);
-Q := y^4 + (u - 1)*y^3*x + (2*u + 2)*y*x^3 + (3*u + 2)*y^3 - 3*u*y*x^2 - u*x^3 - 3*y^2 + 3*u*y*x + 3*u*x^2 - 2*u*y + (-u + 1)*x + (u + 1);
+//Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 1, 1 ], [ RationalField() | 1, -1 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -1 ]], [[ RationalField() | 0, -2 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -3 ], [ RationalField() | 2, 2 ]], [[ RationalField() | -3, 0 ]], [[ RationalField() | 2, 3 ], [ RationalField() | -1, 1 ]], [[ RationalField() | 1, 0 ]]]);
+Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 0, 0 
+], [ RationalField() | 0, -1 ], [ RationalField() | 0, -30 ], [ RationalField() 
+| 1, -298 ], [ RationalField() | 12, -978 ]], [[ RationalField() | -2, -2 ], [ 
+RationalField() | -66, -63 ], [ RationalField() | -726, -663 ], [ 
+RationalField() | -2662, -2330 ]], [[ RationalField() | 0, 0 ], [ 
+RationalField() | 0, 0 ], [ RationalField() | -3, 0 ]], [[ RationalField() | 1, 
+-1 ], [ RationalField() | 9, -14 ]], [[ RationalField() | 1, 0 ]]]);
 
 p := 13;
 v := Factorization(p*OK)[2][1];
-N := 160 ; //Going to try 40
+N := 20 ; //Going to try 40
 
 "Constructing symplectic basis of H1...";
 h1basis, g, r, W0 := H1Basis(Q, v);
 prec := 2*g;
-cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := prec, split := true);
+cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := prec, split := false);
 sympl := SymplecticBasisH1(cpm);
 new_complementary_basis := [&+[sympl[i,j]*h1basis[j] : j in [1..2*g]] : i in [1..g]];
 sympl_basis := [h1basis[i] : i in [1..g]] cat new_complementary_basis;
@@ -36,7 +43,7 @@ time data := ColemanData(Q, v, N : useU:=true,  basis0:=basis0, basis1:=basis1);
 "Coleman data constructed.";
 
 "Recording Coleman data...";
-output_file := "data/NF-example-coleman-data-13_160.m";
+output_file := "data/NF-example-coleman-data-patch-3_20.m";
 fprintf output_file, "K<u> := CyclotomicField(3);\n";
 fprintf output_file, "_<x> := PolynomialRing(K);\n";
 fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
