@@ -1,7 +1,7 @@
 AttachSpec("QCMod.spec");
 
 //load coleman data for sufficiently high precision. 
-load "data/NF-example-coleman-data-13-patch-2_160.m";
+load "data/Correspondence_400.m";
 
 import "misc.m": algdepQp,lindepQp, alg_approx_Qp;
 data_1:=data_1;
@@ -61,9 +61,10 @@ for i in [1..2] do
 end for;
 
 //print results
-out:=Sprintf("AK_patch_3_200:=%m;",AK);
+out:=Sprintf("AK_patch_3_400:=%m;",AK);
 output_file:="data/New_hecke_good_patch.m";
-out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
+out_Zs :=Sprintf("Zs_patch_3_400:=%m;", Zs) ;
+Write(output_file,out);
 Write(output_file,out_Zs);
 
 //below are functions for verifying results via trace and norm using both embeddings. 
