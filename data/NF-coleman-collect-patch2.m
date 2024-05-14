@@ -43,7 +43,7 @@ t2 := Cputime();
 t2 - t1;
 
 "Recording Coleman data...";
-output_file := "data/NF-example-coleman-data-13_patch2_40.m";
+output_file := "data/NF-example-coleman-data-13_patch2_200.m";
 fprintf output_file, "K<u> := CyclotomicField(3);\n";
 fprintf output_file, "_<x> := PolynomialRing(K);\n";
 fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
