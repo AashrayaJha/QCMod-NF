@@ -15,10 +15,9 @@ OK := Integers(K);
 Kx<x> := PolynomialRing(K);
 Kxy<y> := PolynomialRing(Kx);
 Q:= y^4 + ((-2*u + 9)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-170*u + 254)*x^3 + (-150*u + 114)*x^2 + (-54*u + 18)*x - 10*u - 2)*y + (162*u + 144)*x^4 + (-108*u + 48)*x^3 + (-72*u - 144)*x^2 + (12*u - 48)*x + 6*u;
-//Q := y^4 + ((-14*u + 9)*x - u + 1)*y^3 - 3*x^2*y^2 + ((-2330*u - 2662)*x^3 + (-663*u - 726)*x^2 + (-63*u - 66)*x - 2*u - 2)*y + (-978*u + 12)*x^4 + (-298*u + 1)*x^3 - 30*u*x^2 - u*x;
 p := 13;
-v := Factorization(p*OK)[2][1];
-N := 201;
+v := Factorization(p*OK)[1][1];
+N := 301;
 
 t1 := Cputime();
 "Constructing symplectic basis of H1...";
@@ -42,20 +41,63 @@ time data := ColemanData(Q, v, N : useU:=false,  basis0:=basis0, basis1:=basis1)
 t2 := Cputime();
 t2 - t1;
 
-t1 := Cputime();
-"Recording Coleman data...";
-output_file := "data/NF-example-coleman-data-13_patch2_201.m";
-fprintf output_file, "K<u> := CyclotomicField(3);\n";
-fprintf output_file, "_<x> := PolynomialRing(K);\n";
-fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
+d:=Degree(Q); 
+q:=p; 
+Qp:=pAdicField(p,N);
 
-out := Sprintf("data := %m;\n\n", data);
-out := ReplaceString(out, "\n ! ", "\n "); // hack to handle bug in Magma string formatting
-out := ReplaceString(out, "EquationOrder(Polynomial(\\[1, 1, 1]))", "Integers(CyclotomicField(3))");
-t2 := Cputime();
-t2 - t1;
+K:=BaseRing(BaseRing(Q));
 
-Write(output_file,out);
+F1 := data`F;
+if q eq p then F1 := Submatrix(data`F,1,1,2*g,2*g); end if;// Necessary when q=p
+F1inv := Transpose(F1)^(-1);
+Aq_1 := Transpose(F1)+q*F1inv;   // Eichler-Shimura -> Hecke operator
+prec_loss_bd1 := Valuation(Norm(Determinant(F1inv)), p);
+
+AK := ZeroMatrix(K, 2*g, 2*g); 
+bad_indices:=[**];
+
+//Hecke correspondence
+for j in [1..2*g] do
+    for k in [1..2*g] do
+        try
+            AK[j,k] := alg_approx_Qp(Qp!Rationals()!Aq_1[j,k],v);    // recognition of integer in Zp via LLL
+        catch e
+            Append(~bad_indices,[j,k]);
+        end try;                   
+    end for;
+end for;
+//Finish Hecke correpondence. 
+print "bad_indices", bad_indices;
+
+// Start computing nice correspondences 
+C:=ZeroMatrix(K,2*g,2*g);
+for i:=1 to g do
+C[i,g+i]:=1;
+C[g+i,i]:=-1; 
+end for;
+Z1:=ZeroMatrix(K,2*g,2*g); Z2:=ZeroMatrix(K,2*g,2*g);
+Zs:=[Z1,Z2];
+
+for i in [1..2] do 
+    A:=Aq_1^i;
+    Zmx := (2*g*Aq_1^i-Trace(A)*IdentityMatrix(K,2*g))*C^(-1);
+    for j in [1..2*g] do
+        for k in [1..2*g] do
+            try
+                Zs[i][j,k] := alg_approx_Qp(Qp!Rationals()!Zmx[j,k],v);    // recognition of integer in Zp via LLL
+            catch e
+                Append(~bad_indices,[j,k]);
+            end try;                   
+        end for;
+    end for;
+end for;
+
+//print results
+out:=Sprintf("AK_patch_2_301:=%m;",AK);
+output_file:="data/New_hecke_patch2_301.m";
+out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
+Write(output_file,out_Zs);
+
 "Coleman data recorded.";
 
 
