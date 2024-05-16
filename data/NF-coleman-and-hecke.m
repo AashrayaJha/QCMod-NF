@@ -17,7 +17,7 @@ Kxy<y> := PolynomialRing(Kx);
 Q:= y^4 + ((-2*u + 9)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-170*u + 254)*x^3 + (-150*u + 114)*x^2 + (-54*u + 18)*x - 10*u - 2)*y + (162*u + 144)*x^4 + (-108*u + 48)*x^3 + (-72*u - 144)*x^2 + (12*u - 48)*x + 6*u;
 p := 13;
 v := Factorization(p*OK)[1][1];
-N := 450;
+N := 401;
 
 t1 := Cputime();
 "Constructing symplectic basis of H1...";
@@ -93,8 +93,8 @@ for i in [1..2] do
 end for;
 
 //print results
-out:=Sprintf("AK_patch_2_450:=%m;",AK);
-output_file:="data/New_hecke_patch2_450.m";
+out:=Sprintf("AK_patch_2_401:=%m;",AK);
+output_file:="data/New_hecke_patch2_401.m";
 out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
 Write(output_file,out_Zs);
 
