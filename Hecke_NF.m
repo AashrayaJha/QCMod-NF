@@ -1,7 +1,7 @@
 AttachSpec("QCMod.spec");
 
 //load coleman data for sufficiently high precision. 
-load "data/Correspondence_400.m";
+load "data/Correspondence_31_300.m";
 
 import "misc.m": algdepQp,lindepQp, alg_approx_Qp;
 data_1:=data_1;

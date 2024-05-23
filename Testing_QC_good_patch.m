@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-load "data/NF-example-coleman-data-patch-2_20.m";
-load "data/New_hecke_good_patch.m";
+load "data/NF-example-coleman-data-good_patch_2.m";
+load "data/New_hecke_patch2_401.m";
 
 data_1:=data_1;
 data_2:=data_2;
@@ -12,16 +12,17 @@ v_2:=data_2`v; //Will calculate them in the intrinsic.
 //print "v_1: ", v_1;
 //print "v_2: ", v_2;
 
-correspondence_data:= [*AK_patch_3_400,Zs_patch_3_400,-3*];
+correspondence_data:= [*AK_patch_2_401,Zs_patch_2,-3*];
 // The -6 correspinds to prec_loss for correspondences. This was set as the val(det(Finv),p) over Q, so
 // did the analogous thing over K.
 
 //new polynomial: y=a,x=c,b=1.
-Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 0, 0 ], [ RationalField() | 0, -1 ], [ RationalField() | 0, -30 ], [ RationalField() | 1, -298 ], [ RationalField() | 12, -978 ]], [[ RationalField() | -2, -2 ], [ RationalField() | -66, -63 ], [ RationalField() | -726, -663 ], [ RationalField() | -2662, -2330 ]], [[ RationalField() | 0, 0 ], [ RationalField() | 0, 0 ], [ RationalField() | -3, 0 ]], [[ RationalField() | 1, -1 ], [ RationalField() | 9, -14 ]], [[ RationalField() | 1, 0 ]]]);
+//Q:= y^4 + ((-2*u + 9)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-170*u + 254)*x^3 + (-150*u + 114)*x^2 + (-54*u + 18)*x - 10*u - 2)*y + (162*u + 144)*x^4 + (-108*u + 48)*x^3 + (-72*u - 144)*x^2 + (12*u - 48)*x + 6*u;
+known_affine_points:=[*[1,-8*u - 4],[1,0]*];
 //initialising points in new coordinates
 print "starting QCModAffine";
-SetVerbose("QCMod",4);
-sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, correspondence_data := correspondence_data, N := 15);
+SetVerbose("QCMod",2);
+sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2,known_points:=known_affine_points, correspondence_data := correspondence_data, N := 15);
 
 // Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];

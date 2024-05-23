@@ -242,7 +242,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   numberofpoints_2 := #Qppoints_2;
   assert numberofpoints_1 eq numberofpoints_2;
 
-  // Find xy-coordinates of the small affine rational points as rational numbers.
+  // Find xy-coordinates of the small affine rational points as rational numbers
   // Use LLL for this.
   good_coordinates_1 := [xy_coordinates(P,data1) : P in good_Qpoints_1];
   good_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in good_coordinates_1]; 
