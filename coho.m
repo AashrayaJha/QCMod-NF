@@ -471,6 +471,8 @@ function basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,useU,useY,basis0
 
   // Compute bases
 
+  "cocyc", Dimension(cocyc);
+  "list", #list;
   cobound:=sub<cocyc|list>;
 
   if basis0 eq [] then
