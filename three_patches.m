@@ -59,7 +59,7 @@ Qy := -zeta3*x^3*y + (2*zeta3 + 2)*x^3 + 3*zeta3*x^2*y^2 - 3*zeta3*x^2*y + (-zet
 // Now make monic
 lc := LeadingCoefficient(Qy);
 Qy := Parent(Qx)!(lc^3*Evaluate(Qy, y/lc));
+time datax1 := ColemanData(Qz, v1, N);
 time datay2 := ColemanData(Qy, v2, N);
 time datay1 := ColemanData(Qy, v1, N);
-time datax1 := ColemanData(Qx, v1, N);
 //time datax2 := ColemanData(Qx, v2, N);
