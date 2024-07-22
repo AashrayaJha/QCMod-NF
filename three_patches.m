@@ -44,6 +44,7 @@ v2 := ideal<Integers(CyclotomicField(3)) | \[ 13, 0 ], \[ 10, 1 ]>;
 p := 13;
 N := 6;
 
+C := CurveFromBivariate(Q);
 
 
 y := Parent(Q).1;
@@ -54,12 +55,15 @@ Qz := Q;
 Qx := transform(Q, [[0,1],[1,0]]);
 
 
-// Affine patch y=1:
+// Affine patch y=1
 Qy := -zeta3*x^3*y + (2*zeta3 + 2)*x^3 + 3*zeta3*x^2*y^2 - 3*zeta3*x^2*y + (-zeta3 + 1)*x*y^3 + 3*zeta3*x*y^2 + (zeta3 - 1)*x + (zeta3 + 1)*y^4 - 2*zeta3*y^3 - 3*y^2 + (3*zeta3 + 2)*y + 1;
 // Now make monic
+Qy := transform(Qy, [[2,2],[0,1]]);
+
 lc := LeadingCoefficient(Qy);
-Qy := Parent(Qx)!(lc^3*Evaluate(Qy, y/lc));
-time datax1 := ColemanData(Qz, v1, N);
-time datay2 := ColemanData(Qy, v2, N);
+Qy := Parent(Qy)!(lc^3*Evaluate(Qy, y/lc));
+//IsIsomorphicPlaneQuartics(C, CurveFromBivariate(Qy));
 time datay1 := ColemanData(Qy, v1, N);
+time datax1 := ColemanData(Qx, v1, N);
+time dataz1 := ColemanData(Qz, v1, N);
 //time datax2 := ColemanData(Qx, v2, N);
