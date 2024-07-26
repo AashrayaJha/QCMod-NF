@@ -58,7 +58,7 @@ Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 1, 1 
 v_1 := ideal<Integers(CyclotomicField(3)) | \[ 13, 0 ], \[ 4, 1 ]>;
 v_2 := ideal<Integers(CyclotomicField(3)) | \[ 13, 0 ], \[ 10, 1 ]>;
 p := 13;
-A := [[K!1,1], [1,-11]];
+A := [[K!0,1], [1,-11]];
 // One gets this A by noticing that under both embeddings there is no 
 // Q13-point with x-coordinate 11 on the curve defined by Q=0, and that 
 // the only bad disks are at infinity.
