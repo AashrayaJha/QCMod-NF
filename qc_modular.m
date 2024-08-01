@@ -495,7 +495,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     repeat
       try
         //eta2,betafil2,gammafil2,hodge_loss2 := HodgeData(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
-        eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, bpthodge_prec);
+        eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, hodge_prec);
       catch e;
         hodge_prec +:= 5;
       end try;

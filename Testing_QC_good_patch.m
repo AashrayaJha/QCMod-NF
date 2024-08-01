@@ -1,7 +1,7 @@
 AttachSpec("QCMod.spec");
 load "data/NF-example-coleman-data-good_patch_2.m";
 load "data/New_hecke_patch2_401.m";
-
+t1:=Cputime();
 data_1:=data_1;
 data_2:=data_2;
 
@@ -13,6 +13,7 @@ C := CurveFromBivariate(Q);
 C_RSZB := CurveFromBivariate(Q_RSZB);
 bool, trans_seq := IsIsomorphicPlaneQuartics(C_RSZB,C);
 trans := trans_seq[1];
+trans:=trans^(-1);
 known_points_RSZB := [C_RSZB!P : P in [
   [1,0,0], // j = 1728, D = -4
   [1,u+1,0], // j = 287496, D = -16 
@@ -28,7 +29,7 @@ known_points_RSZB := [C_RSZB!P : P in [
   [(-1/2)*u,-1/2,1], // j = 1728, D = -4
   [(1/7)*(5*u+4),-1,1]// j=-262737412640768000, D = -163
 ]];
-known_points_C := [C![&+[trans[i,j]*P[j] : j in [1..3]] : i in [1,2,3]] 
+known_points_C := [C![&+[trans[i,j]*P[j] : j in [1..3]] : i in [1..3]] 
                                     : P in known_points_RSZB];
 
 
@@ -76,6 +77,9 @@ end for;
 "Any multiple roots?";
 &or[s[2] : s in sols];
 
+t2:=Cputime();
+
+printf("This is the time taken %o", t1-t2);
 
 
 // SetVerbose("QCMod",3);
