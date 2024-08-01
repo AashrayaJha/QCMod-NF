@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-load "data/NF-example-coleman-data-good_patch_2.m";
-load "data/New_hecke_patch2_401.m";
+load "data/Coleman_good_patch.m";
+load "data/Hecke_good_patch_400.m";
 t1:=Cputime();
 data_1:=data_1;
 data_2:=data_2;

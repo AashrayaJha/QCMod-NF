@@ -214,6 +214,7 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
 
     rows:=[];
 
+    "Reaches here 1";
     for i:=1 to g do
       row:=[];
       cnt:=0;
@@ -241,7 +242,7 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
         Append(~rows,row);  
       end for;
     end for;   
-      
+    "Reaches here 2" ;
     suc,sol := IsConsistent(Matrix(rows),Vector(v));
     if suc then
       done:=true;
@@ -259,7 +260,7 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
   end for;
 
   // read off gamma from solution
-
+  "Reaches here 3" ;
   Kt := PolynomialRing(K);
   gamma:=[];
   cnt:=g;
@@ -288,7 +289,7 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
     gamma_FF +:= Evaluate(gamma[i],Kx.1)*b0fun[i];
   end for;
   gamma[1] -:= Evaluate(gamma_FF,bpt); 
-
+  "done hodge";
   return Vector(eta),Vector(beta),Vector(gamma),Integers()!poleorder_Omegax;
 
 end intrinsic;

@@ -14,8 +14,7 @@ K<u> := CyclotomicField(3);
 OK := Integers(K);
 Kx<x> := PolynomialRing(K);
 Kxy<y> := PolynomialRing(Kx);
-Q:=y^4 + ((-7*u + 11)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-1413*u - 398)*x^3 + (-591*u - 123)*x^2 + (-108*u - 15)*x - 10*u - 2)*y + (-10*u + 491)*x^4 + (-184*u - 231)*x^3 + (135*u - 219)*x^2 + (53*u - 41)*x + 6*u;
-//Q:= y^4 + ((-2*u + 9)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-170*u + 254)*x^3 + (-150*u + 114)*x^2 + (-54*u + 18)*x - 10*u - 2)*y + (162*u + 144)*x^4 + (-108*u + 48)*x^3 + (-72*u - 144)*x^2 + (12*u - 48)*x + 6*u;
+Q:= y^4 + ((-2*u + 9)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-170*u + 254)*x^3 + (-150*u + 114)*x^2 + (-54*u + 18)*x - 10*u - 2)*y + (162*u + 144)*x^4 + (-108*u + 48)*x^3 + (-72*u - 144)*x^2 + (12*u - 48)*x + 6*u;
 p := 13;
 v := Factorization(p*OK)[1][1];
 N := 400;
@@ -94,12 +93,23 @@ for i in [1..2] do
 end for;
 
 //print results
-out:=Sprintf("AK_patch_2_401:=%m;",AK);
-output_file:="data/New_hecke_patch2_401.m";
-out_Zs :=Sprintf("Zs_patch_2:=%m;", Zs) ;
+
+output_file:="data/Hecke_good_patch_400.m";
+
+out_AK:=Sprintf("AK_good_patch:=%m;",AK);
+out_AK := ReplaceString(out_AK, "! ", " ");
+
+out_Zs :=Sprintf("Zs_good_patch:=%m;", Zs) ;
+out_Zs := ReplaceString(out_Zs, "! ", " ");
+
 out_F := Sprintf("F := %m;", data`F);
+out_Q:=Sprintf("Q := %m;", data`Q);
+out_N:=Sprintf("N:=%m;", N);
+
+Write(output_file,out_Q);
+Write(output_file,out_N);
+Write(output_file,out_AK);
 Write(output_file,out_Zs);
-Write(output_file,out);
 Write(output_file,out_F);
 
 "Coleman data recorded.";
