@@ -492,14 +492,17 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         hodge_prec +:= 5;
       end try;
     until assigned betafil1;
+
+    "done betafil1";
     repeat
       try
         //eta2,betafil2,gammafil2,hodge_loss2 := HodgeData(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
-        eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, hodge_prec);
+        eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, bpt, hodge_prec);
       catch e;
         hodge_prec +:= 5;
       end try;
     until assigned betafil2;
+    "done betafil2";
     Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
 
     vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
