@@ -39,7 +39,7 @@ v_2:=data_2`v; //Will calculate them in the intrinsic.
 //print "v_1: ", v_1;
 //print "v_2: ", v_2;
 
-correspondence_data:= [*AK_patch_2_401,Zs_patch_2,-3*];
+correspondence_data:= [*AK_good_patch,Zs_good_patch,-3*];
 // The -6 corresponds to prec_loss for correspondences. This was set as the val(det(Finv),p) over Q, so
 // did the analogous thing over K.
 
