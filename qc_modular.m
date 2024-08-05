@@ -118,6 +118,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   vprint QCMod, 2: " Computing a symplectic basis of H^1";
   
   h1basis, g, r, W0 := H1Basis(Q, v1); 
+  assert W0 eq IdentityMatrix(Rationals(), Degree(Q)); // TODO: Generalize
   _,_,_,_:=H1Basis(Q,v2); 
   //The second iteration is just a check for Tuitman's conditions being satisfied at both places.
 
@@ -466,8 +467,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //super_space := VectorSpace(Qp, g);
     E1_E2_subspace := sub<super_space | [Zero(super_space)]>;
     E1_E2_Ps := [ ]; // E1 tensor E2 of auxiliary points
-    //E1_E2_Ps1 := [* *]; // E1 tensor E2 of auxiliary points
-    //E1_E2_Ps2 := [* *]; // E1 tensor E2 of auxiliary points
   end if;
   
 
@@ -493,7 +492,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       end try;
     until assigned betafil1;
 
-    "done betafil1";
     repeat
       try
         //eta2,betafil2,gammafil2,hodge_loss2 := HodgeData(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
@@ -502,7 +500,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         hodge_prec +:= 5;
       end try;
     until assigned betafil2;
-    "done betafil2";
     Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
 
     vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
@@ -894,13 +891,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // Write the height pairing as a linear combination of the basis of symmetric bilinear
     // pairings dual to the E1_E2-basis of the auxiliary points. 
     E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), dim, dim, [E1_E2_Ps[i] : i in [1..dim]]); 
-  //E1_E2_Ps_matrix1 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps1[i]) : i in [1..g]]);
-  //E1_E2_Ps_matrix2 := Matrix(pAdicField(p, NE1E2Ps), [Eltseq(E1_E2_Ps2[i]) : i in [1..g]]);
     //printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
     mat := E1_E2_Ps_matrix^(-1) ;
-    //mat1 := E1_E2_Ps_matrix1^(-1) ;
-    //mat2 := E1_E2_Ps_matrix2^(-1) ;
-    //matprec := Min(minprec(mat1), minprec(mat2));
     matprec := minprec(mat);
     //printf "heights1=%o\n\n", heights1;
     //printf "heights2=%o\n\n", heights2;
@@ -1169,7 +1161,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     printf "\n Sanity check at rational points for correspondence %o.\n  ", i; 
     F1_list := F1_lists[i];
     F2_list := F2_lists[i];
-    for j in [1..11] do
+    for j in [1..#good_Qpoints_1] do
       P1 := good_Qpoints_1[j]; 
       ind1 := FindQpointQp(P1, Qppoints_1); 
       P2 := good_Qpoints_2[j]; 
@@ -1211,10 +1203,8 @@ precision := Nend-1;
 prec1 := Nend-1;
           time roots2, droots2 := two_variable_padic_system_solver(g1_poly, g2_poly, p, prec1, precision : safety := 1);
           printf "roots bianchi for prec1 = %o and prec2 = %o \n are %o\n", prec1, precision, roots2;
-          "valuations of differences of computed roots and root from global point";
-          for r in roots2 do
-            [Valuation(r[1] - 1/p*coord1), Valuation(r[2] - 1/p*coord2)];
-          end for;
+          //"valuations of differences of computed roots and root from global point";
+          assert Max([Max(Valuation(r[1] - 1/p*coord1), Valuation(r[2] - 1/p*coord2)) : r in roots2]) ge 4;
 
 
 

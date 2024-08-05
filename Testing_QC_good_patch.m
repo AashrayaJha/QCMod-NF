@@ -88,7 +88,7 @@ end for;
 "Number of known affine points", #Qpts;
 "Number of solutions", #sols;
 "Check that there are no multiple roots.";
-assert &or[s[2] : s in sols];
+assert not &or[s[2] : s in sols];
 "No multiple roots!";
 printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.",  C_RSZB, known_points_RSZB, BaseRing(C);
 
