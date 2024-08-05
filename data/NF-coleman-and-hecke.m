@@ -1,4 +1,4 @@
-//This file collects Coleman data, for one prime of the number field at a time. 
+//This file collects Coleman and Hecke data, for one prime of the number field at a time. 
 //The main intrinsic is ColemanData (in singleintegral.m), which in particular computes 
 //Frobenius action on H^1_dR(X).
 
@@ -112,7 +112,7 @@ Write(output_file,out_AK);
 Write(output_file,out_Zs);
 Write(output_file,out_F);
 
-"Coleman data recorded.";
+"Coleman and Hecke data recorded.";
 
 
 
