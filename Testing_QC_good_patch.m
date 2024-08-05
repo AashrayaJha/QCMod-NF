@@ -1,11 +1,22 @@
 AttachSpec("QCMod.spec");
 load "data/Coleman_good_patch.m";
 load "data/Hecke_good_patch_400.m";
+
+import "applications.m": Qp_points;
+import "singleintegrals.m": is_bad, xy_coordinates;
+
+
 t1:=Cputime();
-data_1:=data_1;
-data_2:=data_2;
 
 Q:=data_1`Q;
+
+Qppoints_1 := Qp_points(data_1 : Nfactor := 1.5);
+assert &and[not(is_bad(P, data_1)) : P in Qppoints_1];
+Qppoints_2 := Qp_points(data_2 : Nfactor := 1.5);
+assert &and[not(is_bad(P, data_2)) : P in Qppoints_2];
+// So under both embeddings, all residue disks are good (in particular,
+// affine)
+
 
 Q_RSZB := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 1, 1 ], [ RationalField() | 1, -1 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -1 ]], [[ RationalField() | 0, -2 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -3 ], [ RationalField() | 2, 2 ]], [[ RationalField() | -3, 0 ]], [[ RationalField() | 2, 3 ], [ RationalField() | -1, 1 ]], [[ RationalField() | 1, 0 ]]]);
 
@@ -13,7 +24,7 @@ C := CurveFromBivariate(Q);
 C_RSZB := CurveFromBivariate(Q_RSZB);
 bool, trans_seq := IsIsomorphicPlaneQuartics(C_RSZB,C);
 trans := trans_seq[1];
-trans:=trans^(-1);
+//trans:=trans^(-1);
 known_points_RSZB := [C_RSZB!P : P in [
   [1,0,0], // j = 1728, D = -4
   [1,u+1,0], // j = 287496, D = -16 
@@ -63,22 +74,26 @@ end for;
 
 "Check if known points are recovered";
 for i in [1..#Qpts] do
+  maxminval := 0;
   for j in [1..#sols] do
     minval1 := Min(Valuation(Qpts[i,1,1]-sols[j,1,1,1]), Valuation(Qpts[i,1,2]-sols[j,1,1,2]));
     minval2 := Min(Valuation(Qpts[i,2,1]-sols[j,1,2,1]), Valuation(Qpts[i,2,2]-sols[j,1,2,2]));
-    assert minval1 ge 4 and minval2 ge 4 ;
-      //print "i,j", i,j,minval1,minval2;
+    //  print "i,j", i,j,minval1,minval2;
     //end if;
+    maxminval := Max([maxminval, minval1, minval2]);
   end for;
+  assert maxminval ge 4;
 end for;
 "All checks passed: images of known affine points among solutions";
 "Number of known affine points", #Qpts;
 "Number of solutions", #sols;
-"Any multiple roots?";
-&or[s[2] : s in sols];
+"Check that there are no multiple roots.";
+assert &or[s[2] : s in sols];
+"No multiple roots!";
+printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.",  C_RSZB, known_points_RSZB, BaseRing(C);
+
 
 t2:=Cputime();
-
 printf("This is the time taken %o", t1-t2);
 
 
