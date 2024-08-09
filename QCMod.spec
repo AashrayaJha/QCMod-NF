@@ -2,7 +2,7 @@
     +coleman.spec
     symplectic_basis.m
     hecke_correspondence.m
-    //hodge.m
+    #hodge.m
     frobenius.m
     heights.m
     second_patch_quartic.m
@@ -12,7 +12,7 @@
     mws_qc.m
     qc_init_g2.m
     string-replace.m
-    hodge_generic.m
+    hodge_nonsplit.m
 }
 
 

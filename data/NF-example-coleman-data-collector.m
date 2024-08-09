@@ -14,14 +14,10 @@ K<u> := CyclotomicField(3);
 OK := Integers(K);
 Kx<x> := PolynomialRing(K);
 Kxy<y> := PolynomialRing(Kx);
-//Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 1, 1 ], [ RationalField() | 1, -1 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -1 ]], [[ RationalField() | 0, -2 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -3 ], [ RationalField() | 2, 2 ]], [[ RationalField() | -3, 0 ]], [[ RationalField() | 2, 3 ], [ RationalField() | -1, 1 ]], [[ RationalField() | 1, 0 ]]]);
-Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 0, 0 
-], [ RationalField() | 0, -1 ], [ RationalField() | 0, -30 ], [ RationalField() 
-| 1, -298 ], [ RationalField() | 12, -978 ]], [[ RationalField() | -2, -2 ], [ 
-RationalField() | -66, -63 ], [ RationalField() | -726, -663 ], [ 
-RationalField() | -2662, -2330 ]], [[ RationalField() | 0, 0 ], [ 
-RationalField() | 0, 0 ], [ RationalField() | -3, 0 ]], [[ RationalField() | 1, 
--1 ], [ RationalField() | 9, -14 ]], [[ RationalField() | 1, 0 ]]]);
+
+// AJ: Aug6, 2024: Check Q!
+
+Q := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 0, 6 ], [ RationalField() | -106, -74 ], [ RationalField() | 198, -318 ], [ RationalField() | 642, 970 ], [ RationalField() | -734, -584 ]], [[ RationalField() | -2, -10 ], [ RationalField() | 120, 30 ], [ RationalField() | 330, 606 ], [ RationalField() | -720, 542 ]], [[ RationalField() | -3, 0 ], [ RationalField() | 6, 0 ], [ RationalField() | -3, 0 ]], [[ RationalField() | 3, 2 ], [ RationalField() | 13, 12 ]], [[ RationalField() | 1, 0 ]]]);
 
 p := 13;
 v := Factorization(p*OK)[2][1];
@@ -43,7 +39,7 @@ time data := ColemanData(Q, v, N : useU:=true,  basis0:=basis0, basis1:=basis1);
 "Coleman data constructed.";
 
 "Recording Coleman data...";
-output_file := "data/NF-example-coleman-data-patch-3_20.m";
+output_file := "data/Coleman_data_other_patches/Coleman_data_patch_3.m";
 fprintf output_file, "K<u> := CyclotomicField(3);\n";
 fprintf output_file, "_<x> := PolynomialRing(K);\n";
 fprintf output_file, "_<z> := LaurentSeriesRing(PolynomialRing(K));\n\n";
