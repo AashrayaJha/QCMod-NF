@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-//load "data/Coleman_data_other_patches/Coleman_data_patch_3.m";
-//load "data/correspondences_all.m";
+load "data/Coleman_data_other_patches/Coleman_data_patch_3.m";
+load "data/correspondences_all.m";
 
 import "applications.m": Qp_points;
 import "singleintegrals.m": is_bad, xy_coordinates;
