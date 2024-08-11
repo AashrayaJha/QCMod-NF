@@ -103,8 +103,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   r,Delta,s := auxpolys(Q);
   v1 := data1`v;
   v2 := data2`v;
-  //vprintf QCMod, 3: "v1 in qc_modular: %o\n", v1;
-  //vprintf QCMod, 3: "v2 in qc_modular: %o\n", v2;
   K1,loc1 := Completion(K,v1);
   K2,loc2 := Completion(K,v2);
   d := Degree(K);
@@ -114,15 +112,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   // ==========================================================
   // ===               SYMPLECTIC BASIS                  ===
   // ==========================================================
-  // print "This is actually running";
   vprint QCMod, 2: " Computing a symplectic basis of H^1";
   
   h1basis, g, r, W0 := H1Basis(Q, v1); 
   assert W0 eq IdentityMatrix(Rationals(), Degree(Q)); // TODO: Generalize
-  _,_,_,_:=H1Basis(Q,v2); 
+  _,_,_,_ := H1Basis(Q,v2); 
   //The second iteration is just a check for Tuitman's conditions being satisfied at both places.
 
-  //print "this has computed H1basis";
   if #basis0*#basis1 gt 0 then // Use the given basis
     h1basis := basis0 cat basis1;
   end if;
@@ -172,6 +168,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basis of complementary subspace
   end if;
   if Type(data1) eq RngIntElt then 
+    // useY means we compute a basis of H1(Y), rather than H1(X) or H1(U)
     data1 := ColemanData(Q, v1, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
   end  if;
   vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v1, N;
@@ -184,8 +181,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   prec := Max(100, tadicprec(data1, 1));
   prec := Max(tadicprec(data2, 1), tadicprec(data1, 1));
   S<t>    := LaurentSeriesRing(Qp,prec);
-  S1<z1>    := LaurentSeriesRing(Qp,prec);
-  S12<z2>    := LaurentSeriesRing(S1,prec);
+  S1<z1>  := LaurentSeriesRing(Qp,prec);
+  S12<z2> := LaurentSeriesRing(S1,prec);
 
   function to_S12(f, i)
     // f is an element of S = Qp[t]
@@ -199,9 +196,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   // ==========================================================
   search_bound := 1000;
 
-  // small Q-rational points
-  Qpoints_1 := Q_points(data1,search_bound : known_points := known_points);
-  Qpoints_2 := Q_points(data2,search_bound : known_points := known_points); 
+  // small K-rational points as Tuitman points under the 2 embeddings
+  Kpoints_1 := Q_points(data1,search_bound : known_points := known_points);
+  Kpoints_2 := Q_points(data2,search_bound : known_points := known_points); 
   //PointSearch in Magma is defined over the rationals, so enter points manually.
 
   Nfactor := 1.5; // Additional precision for root finding in Qp_points
@@ -226,59 +223,57 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   until computed_Qp_points;
 
   // Affine points where Frobenius lift isn't defined:
-  bad_Qppoints_1 := [P : P in Qppoints_1 | is_bad(P, data1) and not P`inf];
-  bad_Qpoints_1 := [P : P in Qpoints_1 | is_bad(P, data1) and not P`inf];
-  bad_Qpindices_1 := [i : i in [1..#Qppoints_1] | is_bad(Qppoints_1[i], data1) and not Qppoints_1[i]`inf];
+  bad_affine_Qppoints_1 := [P : P in Qppoints_1 | is_bad(P, data1) and not P`inf];
+  bad_Kpoints_1 := [P : P in Kpoints_1 | is_bad(P, data1) and not P`inf];
+  bad_affine_Qpindices_1 := [i : i in [1..#Qppoints_1] | is_bad(Qppoints_1[i], data1) and not Qppoints_1[i]`inf];
   
-  bad_Qppoints_2 := [P : P in Qppoints_2 | is_bad(P, data2) and not P`inf];
-  bad_Qpoints_2 := [P : P in Qpoints_2 | is_bad(P, data2) and not P`inf];
-  bad_Qpindices_2 := [i : i in [1..#Qppoints_2] | is_bad(Qppoints_2[i], data2) and not Qppoints_2[i]`inf];
+  bad_affine_Qppoints_2 := [P : P in Qppoints_2 | is_bad(P, data2) and not P`inf];
+  bad_Kpoints_2 := [P : P in Kpoints_2 | is_bad(P, data2) and not P`inf];
+  bad_affine_Qpindices_2 := [i : i in [1..#Qppoints_2] | is_bad(Qppoints_2[i], data2) and not Qppoints_2[i]`inf];
   // Affine points where Frobenius lift is defined:
-  good_Qpoints_1 := [P : P in Qpoints_1 | not is_bad(P, data1) and not P`inf];
-  good_Q_Qp_indices_1 := [FindQpointQp(P,Qppoints_1) : P in good_Qpoints_1];
+  good_Kpoints_1 := [P : P in Kpoints_1 | not is_bad(P, data1) and not P`inf];
+  good_K_Qp_indices_1 := [FindQpointQp(P,Qppoints_1) : P in good_Kpoints_1];
   numberofpoints_1 := #Qppoints_1;
 
-  good_Qpoints_2 := [P : P in Qpoints_2 | not is_bad(P, data2) and not P`inf];
-  good_Q_Qp_indices_2 := [FindQpointQp(P,Qppoints_2) : P in good_Qpoints_2];
+  good_Kpoints_2 := [P : P in Kpoints_2 | not is_bad(P, data2) and not P`inf];
+  good_K_Qp_indices_2 := [FindQpointQp(P,Qppoints_2) : P in good_Kpoints_2];
   numberofpoints_2 := #Qppoints_2;
   assert numberofpoints_1 eq numberofpoints_2;
 
-  // Find xy-coordinates of the small affine rational points as rational numbers
+  // Find xy-coordinates of the small affine K-points.
   // Use LLL for this.
-  good_coordinates_1 := [xy_coordinates(P,data1) : P in good_Qpoints_1];
-  good_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in good_coordinates_1]; 
-  bad_coordinates_1 := [xy_coordinates(P,data1) : P in bad_Qpoints_1];
+  good_coordinates_1 := [xy_coordinates(P,data1) : P in good_Kpoints_1];
+  good_affine_K_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in good_coordinates_1]; 
+  bad_coordinates_1 := [xy_coordinates(P,data1) : P in bad_Kpoints_1];
   // TODO: This might not always work for very bad points
-  bad_affine_rat_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in bad_coordinates_1]; 
+  bad_affine_K_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in bad_coordinates_1]; 
 
-  vprintf QCMod, 2: "\n Good affine rational points:\n%o\n", good_affine_rat_pts_xy;
-  vprintf QCMod, 2: "\n Bad affine rational points:\n%o\n", bad_affine_rat_pts_xy;
+  vprintf QCMod, 2: "\n Good affine K-points:\n%o\n", good_affine_K_pts_xy;
+  vprintf QCMod, 2: "\n Bad affine K-points:\n%o\n", bad_affine_K_pts_xy;
 
   //if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
   assert ISA(Type(base_point), RngIntElt) and IsZero(base_point);  // No base point given, take the first possible one.
-    global_base_point_index := 1;
-    bQ_1 := good_Qpoints_1[global_base_point_index];
-    bQ_2 := good_Qpoints_2[global_base_point_index]; // base point as Qpoint
-    bQ_xy := good_affine_rat_pts_xy[global_base_point_index];  // xy-coordinates of base point
+  global_base_point_index := 1;
+  bK_1 := good_Kpoints_1[global_base_point_index];
+  bK_2 := good_Kpoints_2[global_base_point_index]; // base point as Kpoint
+  bK_xy := good_affine_K_pts_xy[global_base_point_index];  // xy-coordinates of base point
   //else 
   //  bQ := set_point(base_point[1], base_point[2], data1); // base point given
-  //  bQ_xy := base_point;
-  //  global_base_point_index := Index(good_affine_rat_pts_xy, base_point);
+  //  bK_xy := base_point;
+  //  global_base_point_index := Index(good_affine_K_pts_xy, base_point);
   //end if;
-  local_base_point_index_1 := FindQpointQp(bQ_1,Qppoints_1);
-  local_base_point_index_2 := FindQpointQp(bQ_2,Qppoints_2);       // Index of global base point in list of local points.
+  local_base_point_index_1 := FindQpointQp(bK_1,Qppoints_1);
+  local_base_point_index_2 := FindQpointQp(bK_2,Qppoints_2);       // Index of global base point in list of local points.
 
   FF<y>   := function_field(Q);
   x := BaseRing(FF).1;
-  bpt   := CommonZeros([x-bQ_xy[1], y-bQ_xy[2]])[1]; // Base point as place on the function field
-  vprintf QCMod, 2: "\n Using the base point %o.\n", bQ_xy;
-  good_affine_rat_pts_xy_no_bpt := Remove(good_affine_rat_pts_xy, global_base_point_index); 
+  bpt   := CommonZeros([x-bK_xy[1], y-bK_xy[2]])[1]; // Base point as place on the function field
+  vprintf QCMod, 2: "\n Using the base point %o.\n", bK_xy;
+  good_affine_K_pts_xy_no_bpt := Remove(good_affine_K_pts_xy, global_base_point_index); 
 
-  ks_1 := Exclude(good_Q_Qp_indices_1, local_base_point_index_1);
-  ks_2 := Exclude(good_Q_Qp_indices_2, local_base_point_index_2);  // indices in Qppoints of good affine 
-                                                             // rational points with base point removed
-  
-
+  ks_1 := Exclude(good_K_Qp_indices_1, local_base_point_index_1);  // indices in Qppoints of good affine 
+  ks_2 := Exclude(good_K_Qp_indices_2, local_base_point_index_2);  // K-points with base point removed
+                                                             
   // compute Teichmueller representatives of good points
   teichpoints_1 := [**]; teichpoints_2 := [**];
   for i in [1..numberofpoints_1] do
@@ -311,7 +306,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   Ncorr := N + Min(corr_loss, 0);
   // correspondences and Tq are provably correct to O(p^Ncorr), at least if q = p. We
   // represent them via rational approximations.
-  //
   Qpcorr := pAdicField(p, Ncorr);
   mat_space := KMatrixSpace(Qpcorr, 2*g, 2*g);
   vprintf QCMod, 2: "\nHecke operator at %o acting on H^1:\n%o\n", q, Tq;
@@ -322,7 +316,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
   end if;  
 
-  correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];
+  correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];  // Aash: Should 15=N?
   correspondences_Qp2:=[QpMatrix(M,15,v2): M in correspondences];
   if #use_polys eq 0 then
     // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
@@ -354,13 +348,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     return &+[eltseq_f12[i]*S12alpha.1^(i-1) : i in [1..#eltseq_f12]];
   end function;
   
-  //[data1`basis[i] eq data2`basis[i] : i in [1..45]];
   // Compute an End0(J)-equivariant splitting of the Hodge filtration.
   
   //Just making this run for the moment wihtout considering functionality, 
   //since will probaby not give unit-root splitting.
 
   if IsZero(eqsplit) then
+  /* TODO: Fix this
     if unit_root_splitting then 
       // Compute the unit root splitting 
       FQp := ChangeRing(ChangeRing(Submatrix(data1`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
@@ -380,9 +374,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
       eqsplit := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
     else 
-      //eqsplit := eq_split(Tq); // Bug with X0*(303)
+    */
       eqsplit := equivariant_splitting(Tq);
-    end if; // unit_root_splitting
+    //end if; // unit_root_splitting
   end if; // IsZero(eqsplit)
 
   //vprintf QCMod, 3: "eqsplit is %o", eqsplit;
@@ -418,7 +412,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   end if; // IsZero(eqsplit)
   */
 
-/*
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
   check_equiv := (big_split*Transpose(Tq) - Transpose(Tq)*big_split);
@@ -433,7 +426,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   //vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
   
   
-*/
 
   //Sum of these quantiites below will need to account for both primes, we will fix them 
   //when they actually show up in Hodge/Frobenius/power series. 
@@ -479,13 +471,29 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ==========================================================
     
     vprintf QCMod: " Computing Hodge filtration for correspondence %o.\n", l;
+    FF := function_field(Q); // function field of curve over K
+    infplaces:=InfinitePlaces(FF);
+    generic := false;
+    if #infplaces eq 1 then
+      finf := CharacteristicPolynomial(ResidueClassField(infplaces[1]).1);
+      split := SplittingField(finf);
+      finfsplit := ChangeRing(finf, split); 
+      if SymmetricGroup(Degree(finf)) eq GaloisGroup(finf) then
+        generic := true;
+      end if;
+    end if;
+
+
 
     if assigned betafil1 then delete betafil1; end if;
     hodge_prec := 5; 
     repeat
       try
-        //eta1,betafil1,gammafil1,hodge_loss1 := HodgeData(Q,g,W0,data1`basis,Z,bpt : r:=r, prec:=hodge_prec);
-        eta1,betafil1,gammafil1,hodge_loss1 := HodgeDataGeneric(data1, Z, bpt, hodge_prec);
+        if generic then
+          eta1,betafil1,gammafil1,hodge_loss1 := HodgeDataGeneric(data1, Z, bpt, hodge_prec);
+        else
+          eta1,betafil1,gammafil1,hodge_loss1 := HodgeDataSplittingField(Q,g,W0,data1`basis,Z,bpt : r:=r, prec:=hodge_prec);
+        end if;
       catch e;
         e;
         hodge_prec +:= 5;
@@ -494,13 +502,16 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     repeat
       try
-        //eta2,betafil2,gammafil2,hodge_loss2 := HodgeData(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
-        eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, bpt, hodge_prec);
+        if generic then
+          eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, bpt, hodge_prec);
+        else
+          eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataSplittingField(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
+        end if;
       catch e;
         hodge_prec +:= 5;
       end try;
     until assigned betafil2;
-    Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2);
+    Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2); // So far correct to Nhodge
 
     vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
     vprintf QCMod, 2: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
@@ -522,8 +533,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ===                  FROBENIUS                      ===
     // ==========================================================
 
-    b01 := teichmueller_pt(bQ_1,data1);
-    b02 := teichmueller_pt(bQ_2,data2);
+    b01 := teichmueller_pt(bK_1,data1);
+    b02 := teichmueller_pt(bK_2,data2);
     vprintf QCMod: " Computing Frobenius structure for correspondence %o.\n", l;
     // xy-coordinates of Teichmueller points in discs of base point under
     // the 2 embeddings into Qp. Here we approximate elements of Qp using
@@ -561,12 +572,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     end for;
     Ncurrent := Min(Min(Nhodge, NG1),NG2);
 
-    PhiAZb_to_b01, Nptb01 := ParallelTransport(bQ_1,b01,Z1,eta1,data1:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b01, Nptb01 := ParallelTransport(bK_1,b01,Z1,eta1,data1:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
 
-    PhiAZb_to_b02, Nptb02 := ParallelTransport(bQ_2,b02,Z2,eta2,data2:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b02, Nptb02 := ParallelTransport(bK_2,b02,Z2,eta2,data2:prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
     end for;
@@ -577,9 +588,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     Ncurrent := Min(Min(Ncurrent, Nptb01),Nptb02);
     Nfrob_equiv_iso := Ncurrent;
 
-    //JB 03/19/24 started editing here
-    //Aash: numberofpoints_1 == numberofpoints_2 yes?
-
     minvalPhiAZbs1 := [0 : i in [1..numberofpoints_1]];
     minvalPhiAZbs2 := [0 : i in [1..numberofpoints_2]];
 
@@ -589,7 +597,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         PhiAZb1[i] := 0;
       else 
         pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge);
-        isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent); //JB: changed to G_list1
+        isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent); 
         MNi1 := Npti1 lt Nisoi1 select Parent(pti1) else Parent(isoi1);
         PhiAZb1[i] := MNi1!(pti1*PhiAZb_to_b01*isoi1);
         Nfrob_equiv_iso1 := Min(Nfrob_equiv_iso, minprec(PhiAZb1[i]));
@@ -599,11 +607,11 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     for i := 1 to numberofpoints_2 do
 
-      if G_list2[i] eq 0 then //JB: should be G_list2? 
+      if G_list2[i] eq 0 then 
         PhiAZb2[i] := 0;
       else 
         pti2, Npti2 := ParallelTransport(teichpoints_2[i],Qppoints_2[i],Z2,eta2,data2:prec:=prec,N:=Nhodge);
-        isoi2, Nisoi2 := frob_equiv_iso(G_list2[i],data2,Ncurrent); //G_list2
+        isoi2, Nisoi2 := frob_equiv_iso(G_list2[i],data2,Ncurrent); 
         MNi2 := Npti2 lt Nisoi2 select Parent(pti2) else Parent(isoi2);
         PhiAZb2[i] := MNi2!(pti2*PhiAZb_to_b02*isoi2);
         Nfrob_equiv_iso2 := Min(Nfrob_equiv_iso, minprec(PhiAZb2[i]));
@@ -619,14 +627,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     PhiAZb_to_z1 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
     for i := 1 to numberofpoints_1 do
-      PhiAZb_to_z1[i] := G_list1[i] eq 0 select 0 else //G_list1? 
+      PhiAZb_to_z1[i] := G_list1[i] eq 0 select 0 else 
         ParallelTransportToZ(Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge)*PhiAZb1[i]; 
     end for;
 
 
     PhiAZb_to_z2 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
     for i := 1 to numberofpoints_2 do
-      PhiAZb_to_z2[i] := G_list2[i] eq 0 select 0 else //G_list2?
+      PhiAZb_to_z2[i] := G_list2[i] eq 0 select 0 else 
         ParallelTransportToZ(Qppoints_2[i],Z2,eta2,data2:prec:=prec,N:=Nhodge)*PhiAZb2[i]; 
     end for;
 
@@ -655,13 +663,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
 
       if not basis_found then  // Find a point with non-zero E1 to write down a basis of the Lie algebra. 
-                           // To minimize precision loss, want small valuation of
-                           // determinant of change of basis matrix.
+                               // To minimize precision loss, want small valuation of
+                               // determinant of change of basis matrix.
         min_val_det_i := Ncurrent;
-        for i := 1 to #good_affine_rat_pts_xy_no_bpt do
+        for i := 1 to #good_affine_K_pts_xy_no_bpt do
           // E1(sigma1(Pi))
-          Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
-                              else good_Qpoints_1[i+1];
+          Qpti1 := i lt global_base_point_index select good_Kpoints_1[i]
+                              else good_Kpoints_1[i+1];
 
           pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
 
@@ -672,8 +680,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           NE1Pi1 := Min([Ncurrent, minprec(E1Pi1)]);
 
           // E1(sigma2(Pi))
-          Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
-                              else good_Qpoints_2[i+1];
+          Qpti2 := i lt global_base_point_index select good_Kpoints_2[i]
+                              else good_Kpoints_2[i+1];
           pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
 
           MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
@@ -728,7 +736,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       minvalchangebasis2 := minval(changebasis2);
       changebases := [changebasis1, changebasis2];
 
-      vprintf QCMod, 2: " Using point %o to generate.\n", good_affine_rat_pts_xy_no_bpt[min_i];
+      vprintf QCMod, 2: " Using point %o to generate.\n", good_affine_K_pts_xy_no_bpt[min_i];
 
     end if; 
   //end for;  // k := 1 to numberofpoints 
@@ -745,14 +753,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         i := 1;
         repeat 
           // E1_tensor_E2(P1)
-          Qpti1 := i lt global_base_point_index select good_Qpoints_1[i]
-                      else good_Qpoints_1[i+1];
+          Qpti1 := i lt global_base_point_index select good_Kpoints_1[i]
+                      else good_Kpoints_1[i+1];
           pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
           MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
           Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
           Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
-          Qpti2 := i lt global_base_point_index select good_Qpoints_2[i]
-                      else good_Qpoints_2[i+1];
+          Qpti2 := i lt global_base_point_index select good_Kpoints_2[i]
+                      else good_Kpoints_2[i+1];
 
           pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
           MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
@@ -784,9 +792,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or 
             Dimension(E1_E2_subspace) eq dim then  // TODO: only use first check. The second one is there so that we can test whether the pairing we solve for is actually the height pairing. This is done by computing E1_E2 and the heights for all available points.
             if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then //and i le 9 then
-              vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+              vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_K_pts_xy_no_bpt[i], l;
             else 
-              vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+              vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing.\n", good_affine_K_pts_xy_no_bpt[i], l;
             end if;
             E1_E2_subspace := new_E1_E2_subspace; 
             //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
@@ -800,7 +808,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             NhtP1 := AbsolutePrecision(height_P_1); 
             
             Append(~heights1, height_P_1); // height of A_Z(b, P)
-            //vprintf QCMod, 2: " Added height for point %o and correspondence %o to heights1; new size of heights1 is %o\n", good_affine_rat_pts_xy_no_bpt[i], l, #heights1;
+            //vprintf QCMod, 2: " Added height for point %o and correspondence %o to heights1; new size of heights1 is %o\n", good_affine_K_pts_xy_no_bpt[i], l, #heights1;
             x2, y2 := Explode(xy_coordinates(Qpti2, data2));
             gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
             //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
@@ -812,7 +820,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             Nhts := Min([Nhts, NhtP1, NhtP2]);
             NE1E2Ps := Min(NE1E2Ps, NE1E2P);
           else
-            vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", good_affine_rat_pts_xy_no_bpt[i], l;
+            vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", good_affine_K_pts_xy_no_bpt[i], l;
 
           end if;
           i +:= 1;
@@ -1161,10 +1169,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     printf "\n Sanity check at rational points for correspondence %o.\n  ", i; 
     F1_list := F1_lists[i];
     F2_list := F2_lists[i];
-    for j in [1..#good_Qpoints_1] do
-      P1 := good_Qpoints_1[j]; 
+    for j in [1..#good_Kpoints_1] do
+      P1 := good_Kpoints_1[j]; 
       ind1 := FindQpointQp(P1, Qppoints_1); 
-      P2 := good_Qpoints_2[j]; 
+      P2 := good_Kpoints_2[j]; 
       ind2 := FindQpointQp(P2, Qppoints_2); 
       Append(~global_pts_local, <P1,P2>); 
       //vals := [];
@@ -1175,7 +1183,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           coord1 := (P1`x - P1p`x);
           coord2 := (P2`x - P2p`x);
           //val1 := Valuation(Qp_small!Evaluate(F_list[ind], P`x - Pp`x)); 
-          //if pl gt 1 then  printf "\nValuation of the quadratic Chabauty function evaluated at (x,y) = %o is \n%o\n", good_affine_rat_pts_xy[j], p,  val; end if;
+          //if pl gt 1 then  printf "\nValuation of the quadratic Chabauty function evaluated at (x,y) = %o is \n%o\n", good_affine_K_pts_xy[j], p,  val; end if;
           //assert val ge Nend-1;  // possible precision loss in evaluating F
           //assert exists(v){ val : val in vals | val ge Nend-1}; // possible precision loss in evaluating F
           f1 := F1_list[ind1,ind2];
@@ -1199,14 +1207,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           "indices", ind1,ind2;
           "root", [1/p*coord1, 1/p*coord2];
           "now compute roots";
-precision := Nend-1;
-prec1 := Nend-1;
+          precision := Nend-1;
+          prec1 := Nend-1;
           time roots2, droots2 := two_variable_padic_system_solver(g1_poly, g2_poly, p, prec1, precision : safety := 1);
           printf "roots bianchi for prec1 = %o and prec2 = %o \n are %o\n", prec1, precision, roots2;
           //"valuations of differences of computed roots and root from global point";
           assert Max([Max(Valuation(r[1] - 1/p*coord1), Valuation(r[2] - 1/p*coord2)) : r in roots2]) ge 4;
-
-
 
           /*
            local_height1_series := local_height_lists_1[i,ind1];
@@ -1251,7 +1257,7 @@ prec1 := Nend-1;
   end for; //  i := 1 to number_of_correspondences 
   
 
-  return sol_list, zero_list, double_zero_list, global_pts_local,F1_lists, F2_lists, Qppoints_1, Qppoints_2  ;
+  return sol_list, zero_list, double_zero_list, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
 
 end intrinsic;
 
@@ -1338,9 +1344,9 @@ end intrinsic;
   end if;
 
   if #fake_rat_pts gt 0 then
-    return good_affine_rat_pts_xy, false, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_Qppoints;
+    return good_affine_rat_pts_xy, false, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_affine_Qppoints;
   else
-    return good_affine_rat_pts_xy, true, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_Qppoints;
+    return good_affine_rat_pts_xy, true, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_affine_Qppoints;
   end if;
 end intrinsic;
   */

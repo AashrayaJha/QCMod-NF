@@ -420,8 +420,6 @@ function basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,useU,useY,basis0
   forms2ndkind:=Kernel(matres0) meet Kernel(matresinf);
   cocyc:=E0nEinf meet forms2ndkind;
 
-  "forms2ndkind", Dimension(forms2ndkind);
-  "E0nEinf", Dimension(E0nEinf);
   forms1stkind:=logforms meet forms2ndkind;
   
   // Compute a matrix with kernel (B0 intersect Binf)
@@ -474,8 +472,7 @@ function basis_coho(Q,v,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,useU,useY,basis0
 
   // Compute bases
 
-  "cocyc", Dimension(cocyc);
-  "list", #list;
+  //"cocyc", Dimension(cocyc); "list", #list;
   cobound:=sub<cocyc|list>;
 
   if basis0 eq [] then

@@ -10,9 +10,9 @@ t1:=Cputime();
 
 Q:=data_1`Q;
 
-Qppoints_1 := Qp_points(data_1 : Nfactor := 1.5);
+Qppoints_1 := Qp_points(data_1);
 assert &and[not(is_bad(P, data_1)) : P in Qppoints_1];
-Qppoints_2 := Qp_points(data_2 : Nfactor := 1.5);
+Qppoints_2 := Qp_points(data_2);
 assert &and[not(is_bad(P, data_2)) : P in Qppoints_2];
 // So under both embeddings, all residue disks are good (in particular,
 // affine)
@@ -25,7 +25,10 @@ C_RSZB := CurveFromBivariate(Q_RSZB);
 bool, trans_seq := IsIsomorphicPlaneQuartics(C_RSZB,C);
 trans := trans_seq[1];
 a,b,c := GetVersion();
-trans:=trans^(-1);  //AJ: Need this for Magma version V2.27-5
+if b lt 28 then
+  trans:=trans^(-1);  //AJ: Need this for Magma version V2.27-5
+                      // TODO: Find out when this change was made.
+end if;
 known_points_RSZB := [C_RSZB!P : P in [
   [1,0,0], // j = 1728, D = -4
   [1,u+1,0], // j = 287496, D = -16 

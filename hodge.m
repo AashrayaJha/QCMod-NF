@@ -7,8 +7,8 @@ freeze;
 import "auxpolys.m": auxpolys;
 import "misc.m": function_field;
 
-intrinsic HodgeData(Q::RngUPolElt[RngUPol], g::RngIntElt, W0::AlgMatElt[FldFunRat], basis::SeqEnum[ModTupRngElt[RngUPol]],
-                    Z::AlgMatElt, bpt::PlcFunElt : r := auxpolys(Q), prec := 5)
+intrinsic HodgeDataSplittingField(Q::RngUPolElt[RngUPol], g::RngIntElt, W0::AlgMatElt[FldFunRat], 
+            basis::SeqEnum[ModTupRngElt[RngUPol]], Z::AlgMatElt, bpt::PlcFunElt : r := auxpolys(Q), prec := 5)
   -> ModTupFldElt, ModTupFldElt, ModTupRngElt[RngUPol], RngIntElt
   {Compute the 1-form eta, as a vector of coefficients
   w.r.t. basis[i] for i=2g+1,...,2g+k-1 where k is the 
