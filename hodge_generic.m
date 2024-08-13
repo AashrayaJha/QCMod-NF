@@ -11,7 +11,7 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
   -> ModTupFldElt, ModTupFldElt, ModTupRngElt[RngUPol], RngIntElt
   {Compute the 1-form eta, as a vector of coefficients
   w.r.t. basis[i] for i=2g+1,...,2g+k-1 where k is the 
-  number of points lying over x=infinity, and the vector of constants beta_fil and the function gamma_fil.
+  number of points lying over x=infinity, and the vector of constants beta_fil and the function gamma_fil. Work over the respective residue fields of the places.
   This only works when the Galois action on the places at infinity is maximal.}
 
   Q := data`Q;
@@ -77,7 +77,7 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
     Kinfx := Kinfxs[i];
     Kinf := Kinfs[i];
     FFKinf := FFKinfs[i];
-    vprintf QCMod, 2: " Computing expansions for place %o at infinity.\n", i;
+    vprintf QCMod, 3: " Computing expansions for place %o at infinity.\n", i;
     xfunx[i]:=Expand(FFKinf!Kinfx.1,P : RelPrec:=prec+3); 
     dxdt:=Derivative(xfunx[i]);
     
@@ -152,7 +152,6 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
 
   eta := Solution(A,Vector(v)); // solve for eta
   eta := ChangeRing(eta,K);
-  "Found eta";
 
   gx:=[**]; // functions g_x
   for i:=1 to #infplacesext do
@@ -170,7 +169,6 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
     end for;
   end for;
 
-  "Found gx's";
 
   poleorder:=0;
   for i:=1 to #infplacesext do
@@ -207,7 +205,6 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
 
     rows:=[];
 
-    "Reaches here 1";
     for i:=1 to g do
       row:=[];
       cnt:=0;
@@ -235,7 +232,6 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
         Append(~rows,row);  
       end for;
     end for;   
-    "Reaches here 2" ;
     suc,sol := IsConsistent(Matrix(rows),Vector(v));
     if suc then
       done:=true;
@@ -253,7 +249,6 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
   end for;
 
   // read off gamma from solution
-  "Reaches here 3" ;
   Kt := PolynomialRing(K);
   gamma:=[];
   cnt:=g;
@@ -282,7 +277,6 @@ intrinsic HodgeDataGeneric(data::Rec, Z::AlgMatElt, bpt::PlcFunElt, prec::RngInt
     gamma_FF +:= Evaluate(gamma[i],Kx.1)*b0fun[i];
   end for;
   gamma[1] -:= Evaluate(gamma_FF,bpt); 
-  "done hodge";
   return Vector(eta),Vector(beta),Vector(gamma),Integers()!poleorder_Omegax;
 
 end intrinsic;

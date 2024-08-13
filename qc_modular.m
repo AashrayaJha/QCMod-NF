@@ -1,7 +1,5 @@
 freeze;
 
-// July 21: JSM/JB added precision estimates
-// August 21: ND added use_polys
 
 import "auxpolys.m": auxpolys, log;
 import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
@@ -14,21 +12,38 @@ import "hensel.m": hensel_lift_n, two_variable_padic_system_solver;
 // verbose flag determines how much information is printed during the computation.
 declare verbose QCMod, 4;
 
-intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
-                      N := 15, prec := 2*N, basis0 := [], basis1 := [], basis2 := [], data1:=0,
-                      data2:=0, correspondence_data:=0, number_of_correspondences := 0, base_point := 0, known_points := [],
-                      hecke_prime := 0, unit_root_splitting := false, eqsplit := 0,
-                      height_coeffs := [], rho := 0, use_log_basis := false, use_polys:=[])
-  -> SeqEnum[FldRatElt], BoolElt, SeqEnum[FldRatElt], Rec, List, SeqEnum[Rec]
-  {Main function, takes a plane affine curve (not necessarily smooth) with integer coefficients, monic in y,
-  and a prime p and outputs the rational points in those disks where Tuitman's Frobenius lift is defined.
-  Also outputs additional information, such as additional p-adic solutions which don't look rational.}
+intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnum, 
+  correspondence_data::List : N := 15, prec := 2*N, basis0 := [], basis1 := [], 
+  basis2 := [], data1:=0, data2:=0, base_point := 0, rho := 0)
+                //      hecke_prime := 0, unit_root_splitting := false, eqsplit := 0,
+                //      height_coeffs := [], rho := 0, use_log_basis := false, use_polys:=[])
+  -> SeqEnum, BoolElt, SeqEnum, SeqEnum, List, SeqEnum, Rec, Rec
+  {Run quadratic Chabauty given an equation of a plane affine curve satisfying Tuitman's conditions over a quadratic number field K;
+  a prime p, split in K and of good reduction (in the Balakrishnan-Tuitman sense); a sequence of known K-points and a list of nice correspondences.
+    Outputs a list of K-points mapping under all embedding to disks where Tuitman's Frobenius lift is defined.
+    Also outputs additional information.}
+
+  // TODO: Fix output list! Where does this come from?
+  // TODO: Fix documentation
+  // TODO: 
+  //  -Make known_points required, since Jan's code can't compute
+  // K-points. Alternatively, could find the K-points using our code using algebraic 
+  // approximation under the two embeddings. Is this
+  // actually worth doing? Probably not; in all examples one cares about
+  // one should already have a good idea what the points are.
+  // - Make correspondences required, since they take too long. Also note
+  // that we require Tp, and it's the user's responsibility to guarantee
+  // that Tp is correct. Maybe just require that the correspondences come
+  // from powers of Tp
+  // - Comment out things that don't work such as unit_root_splitting and
+  // log-basis stuff. Also in the input.
+  //
 //nice_correspondences := [], away_contributions := [0], 
 // INPUT
-//  * Q is a bivariate polynomial with integer coefficients, defining a smooth affine plane curve
-//    such that its smooth projective model X and J = Jac(X) satisfy
-//    * rk(J/Q) = g(X) 
-//    * J has RM over Q
+//  * Q is a bivariate polynomial with OK-integral coefficients, where K is a quadratic number field,
+//    defining a smooth affine plane curve such that its smooth projective model X and J = Jac(X) satisfy
+//    * rk(J/Q) = g(X)  // TODO: Adapt!
+//    * J has RM over K
 //    These conditions are not checked!
 //  * v is a split prime ideal of good reduction of K, satisfying some additional Tuitman conditions (these
 //    are checked).
@@ -46,23 +61,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 //  * base_point is a pair [x,y] specifying a rational point on X to be used as a base
 //    point for Abel Jacobi. If base_point = 0, the first good affine rational point found
 //    is used.
-//  * known_points is a list of known rational points over the base field.
-//  * hecke_prime is a prime number q such that the Hecke operator Tq is used to construct
-//    nice correspondences and (if use_log_basis is false) a basis of the bilinear pairings.
-//    If hecke_prime is 0, we use q=p. We check p-adically whether Tq generates the
-//    Hecke algebra, which is needed below, but for provably correct output, this should be
-//    checked by an exact computation, as in QCModQuartic.
-//  * if use_log_basis is false, we determine a basis of bilinear pairings as the dual
-//    basis of the E1\otimes E2-basis for sufficiently many rational points on X. Otherwise we
-//    use a basis given by products of logs (i.e. single integrals of holomorphic forms). 
-//    The latter is necessary if there are not enough rational points on X.
-//  * height_coeffs specifies the coefficient of the height pairing in terms of a basis of
-//    bilinear pairings as in use_log_basis.
-//  * eqsplit is a 2g x g matrix representing an equivariant splitting of the Hodge
-//    filtration wrt the given basis.
-//  * unit_root_splitting is true if we need to use the unit root splitting, else false.
+//  * known_points is a list of known K-points over the base field.
+//  * We determine a basis of bilinear pairings as the dual
+//    basis of the E1\otimes E2-basis for sufficiently many rational points on X. If this isn't possible, we throw an error. TODO: as in QCMode, use a basis given by products of logs (i.e. single integrals of holomorphic forms). 
 //
 //  OUTPUT:
+// return good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, global_pts_local, bad_affine_K_pts_xy, data1, data2; //, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
 //  ** good_affine_rat_pts_xy, bool, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_Qppoints **
 //  where
 //  * good_affine_rat_pts_xy is a list of rational points (x,y) such that Q(x,y)=0 living
@@ -76,8 +80,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 //  * bad_Qppoints is a list of Qppoints representing bad residue disks.
 //  
 //  EXAMPLE
-//  f67  := x^6 + 2*x^5 +   x^4 - 2*x^3 + 2*x^2 - 4*x + 1; 
-//  good_pts, bool, bad_pts, data, fake_rat_pts, bad_disks := QCModAffine(y^2-f67, 7);
 //
 
 
@@ -98,16 +100,17 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   end while;
     
   K := BaseRing(BaseRing(Q));
-  OK := MaximalOrder(K);
-  Qp := pAdicField(p,N);
-  r,Delta,s := auxpolys(Q);
+  d := Degree(K);
+  require d eq 2: "K must be quadratic"; // TODO: Generalize
   v1 := data1`v;
+  require Norm(v1) eq p: "p should split in K.";
   v2 := data2`v;
   K1,loc1 := Completion(K,v1);
   K2,loc2 := Completion(K,v2);
-  d := Degree(K);
+  OK := MaximalOrder(K);
+  Qp := pAdicField(p,N);
+  r,Delta,s := auxpolys(Q);
 
-  require Norm(v1) eq p: "p should split in K.";
 
   // ==========================================================
   // ===               SYMPLECTIC BASIS                  ===
@@ -127,10 +130,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     rho := g;       //If not given, we assume that the Picard number is equal to the genus
   end if;
   
-  if number_of_correspondences eq 0 then
-    number_of_correspondences := rho-1; 
-  end if;
-
   // h1basis is a basis of H^1 such that the first g elements span the regular
   // differentials. Construct a symplectic basis by changing the last g elements of h1basis.
   //
@@ -171,12 +170,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // useY means we compute a basis of H1(Y), rather than H1(X) or H1(U)
     data1 := ColemanData(Q, v1, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
   end  if;
-  vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v1, N;
+  vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v1, N;
 
   if Type(data2) eq RngIntElt then 
     data2:= ColemanData(Q, v2, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
   end if;  
-  vprintf QCMod, 2: " Computed Coleman data at p=%o to precision %o.\n", v2, N;
+  vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v2, N;
 
   prec := Max(100, tadicprec(data1, 1));
   prec := Max(tadicprec(data2, 1), tadicprec(data1, 1));
@@ -197,9 +196,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   search_bound := 1000;
 
   // small K-rational points as Tuitman points under the 2 embeddings
+  // PointSearch in Magma is defined over the rationals, so enter points manually.
   Kpoints_1 := Q_points(data1,search_bound : known_points := known_points);
   Kpoints_2 := Q_points(data2,search_bound : known_points := known_points); 
-  //PointSearch in Magma is defined over the rationals, so enter points manually.
+  // TODO: Maybe get rid of this and compute the K-points using our code?
 
   Nfactor := 1.5; // Additional precision for root finding in Qp_points
   computed_Qp_points := false;
@@ -291,58 +291,56 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
   // Want rho-1 independent `nice` correspondences.
   // Construct them using powers of Hecke operator
-  q := IsZero(hecke_prime) select p else hecke_prime;
+  //q := IsZero(hecke_prime) select p else hecke_prime;
   
-  //Note this won't actually work, maybe this shouldn't be an optional parameter. Think about this
-  //later. Ask user to provide the action of a correspondence. For now for X/Q(zeta_3), we just 
-  //provide the data.
 
-  if Type(correspondence_data) eq RngIntElt  then 
-    correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
-  else
-    correspondences := correspondence_data[2]; Tq:=correspondence_data[1];  corr_loss:=correspondence_data[3];
-  end if;
+  //if Type(correspondence_data) eq RngIntElt  then 
+  // TODO: Make this work.
+  //  correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
+  //else
+    correspondences := correspondence_data[2]; Tp:=correspondence_data[1];  corr_loss:=correspondence_data[3];
+  //end if;
 
   Ncorr := N + Min(corr_loss, 0);
   // correspondences and Tq are provably correct to O(p^Ncorr), at least if q = p. We
   // represent them via rational approximations.
   Qpcorr := pAdicField(p, Ncorr);
   mat_space := KMatrixSpace(Qpcorr, 2*g, 2*g);
-  vprintf QCMod, 2: "\nHecke operator at %o acting on H^1:\n%o\n", q, Tq;
-  if IsDiagonal(Tq) or Degree(CharacteristicPolynomial(Tq)) lt 2*g then
-    error "p-Adic approximation of Hecke operator does not generate the endomorphism algebra. Please pick a different prime. ";
-  end if;
-  if q ne p then
-    printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
-  end if;  
+  //vprintf QCMod, 3: "\nHecke operator at %o acting on H^1:\n%o\n", q, Tq;
+  //if IsDiagonal(Tq) or Degree(CharacteristicPolynomial(Tq)) lt 2*g then
+    //error "p-Adic approximation of Hecke operator does not generate the endomorphism algebra. Please pick a different prime. ";
+  //end if;
+  //if q ne p then
+    //printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
+  //end if;  
 
   correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];  // Aash: Should 15=N?
   correspondences_Qp2:=[QpMatrix(M,15,v2): M in correspondences];
-  if #use_polys eq 0 then
-    // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
-    if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp1, mat_space)>) lt rho-1 then
-      error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
-    end if;
-    if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp2, mat_space)>) lt rho-1 then
-      error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
-    end if;
+  //if #use_polys eq 0 then
+  // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
+  if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp1, mat_space)>) lt rho-1 then
+    error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
   end if;
+  if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp2, mat_space)>) lt rho-1 then
+    error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
+  end if;
+  //end if;
 
   //end if;
     
-  vprintf QCMod, 2: "\n Nice correspondences:\n%o\n\n", correspondences;
+  vprintf QCMod, 3: "\n Nice correspondences:\n%o\n\n", correspondences;
   number_of_correspondences := #correspondences;
   vprintf QCMod, 2: "\n number_of_correspondences:\n%o\n\n", number_of_correspondences;
 
-  Tq_small := ExtractBlock(Tq,1,1,g,g);                // Hecke operator at q on H^0(X,Omega^1)
-  char_poly_Tq := CharacteristicPolynomial(Tq_small);  
-  Qp_ext := quo<PolynomialRing(Qp) | PolynomialRing(Rationals())!char_poly_Tq>;
+  Tp_small := ExtractBlock(Tp,1,1,g,g);     // Hecke operator at p on H^0(X,Omega^1)
+  char_poly_Tp := CharacteristicPolynomial(Tp_small);  
+  Qp_ext := quo<PolynomialRing(Qp) | PolynomialRing(Rationals())!char_poly_Tp>;
   //The characteristic polynomial is defined over Z, so don't actually need any embedding.
-  Salpha := quo<PolynomialRing(S) | PolynomialRing(Rationals())!char_poly_Tq>;
-  S12alpha := quo<PolynomialRing(S12) | PolynomialRing(Rationals())!char_poly_Tq>;
+  Salpha := quo<PolynomialRing(S) | PolynomialRing(Rationals())!char_poly_Tp>;
+  S12alpha := quo<PolynomialRing(S12) | PolynomialRing(Rationals())!char_poly_Tp>;
 
   function to_S12alpha(f, i)
-    // f is an element of Salpha = Qp[t]/(char_poly_Tq)
+    // f is an element of Salpha = Qp[t]/(char_poly_Tp)
     // coerce it into S12alpha by replacing t by z
     eltseq_f12 := [to_S12(e, i) : e in Eltseq(f)];
     return &+[eltseq_f12[i]*S12alpha.1^(i-1) : i in [1..#eltseq_f12]];
@@ -353,7 +351,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   //Just making this run for the moment wihtout considering functionality, 
   //since will probaby not give unit-root splitting.
 
-  if IsZero(eqsplit) then
+  //if IsZero(eqsplit) then
   /* TODO: Fix this
     if unit_root_splitting then 
       // Compute the unit root splitting 
@@ -375,9 +373,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       eqsplit := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
     else 
     */
-      eqsplit := equivariant_splitting(Tq);
+      eqsplit := equivariant_splitting(Tp);
     //end if; // unit_root_splitting
-  end if; // IsZero(eqsplit)
+  //end if; // IsZero(eqsplit)
 
   //vprintf QCMod, 3: "eqsplit is %o", eqsplit;
 
@@ -406,24 +404,24 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
       eqsplit2 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
     else 
-      //eqsplit := eq_split(Tq); // Bug with X0*(303)
-      eqsplit := equivariant_splitting(Tq);
+      //eqsplit := eq_split(Tp); // Bug with X0*(303)
+      eqsplit := equivariant_splitting(Tp);
     end if; // unit_root_splitting
   end if; // IsZero(eqsplit)
   */
 
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
-  check_equiv := (big_split*Transpose(Tq) - Transpose(Tq)*big_split);
-  //check_equiv := ChangeRing((big_split*Transpose(Tq) - Transpose(Tq)*big_split), pAdicField(p, N-2));     
+  check_equiv := (big_split*Transpose(Tp) - Transpose(Tp)*big_split);
+  //check_equiv := ChangeRing((big_split*Transpose(Tp) - Transpose(Tp)*big_split), pAdicField(p, N-2));     
   min_val_check_equiv1 := Min([Min([Valuation(check_equiv[i,j], v1) : j in [1..g]]): i in [1..2*g]]);
   min_val_check_equiv2 := Min([Min([Valuation(check_equiv[i,j], v2) : j in [1..g]]): i in [1..2*g]]);
   vprintf QCMod, 3: "min_val_check_equiv = %o, %o\n", min_val_check_equiv1, min_val_check_equiv2;
   assert min_val_check_equiv1 ge N-3; 
   assert min_val_check_equiv2 ge N-3; 
-  vprintf QCMod, 3: "checking if this is 0: %o", IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split); 
-  assert IsZero(big_split*Transpose(Tq) - Transpose(Tq)*big_split);     // Test equivariance
-  //vprintf QCMod, 2: "\n equivariant splitting:\n%o\n", eqsplit;
+  vprintf QCMod, 3: "checking if this is 0: %o", IsZero(big_split*Transpose(Tp) - Transpose(Tp)*big_split); 
+  assert IsZero(big_split*Transpose(Tp) - Transpose(Tp)*big_split);     // Test equivariance
+  vprintf QCMod, 3: "\n equivariant splitting:\n%o\n", eqsplit;
   
   
 
@@ -451,7 +449,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   valetas2 := []; valbetafils2 := [];
   maxdeggammafils2 := []; minvalgammafils2 := []; 
   dim := d^2*g;
-  if #height_coeffs eq 0 or not use_log_basis then 
+  //if #height_coeffs eq 0 then  or not use_log_basis then 
     heights1 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
     heights2 := [* *];    // local heights of auxiliary points. Different correspondences allowed (might cut down the # of necessary rational pts).
     basis_found := false;
@@ -459,7 +457,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     //super_space := VectorSpace(Qp, g);
     E1_E2_subspace := sub<super_space | [Zero(super_space)]>;
     E1_E2_Ps := [ ]; // E1 tensor E2 of auxiliary points
-  end if;
+  //end if;
   
 
   for l := 1 to number_of_correspondences do
@@ -511,7 +509,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         hodge_prec +:= 5;
       end try;
     until assigned betafil2;
-    Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2); // So far correct to Nhodge
+    Nhodge := Ncorr + Min(Min(0, hodge_loss1),hodge_loss2); // Correct to Nhodge
 
     vprintf QCMod, 2: " eta =  %o,%o.\n", eta1,eta2; 
     vprintf QCMod, 2: " beta_fil  =  %o,%o.\n", betafil1,betafil2; 
@@ -548,36 +546,39 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     Z2 := ChangeRing(Z2, Rationals());
     G1, NG1 := FrobeniusStructure(data1,Z1,eta1,b0pt1 : N:=Nhodge); 
     G2, NG2 := FrobeniusStructure(data2,Z2,eta2,b0pt2 : N:=Nhodge); 
-    G_list1 := [**]; G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
-                                      //
+    G_list1 := [**]; G_list2 := [**]; 
+    // evaluations of G at Teichmuellers of all good points (0 if bad)
+
     for i := 1 to numberofpoints_1 do
       if is_bad(Qppoints_1[i],data1) then
         G_list1[i]:=0;
       else
         P  := teichpoints_1[i]; // P is the Teichmueller point in this disk
-        pt := [IntegerRing()!c : c in xy_coordinates(P, data1)]; // xy-coordinates of P
-        G_list1[i] := eval_mat_R(G1, pt, r, v1); // P is finite good, so no precision loss. 
+        pt := [IntegerRing()!c : c in xy_coordinates(P, data1)]; 
+        G_list1[i] := eval_mat_R(G1, pt, r, v1); // P is good, so no precision loss. 
       end if;
     end for;
-    G_list2 := [**]; // evaluations of G at Teichmuellers of all good points (0 if bad)
+    G_list2 := [**]; 
+    // evaluations of G at Teichmuellers of all good points (0 if bad)
     for i := 1 to numberofpoints_2 do
-      //if is_bad(bad_Qppoints_2[i],data2) then // TODO: ???
       if is_bad(Qppoints_2[i],data2) then
         G_list2[i]:=0;
       else
         P  := teichpoints_2[i]; // P is the Teichmueller point in this disk
-        pt := [IntegerRing()!c : c in xy_coordinates(P, data2)]; // xy-coordinates of P
-        G_list2[i] := eval_mat_R(G2, pt, r, v2); // P is finite good, so no precision loss. 
+        pt := [IntegerRing()!c : c in xy_coordinates(P, data2)]; 
+        G_list2[i] := eval_mat_R(G2, pt, r, v2); // P is good, so no precision loss. 
       end if;
     end for;
     Ncurrent := Min(Min(Nhodge, NG1),NG2);
 
-    PhiAZb_to_b01, Nptb01 := ParallelTransport(bK_1,b01,Z1,eta1,data1:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b01, Nptb01 := ParallelTransport(bK_1,b01,Z1,eta1,data1 : 
+                                                              prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b01[2*g+2,i+1] := -PhiAZb_to_b01[2*g+2,i+1];
     end for;
 
-    PhiAZb_to_b02, Nptb02 := ParallelTransport(bK_2,b02,Z2,eta2,data2:prec:=prec,N:=Nhodge);
+    PhiAZb_to_b02, Nptb02 := ParallelTransport(bK_2,b02,Z2,eta2,data2 : 
+                                                          prec:=prec,N:=Nhodge);
     for i := 1 to 2*g do
       PhiAZb_to_b02[2*g+2,i+1] := -PhiAZb_to_b02[2*g+2,i+1];
     end for;
@@ -596,7 +597,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       if G_list1[i] eq 0 then 
         PhiAZb1[i] := 0;
       else 
-        pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge);
+        pti1, Npti1 := ParallelTransport(teichpoints_1[i],Qppoints_1[i],
+                                                Z1,eta1,data1:prec:=prec,N:=Nhodge);
         isoi1, Nisoi1 := frob_equiv_iso(G_list1[i],data1,Ncurrent); 
         MNi1 := Npti1 lt Nisoi1 select Parent(pti1) else Parent(isoi1);
         PhiAZb1[i] := MNi1!(pti1*PhiAZb_to_b01*isoi1);
@@ -625,34 +627,41 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     Append(~c1s2, minvalPhiAZbs2);
 
 
-    PhiAZb_to_z1 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
+    PhiAZb_to_z1 := [**]; 
+    // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
     for i := 1 to numberofpoints_1 do
       PhiAZb_to_z1[i] := G_list1[i] eq 0 select 0 else 
         ParallelTransportToZ(Qppoints_1[i],Z1,eta1,data1:prec:=prec,N:=Nhodge)*PhiAZb1[i]; 
     end for;
 
 
-    PhiAZb_to_z2 := [**]; // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
+    PhiAZb_to_z2 := [**]; 
+    // Frobenius on the phi-modules A_Z(b,z) for z in residue disk of P (0 if P bad)
     for i := 1 to numberofpoints_2 do
       PhiAZb_to_z2[i] := G_list2[i] eq 0 select 0 else 
-        ParallelTransportToZ(Qppoints_2[i],Z2,eta2,data2:prec:=prec,N:=Nhodge)*PhiAZb2[i]; 
+        ParallelTransportToZ(Qppoints_2[i],Z2,eta2,data2 : 
+                                                prec:=prec,N:=Nhodge)*PhiAZb2[i]; 
     end for;
 
 
-    gammafil_listb_to_z1 := [* 0 : k in [1..numberofpoints_1] *]; // evaluations of gammafil at local coordinates for all points 
+    gammafil_listb_to_z1 := [* 0 : k in [1..numberofpoints_1] *]; 
+    // evaluations of gammafil at local coordinates for all points 
     vprintf QCMod, 3: "Computing expansions of gamma_fil for embedding 1.\n";
     for i := 1 to numberofpoints_1 do
       if G_list1[i] ne 0 then
-        gammafil_listb_to_z1[i] := expand_algebraic_function(Qppoints_1[i], gammafil1, data1, Nhodge, prec);
+        gammafil_listb_to_z1[i] := expand_algebraic_function(Qppoints_1[i], 
+                                            gammafil1, data1, Nhodge, prec);
       end if;
     end for;
 
 
-    gammafil_listb_to_z2 := [* 0 : k in [1..numberofpoints_2] *]; // evaluations of gammafil at local coordinates for all points 
+    gammafil_listb_to_z2 := [* 0 : k in [1..numberofpoints_2] *]; 
+    // evaluations of gammafil at local coordinates for all points 
     vprintf QCMod, 3: "Computing expansions of gamma_fil for embedding 2.\n";
     for i := 1 to numberofpoints_2 do
       if G_list2[i] ne 0 then
-        gammafil_listb_to_z2[i] := expand_algebraic_function(Qppoints_2[i], gammafil2, data2, Nhodge, prec);
+        gammafil_listb_to_z2[i] := expand_algebraic_function(Qppoints_2[i], 
+                                            gammafil2, data2, Nhodge, prec);
       end if;
     end for;
 
@@ -660,9 +669,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ===                     HEIGHTS                        ===
     // ==========================================================
     minvalchangebasis1 := 0; minvalchangebasis2 := 0;
-    if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
+    //if #height_coeffs eq 0 or not use_log_basis then // Compute heights of auxiliary points.
 
-      if not basis_found then  // Find a point with non-zero E1 to write down a basis of the Lie algebra. 
+      if not basis_found then  // Find a point with non-zero E1 to write down a 
+                               // basis of the Lie algebra. 
                                // To minimize precision loss, want small valuation of
                                // determinant of change of basis matrix.
         min_val_det_i := Ncurrent;
@@ -671,20 +681,24 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           Qpti1 := i lt global_base_point_index select good_Kpoints_1[i]
                               else good_Kpoints_1[i+1];
 
-          pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
+          pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, 
+                                                Z1,eta1,data1:prec:=prec,N:=Nhodge);
 
-          MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
+          MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) 
+                                                      else Parent(PhiAZb1[ks_1[i]]);
           PhiP1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
-          // TODO: Use E1_NF
+          // TODO: Use E1_NF (not essential)
           E1Pi1 := Vector(BaseRing(PhiP1),g,[PhiP1[j+1,1] : j in [1..g]]);
           NE1Pi1 := Min([Ncurrent, minprec(E1Pi1)]);
 
           // E1(sigma2(Pi))
           Qpti2 := i lt global_base_point_index select good_Kpoints_2[i]
                               else good_Kpoints_2[i+1];
-          pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
+          pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, 
+                                            Z2,eta2,data2:prec:=prec,N:=Nhodge);
 
-          MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
+          MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) 
+                                                      else Parent(PhiAZb2[ks_2[i]]);
           PhiP2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
           E1Pi2 := Vector(BaseRing(PhiP2),g,[PhiP2[j+1,1] : j in [1..g]]);
           NE1Pi2 := Min([Ncurrent, minprec(E1Pi2)]);
@@ -695,18 +709,16 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
           
           basisH0star_i1 := [];
           basisH0star_i2 := [];
-          Tq_small1 := ChangeRing(QpMatrix(Tq_small,Precision(BaseRing(E1Pi1)),v1),BaseRing(E1Pi1));
-          Tq_small2 := ChangeRing(QpMatrix(Tq_small,Precision(BaseRing(E1Pi2)),v2),BaseRing(E1Pi2));
+          Tp_small1 := ChangeRing(QpMatrix(Tp_small,Precision(BaseRing(E1Pi1)),v1),
+                                    BaseRing(E1Pi1));
+          Tp_small2 := ChangeRing(QpMatrix(Tp_small,Precision(BaseRing(E1Pi2)),v2),
+                                    BaseRing(E1Pi2));
           for i := 0 to g-1 do
-            // basis for H^0(Omega^1)^* generated by powers of iota(Tq) acting on E1(P)
-            Append(~basisH0star_i1, Eltseq(E1Pi1*Tq_small1^i)); 
-            Append(~basisH0star_i2, Eltseq(E1Pi2*Tq_small2^i)); 
+            // basis for H^0(Omega^1)^* generated by powers of iota(Tp) acting on E1(P)
+            Append(~basisH0star_i1, Eltseq(E1Pi1*Tp_small1^i)); 
+            Append(~basisH0star_i2, Eltseq(E1Pi2*Tp_small2^i)); 
           end for; 
           // TODO: If this breaks, it might be due to different base rings.
-          // change this. take min precision above
-      //    basisH0star_i := BlockMatrix(d,d,[Matrix(basisH0star_i1), 
-      ////        ZeroMatrix(BaseRing(E1Pi2),g), ZeroMatrix(BaseRing(E1Pi2),g), 
-       //       Matrix(basisH0star_i2)]);
           val_det_i := Min([Valuation(Determinant(Matrix(M))) : 
                                     M in [basisH0star_i1, basisH0star_i2]]);
           if val_det_i lt min_val_det_i then
@@ -717,128 +729,121 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             E1P1 := E1Pi1; E1P2 := E1Pi2; 
             basisH0star1 := basisH0star_i1;
             basisH0star2 := basisH0star_i2;
-            //basisH0star := basisH0star_i;
           end if;
           if IsZero(val_det_i) then break; end if;
         end for;
         if min_val_det_i ge Ncurrent then  // precision loss too high to obtain meaningful result.
-          error "No good basis for H^0(Omega^1)^* generated by powers of iota(Tq) acting on E1(P) found";
+          error "No good basis for H^0(Omega^1)^* generated by powers of iota(Tp) acting on E1(P) found";
         end if;
       end if; // basis_found
 
 
-      //changebasis:=Matrix(basisH0star)^(-1);
       changebasis1 := Matrix(basisH0star1)^(-1);
       changebasis2 := Matrix(basisH0star2)^(-1);
-      //vprintf QCMod, 2: " changebasis1= %o .\n", changebasis1;
-      //vprintf QCMod, 2: " changebasis2= %o .\n", changebasis2;
       minvalchangebasis1 := minval(changebasis2);
       minvalchangebasis2 := minval(changebasis2);
       changebases := [changebasis1, changebasis2];
 
-      vprintf QCMod, 2: " Using point %o to generate.\n", good_affine_K_pts_xy_no_bpt[min_i];
+      vprintf QCMod, 4: " Using point %o to generate.\n", 
+                                        good_affine_K_pts_xy_no_bpt[min_i];
 
-    end if; 
+   // end if; 
   //end for;  // k := 1 to numberofpoints 
-     //for l to number_of_correspondences
-     //
 
-    //#height_coeffs eq 0 or not use_log_basis then 
+    // Compute heights of auxiliary points.
+    // if #height_coeffs eq 0 or not use_log_basis then 
     // heights contains the list of heights of auxiliary points 
-    if #height_coeffs eq 0 then // Compute heights of auxiliary points.
+    // if #height_coeffs eq 0 then 
 //      if Dimension(E1_E2_subspace) lt dim then  // add E1_E2(P) to known subspace until dimension is dim.
 //      TODO: Use the above to do only enough computations
 //            to fit the height pairing
-      if true then
-        i := 1;
-        repeat 
-          // E1_tensor_E2(P1)
-          Qpti1 := i lt global_base_point_index select good_Kpoints_1[i]
-                      else good_Kpoints_1[i+1];
-          pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1:prec:=prec,N:=Nhodge);
-          MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) else Parent(PhiAZb1[ks_1[i]]);
-          Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
-          Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
-          Qpti2 := i lt global_base_point_index select good_Kpoints_2[i]
-                      else good_Kpoints_2[i+1];
+      i := 1;
+      repeat 
+        // E1_tensor_E2(P1)
+        Qpti1 := i lt global_base_point_index select good_Kpoints_1[i]
+                    else good_Kpoints_1[i+1];
+        pti1, Npti1 := ParallelTransport(Qppoints_1[ks_1[i]], Qpti1, Z1,eta1,data1 :                                          prec:=prec,N:=Nhodge);
+        MNi1 := Npti1 lt Precision(BaseRing(PhiAZb1[ks_1[i]])) select Parent(pti1) 
+                    else Parent(PhiAZb1[ks_1[i]]);
+        Phii1 := MNi1!(pti1*PhiAZb1[ks_1[i]]);
+        Ni1 := Min([Ncurrent, Precision(BaseRing(Phii1)), minprec(Phii1)]);
+        Qpti2 := i lt global_base_point_index select good_Kpoints_2[i]
+                    else good_Kpoints_2[i+1];
 
-          pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2:prec:=prec,N:=Nhodge);
-          MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) else Parent(PhiAZb2[ks_2[i]]);
-          Phii2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
-          Ni2 := Min([Ncurrent, Precision(BaseRing(Phii2)), minprec(Phii2)]);
-          Ni := Min(Ni1, Ni2);
-          Qpi := pAdicField(p, Ni);
-          Qpix := PolynomialRing(Qpi);
-          Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tq>;
-          Phiis := [Phii1, Phii2]; 
-          betafils := [QpSequence(Eltseq(betafil1),Ni,v1), 
-                        QpSequence(Eltseq(betafil2),Ni,v2)]; // TODO: Ni or N? move above?
-          
-          E1_P := E1_NF(Phiis, changebases, Qp_ext); 
-          E2_P := E2_NF(Phiis, betafils, changebases, Qp_ext); 
-          E1_E2_P_Qpext := E1_tensor_E2_NF(E1_P, E2_P);
-          //E1_E2_P_Qpext contains 4=d^2 elements of Qp_ext
-          E1_E2_P_Qp := &cat[Eltseq(E) : E in E1_E2_P_Qpext]; 
-          //"E1_P", #E1_P; "E2_P", #E2_P; "E1_E2_P_Qpext", #E1_E2_P_Qpext; "E1_E2_P_Qp", #E1_E2_P_Qp;
-          //E1_E2_P_Qp contains 12=d^2*g elements of Qp
-          NE1E2P := Min(Ni,minprec(E1_E2_P_Qp));
-          NLA := Integers()!Min([Precision(BaseRing(E1_E2_subspace)), NE1E2P]);
-          // p^NLA is the precision for the linear algebra computation.
-          new_super_space := VectorSpace(pAdicField(p, NLA), dim);
-          old_basis := ChangeUniverse(Basis(E1_E2_subspace), new_super_space); 
-          new_E1_E2_subspace := sub<new_super_space | old_basis cat 
-                                                [new_super_space!E1_E2_P_Qp]>;
-          //if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
-          if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or 
-            Dimension(E1_E2_subspace) eq dim then  // TODO: only use first check. The second one is there so that we can test whether the pairing we solve for is actually the height pairing. This is done by computing E1_E2 and the heights for all available points.
-            if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then //and i le 9 then
-              vprintf QCMod, 2: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_K_pts_xy_no_bpt[i], l;
-            else 
-              vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing.\n", good_affine_K_pts_xy_no_bpt[i], l;
-            end if;
-            E1_E2_subspace := new_E1_E2_subspace; 
-            //printf "This is gammafil %o,and parent  %o", gammafil1,Parent(gammafil1);
-            
-            vprintf QCMod, 2: " New dimension = %o.\n", Dimension(E1_E2_subspace);
-
-            x1, y1 := Explode(xy_coordinates(Qpti1, data1));
-            gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
-            //vprintf QCMod, 2: " gammafil_P1,\n", gammafilP_1;
-            height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
-            NhtP1 := AbsolutePrecision(height_P_1); 
-            
-            Append(~heights1, height_P_1); // height of A_Z(b, P)
-            //vprintf QCMod, 2: " Added height for point %o and correspondence %o to heights1; new size of heights1 is %o\n", good_affine_K_pts_xy_no_bpt[i], l, #heights1;
-            x2, y2 := Explode(xy_coordinates(Qpti2, data2));
-            gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
-            //vprintf QCMod, 2: " gammafil_P2,\n", gammafilP_2;
-            height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
-            NhtP2 := AbsolutePrecision(height_P_2); 
-            Append(~heights2, height_P_2); // height of A_Z(b, P)
-
-            Append(~E1_E2_Ps, E1_E2_P_Qp);
-            Nhts := Min([Nhts, NhtP1, NhtP2]);
-            NE1E2Ps := Min(NE1E2Ps, NE1E2P);
-          else
-            vprintf QCMod, 2: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", good_affine_K_pts_xy_no_bpt[i], l;
-
+        pti2, Npti2 := ParallelTransport(Qppoints_2[ks_2[i]], Qpti2, Z2,eta2,data2 :                                          prec:=prec,N:=Nhodge);
+        MNi2 := Npti2 lt Precision(BaseRing(PhiAZb2[ks_2[i]])) select Parent(pti2) 
+                    else Parent(PhiAZb2[ks_2[i]]);
+        Phii2 := MNi2!(pti2*PhiAZb2[ks_2[i]]);
+        Ni2 := Min([Ncurrent, Precision(BaseRing(Phii2)), minprec(Phii2)]);
+        Ni := Min(Ni1, Ni2);
+        Qpi := pAdicField(p, Ni);
+        Qpix := PolynomialRing(Qpi);
+        Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tp>;
+        Phiis := [Phii1, Phii2]; 
+        betafils := [QpSequence(Eltseq(betafil1),Ni,v1), 
+                      QpSequence(Eltseq(betafil2),Ni,v2)]; // TODO: Ni or N? move above?
+        
+        E1_P := E1_NF(Phiis, changebases, Qp_ext); 
+        E2_P := E2_NF(Phiis, betafils, changebases, Qp_ext); 
+        E1_E2_P_Qpext := E1_tensor_E2_NF(E1_P, E2_P);
+        //E1_E2_P_Qpext contains d^2 elements of Qp_ext
+        E1_E2_P_Qp := &cat[Eltseq(E) : E in E1_E2_P_Qpext]; 
+        //E1_E2_P_Qp contains d^2*g elements of Qp
+        NE1E2P := Min(Ni,minprec(E1_E2_P_Qp));
+        NLA := Integers()!Min([Precision(BaseRing(E1_E2_subspace)), NE1E2P]);
+        // p^NLA is the precision for the linear algebra computation.
+        new_super_space := VectorSpace(pAdicField(p, NLA), dim);
+        old_basis := ChangeUniverse(Basis(E1_E2_subspace), new_super_space); 
+        new_E1_E2_subspace := sub<new_super_space | old_basis cat 
+                                              [new_super_space!E1_E2_P_Qp]>;
+        //if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
+        if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or 
+          Dimension(E1_E2_subspace) eq dim then  
+          // TODO: only use first condition. The second one is there so that we can test whether the pairing we solve for is actually the height pairing. This is done by computing E1_E2 and the heights for all available points.
+          if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then //and i le 9 then
+            vprintf QCMod, 3: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_K_pts_xy_no_bpt[i], l;
+          else 
+            vprintf QCMod, 3: " Not using point %o at correspondence %o to fit the height pairing; already have full space.\n", good_affine_K_pts_xy_no_bpt[i], l;
           end if;
-          i +:= 1;
-        //until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
-        until i gt #ks_1; 
-      end if; // #heights lt g 
-    end if; // #height_coeffs eq 0
+          E1_E2_subspace := new_E1_E2_subspace; 
+          
+          vprintf QCMod, 4: " New dimension = %o.\n", Dimension(E1_E2_subspace);
 
-    // JB 04/05/24: edited but need to check and test
-    // JSM 04/08/24: edited further
+          x1, y1 := Explode(xy_coordinates(Qpti1, data1));
+          gammafilP_1 := eval_list(Eltseq(gammafil1), x1, y1, v1, Ni1);
+          //vprintf QCMod, 4: " gammafil_P1=%o,\n", gammafilP_1;
+          height_P_1 := height(Phii1,QpSequence(Eltseq(betafil1),Ni1,v1),gammafilP_1,eqsplit1,data1);
+          NhtP1 := AbsolutePrecision(height_P_1); 
+          
+          Append(~heights1, height_P_1); // height of A_Z(b, P)
+          vprintf QCMod, 4: " Added height for point %o and correspondence %o to heights1; new size of heights1 is %o\n",
+                                good_affine_K_pts_xy_no_bpt[i], l, #heights1;
+          x2, y2 := Explode(xy_coordinates(Qpti2, data2));
+          gammafilP_2 := eval_list(Eltseq(gammafil2), x2, y2, v2, Ni2);
+          //vprintf QCMod, 4: " gammafil_P2=%o,\n", gammafilP_2;
+          height_P_2 := height(Phii2,QpSequence(Eltseq(betafil2),Ni2,v2),gammafilP_2,eqsplit2,data2);
+          NhtP2 := AbsolutePrecision(height_P_2); 
+          Append(~heights2, height_P_2); // height of A_Z(b, P)
+
+          Append(~E1_E2_Ps, E1_E2_P_Qp);
+          Nhts := Min([Nhts, NhtP1, NhtP2]);
+          NE1E2Ps := Min(NE1E2Ps, NE1E2P);
+        else
+          vprintf QCMod, 3: " Not using point %o at correspondence %o to fit the height pairing because of dependence.\n", 
+                              good_affine_K_pts_xy_no_bpt[i], l;
+
+        end if;
+        i +:= 1;
+      //until Dimension(E1_E2_subspace) eq d*g or i gt #ks_1; 
+      until i gt #ks_1; 
+    //end if; // #height_coeffs eq 0
+
 
     vprintf QCMod, 3: "Computing expansions of local heights and of E1 and E2.\n";
     local_height_list_1 := [*0 : k in [1..numberofpoints_1]*];
-    //E1_E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E1_list_1 := [*0 : k in [1..numberofpoints_1]*];
     E2_list_1 := [*0 : k in [1..numberofpoints_1]*];
     local_height_list_2 := [*0 : k in [1..numberofpoints_2]*];
-    //E1_E2_list_2 := [*0 : k in [1..numberofpoints_2]*];
     E1_list_2 := [*0 : k in [1..numberofpoints_2]*];
     E2_list_2 := [*0 : k in [1..numberofpoints_2]*];
 
@@ -877,7 +882,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     Append(~local_height_lists_2, local_height_list_2);
     //Append(~E1_E2_lists_1, E1_E2_list_1);
     Append(~E1_lists_1, E1_list_1); 
-    // actually, all E1_list_1 should be the same, since E1 doesn't depend on Z
+    // actually, all E1_list_1's should be the same, since E1 doesn't depend on Z
+    // TODO: Add this as sanity check
     Append(~E2_lists_1, E2_list_1);
     // Append(~E1_E2_lists_2, E1_E2_list_2);
     Append(~E1_lists_2, E1_list_2);
@@ -887,68 +893,64 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
   end for; //for l to number_of_correspondences
            //
 
-  //vprintf QCMod, 2: " E1_E2_Ps1=%o,\n", E1_E2_Ps1;
-  //vprintf QCMod, 2: " E1_E2_Ps2=%o,\n", E1_E2_Ps2;
+  //vprintf QCMod, 4: " E1_E2_Ps1=%o,\n", E1_E2_Ps1;
+  //vprintf QCMod, 4: " E1_E2_Ps2=%o,\n", E1_E2_Ps2;
 
-  //if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt d*g then
-  if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt dim then
-    error "Not enough rational points on the curve!"; // to span the symmetric square of the Mordell-Weil group";
+  //if #height_coeffs eq 0 and Dimension(E1_E2_subspace) lt dim then
+  if Dimension(E1_E2_subspace) lt dim then
+    error "Not enough K-points on the curve!"; // to span the symmetric square of the Mordell-Weil group";
   end if;
 
-  if #height_coeffs eq 0 then 
-    // Write the height pairing as a linear combination of the basis of symmetric bilinear
-    // pairings dual to the E1_E2-basis of the auxiliary points. 
-    E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), dim, dim, [E1_E2_Ps[i] : i in [1..dim]]); 
-    //printf "E1_E2_Ps_matrix=%o\n", E1_E2_Ps_matrix;
-    mat := E1_E2_Ps_matrix^(-1) ;
-    matprec := minprec(mat);
-    //printf "heights1=%o\n\n", heights1;
-    //printf "heights2=%o\n\n", heights2;
-    //printf "[matprec, NE1E2Ps, Nhts]=%o\n", [matprec, NE1E2Ps, Nhts];
-    Qpht := pAdicField(p, Min([matprec, NE1E2Ps, Nhts]));
-    //heights_vector := Matrix(Qpht, g,1, [ht : ht in heights]);
-    heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
-    heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
-    //vprintf QCMod, 2: " height_vector1=\n%o,\n", heights_vector1;
-    //vprintf QCMod, 2: " height_vector2=\n%o,\n", heights_vector2;
-    //height_coeffs := ChangeRing(mat, Qpht)*heights_vector;
-    height_coeffs1 := ChangeRing(mat, Qpht)*heights_vector1;
-    height_coeffs2 := ChangeRing(mat, Qpht)*heights_vector2;
-    /*
-    heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
-    heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
-    heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
-    heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
-    height_coeffs_cyc := ChangeRing(mat, Qpht)*heights_vector_cyc;
-    height_coeffs_anti := ChangeRing(mat, Qpht)*heights_vector_anti;
-    */
-    //vprintf QCMod, 2: " height_coeffs1=\n%o,\n", height_coeffs1;
-    //vprintf QCMod, 2: " height_coeffs2=\n%o,\n", height_coeffs2;
-    //vprintf QCMod, 2: " height_coeffs_cyc=\n%o,\n", height_coeffs_cyc;
-    //vprintf QCMod, 2: " height_coeffs_anti=\n%o,\n", height_coeffs_anti;
-    Nhtcoeffs := minprec(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2)); // Precision of height_coeffs
-    vprint QCMod, 2: "\n checking height_coeffs\n";
-    for j := 1 to #heights1 do
-      //diffj1 := &+[Eltseq(height_coeffs_cyc)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_cyc[j];
-      //diffj2 := &+[Eltseq(height_coeffs_anti)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_anti[j];
-      diffj1 := &+[Eltseq(height_coeffs1)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights1[j];
-      diffj2 := &+[Eltseq(height_coeffs2)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights2[j];
-      assert Valuation(diffj1) ge Nhtcoeffs; // 
-      assert Valuation(diffj2) ge Nhtcoeffs; 
-      vprintf QCMod, 2: " difference for j= %o and the first height is %o\n", j, diffj1;
-      vprintf QCMod, 2: " difference for j= %o and the second height is %o\n", j, diffj2;
-    end for;
-
+  //if #height_coeffs eq 0 then 
+  // Write the height pairing as a linear combination of the basis of symmetric bilinear
+  // pairings dual to the E1_E2-basis of the auxiliary points. 
+  E1_E2_Ps_matrix := Matrix(pAdicField(p, NE1E2Ps), dim, dim, [E1_E2_Ps[i] : i in [1..dim]]); 
+  mat := E1_E2_Ps_matrix^(-1) ;
+  matprec := minprec(mat);
+  Qpht := pAdicField(p, Min([matprec, NE1E2Ps, Nhts]));
+  heights_vector1 := Matrix(Qpht, dim,1, [heights1[i] : i in [1..dim]]);
+  heights_vector2 := Matrix(Qpht, dim,1, [heights2[i] : i in [1..dim]]);
+  height_coeffs1 := ChangeRing(mat, Qpht)*heights_vector1;
+  height_coeffs2 := ChangeRing(mat, Qpht)*heights_vector2;
+  /*
+  heights_cyc := [heights1[i]+heights2[i] : i in [1..#heights1]];
+  heights_anti := [heights1[i]-heights2[i] : i in [1..#heights1]];
+  heights_vector_cyc := Matrix(Qpht, dim,1, [heights1[i]+heights2[i] : i in [1..dim]]);
+  heights_vector_anti := Matrix(Qpht, dim,1, [heights1[i]-heights2[i] : i in [1..dim]]);
+  height_coeffs_cyc := ChangeRing(mat, Qpht)*heights_vector_cyc;
+  height_coeffs_anti := ChangeRing(mat, Qpht)*heights_vector_anti;
+  */
+  //vprintf QCMod, 4: " height_coeffs1=\n%o,\n", height_coeffs1;
+  //vprintf QCMod, 4: " height_coeffs2=\n%o,\n", height_coeffs2;
+  //vprintf QCMod, 4: " height_coeffs_cyc=\n%o,\n", height_coeffs_cyc;
+  //vprintf QCMod, 4: " height_coeffs_anti=\n%o,\n", height_coeffs_anti;
+  // Precision of height_coeffs
+  Nhtcoeffs := minprec(Eltseq(height_coeffs1) cat Eltseq(height_coeffs2)); 
+  vprint QCMod, 2: "\n checking height_coeffs\n";
+  for j := 1 to #heights1 do
+    // Check that the global height pairing is computed correctly as a
+    // bilinear pairing in terms of the E1-E2-basis. 
+    //diffj1 := &+[Eltseq(height_coeffs_cyc)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_cyc[j];
+    //diffj2 := &+[Eltseq(height_coeffs_anti)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights_anti[j];
+    diffj1 := &+[Eltseq(height_coeffs1)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights1[j];
+    diffj2 := &+[Eltseq(height_coeffs2)[i]*Eltseq(E1_E2_Ps[j])[i] : i in [1..dim]] - heights2[j];
+    assert Valuation(diffj1) ge Nhtcoeffs; // 
+    assert Valuation(diffj2) ge Nhtcoeffs; 
+    //vprintf QCMod, 4: " difference for j= %o and the first height is %o\n", j, diffj1;
+    //vprintf QCMod, 4: " difference for j= %o and the second height is %o\n", j, diffj2;
+  end for;
+  if #heights1 gt dim then // Otherwise nothing was checked
+    vprint QCMod, 2: "\n Height coefficients are correct!"
   end if;
-                                                                             "Nhtcoeffs", Nhtcoeffs;
+
+//  end if;
+                                                                             
   c3_1 := minval(Eltseq(height_coeffs1));
   c3_2 := minval(Eltseq(height_coeffs2));
   min_root_prec := N;  // smallest precision of roots of QC function
 
 
-  // Find expansion of the quadratic Chabauty function
-  // JSM 04/08/24: edited 
-
+  // Find expansions of the quadratic Chabauty functions
 
   zero_list := [[] : i in [1..numberofpoints_1]];
   double_zero_list := [ ];
@@ -972,18 +974,17 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
             F1_list[l][m] := 0;
             F2_list[l][m] := 0;
           else
-                      E1s := [to_S12alpha(E1_lists_1[k][l],1),
-                                    to_S12alpha(E1_lists_2[k][m],2)];
-            E2s := [to_S12alpha(E2_lists_1[k][l],1), 
-                                    to_S12alpha(E2_lists_2[k][m],2)];
+            // Find expansion of E1 tensor E2 in D(l)xD(m)
+            E1s := [to_S12alpha(E1_lists_1[k][l],1), to_S12alpha(E1_lists_2[k][m],2)];
+            E2s := [to_S12alpha(E2_lists_1[k][l],1), to_S12alpha(E2_lists_2[k][m],2)];
             E1_E2_S12alpha := E1_tensor_E2_NF(E1s, E2s);
             E1_E2_S12 := &cat[Eltseq(E) : E in E1_E2_S12alpha]; 
             global_height_1 := &+[height_coeffs1[j,1]*E1_E2_S12[j]:j in [1..dim]];
             global_height_2 := &+[height_coeffs2[j,1]*E1_E2_S12[j]:j in [1..dim]];
             hv1 := to_S12(local_height_lists_1[k,l], 1);
             hv2 := to_S12(local_height_lists_2[k,m], 2);
-            F1_list[l][m] := global_height_1 - hv1;
-            F2_list[l][m] := global_height_2 - hv2;
+            F1_list[l][m] := global_height_1 - hv1; // 1st QC function in D(l)xD(m)
+            F2_list[l][m] := global_height_2 - hv2; // 2nd QC function in D(l)xD(m)
           end if;
         end for; // m := 1 to numberofpoints 
       end if;
@@ -994,23 +995,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // - idele class character i 
     // - correspondence k
     // - in the residue polydisk D(l) x D(m) 
-
-/*
- TODO:
- * Precision analysis: Find right input precision for power series.
- * bounds on precision loss and on valuations of coeffs should still be the
- * same, except that now we have power series in 2 variables. 
- * What changes is the precision required to guarantee output
- * precision.
- * Check: How did Francesca do this step for QCNF?
- * Check if solutions are rational, etc. 
-    vprintf QCMod, 3: " Power series expansions of the quadratic Chabauty functions at correspondence %o in all good affine disks, capped at precision %o\n", k, 3;
-    for i := 1 to #F_list do
-      if F_list[i] ne 0 then 
-        vprintf QCMod, 3: " disk %o\n expansion: %o \n\n", [GF(p)!(Qppoints_1[i]`x), GF(p)!(Qppoints_1[i]`b[2])], ChangePrecision(F_list[i], 3);
-      end if;
-    end for;
- */
 
 
     c2_1 := Min([0, valbetafils1[k], minvaleqsplit1, valbetafils1[k]+ minvaleqsplit1]); 
@@ -1040,8 +1024,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       valgammafili_2 := i le maxdeggammafils2[k] select minvalgammafils2[k] else 0;
       return -2*Floor(log(p,i)) +c1s2[k] + Min(c2_2,c3_2+2*minvalchangebasis2);
     end function;
-
-
    
     Nend := Integers()!Min(Nexpansions[k], Nhtcoeffs); // Precision used for root finding 
     vprintf QCMod: " The quadratic Chabauty function for correspondence %o is correct to precision %o^%o.\n",  k, p, Nend;
@@ -1060,7 +1042,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
 
     function make_poly(f)
       // f = f(t1,t2) is an element of Qpt12.  
-      // Coerce into Qps12
+      // Truncate into Qps12
       coefs := Coefficients(f);
       poly := Qps12!0;
       for j in [1..#coefs] do
@@ -1071,7 +1053,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
         end if;
       end for;
 
-      // TODO: Only take c 
+      // TODO: Only take c. Really?
       min_val := Min([minval(Coefficients(c)) : c in coefs | c ne 0]);
       return p^(-min_val)*s2^Valuation(f)*poly, min_val;
     end function;
@@ -1080,69 +1062,73 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
     // ===                 FIND ZEROES                     ===
     // ==========================================================
 
+    vprint QCMod, 2: " Find zeroes of the quadratic Chabauty function(s)";
     for i := 1 to numberofpoints_1 do
       if G_list1[i] ne 0 then
         for m := 1 to numberofpoints_2 do
           if G_list1[m] ne 0 then
-            "i,m", i, m;
+
             g1 := make_power_series(F1_list[i,m]);
             g2 := make_power_series(F2_list[i,m]);
             g1_poly, min_val1 := make_poly(g1);
             g2_poly, min_val2 := make_poly(g2);
             //roots, droots := hensel_lift_n([g1_poly,g2_poly], p, Nend-1);
+            // Computed this out, since it takes longer than
+            // two_variable_padic_system_solver
             //if droots gt 0 then
             if k eq 1 then  // first correspondence: compute roots
+              vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty function in the polydisk %o,%o\n", i,m;
               time roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
               zero_list[i,m] := roots;
-              if droots gt 0 then 
+              if droots gt 0 then  // there are multiple roots in this polydisk
                 Append(~double_zero_list, [i,m]);
               end if;
             else // second correspondence
-             // TODO: Fix this. We have power series in 2 variables.  if not &and[Valuation(Coefficient(F1_list[i],j)) - valF(j) ge 0 : j in [i0..Degree(F1_list[i])]] then error "Valuations of coefficients violate lower bound, so the quadratic Chabauty function cannot be correct.  This is a bug -- please report!"; end if;
+           // TODO: Fix this. We have power series in 2 variables.  if not &and[Valuation(Coefficient(F1_list[i],j)) - valF(j) ge 0 : j in [i0..Degree(F1_list[i])]] then error "Valuations of coefficients violate lower bound, so the quadratic Chabauty function cannot be correct.  This is a bug -- please report!"; end if;
             //precf1 := Precision(f1)[1]; bound_val_coeffs_f := valF(precf) + precf; if bound_val_coeffs_f lt N then  // Lemma 4.7 error "TODO: Lower p-adic precision if t-adic prec is too small"; end if;
 
 
-              // Check if functions vanish at zeroes of first system
+              // Check if functions vanish at zeroes of first system.
+              //
+              vprintf QCMod, 3: " Check which zeroes of the first quadratic Chabauty function in the polydisk %o,%o are also zeroes of the second quadratic Chabauty function \n", i,m;
               if #zero_list[i,m] gt 0 then
                 for r in zero_list[i,m] do
                   val1 := Valuation(Evaluate(g1_poly, r));
                   val2 := Valuation(Evaluate(g2_poly, r));
-                  if val1 ge Nend -4 and val2 ge Nend-4 then
-                    // common root to prec Nend -3
-                    "val1,val2", val1,val2;
-
+                  if val1 ge Nend-4 and val2 ge Nend-4 then
+                    // common root to prec Nend-4, as safety measure
                     // find affine local coordinates 
                     Pp1 := Qppoints_1[i];
                     xt1, bt1 := local_coord(Pp1,prec,data1);
-                    // Commented out the following 3 lines, since W0=I_4 in our
+                    Pp2 := Qppoints_2[m];
+                    xt2, bt2 := local_coord(Pp2,prec,data2);
+                    // Commented out the following lines, since W0=I_4 in our
                     // example. 
                     // TODO: Need to uncomment for other examples, and need to
                     // change the base ring of W0 from F(x) to Qp(x).
                     //W0invxt1 := Evaluate(W0^(-1), xt1);
                     //b_vector1 := Matrix(Parent(xt1), Degree(Q), 1, bt1);
                     //yt1 := &+[W0invxt1[2,j]*b_vector1[j,1] : j in [1..Degree(Q)]];
-                    yt1 := bt1[2];
-                    Pp2 := Qppoints_2[m];
-                    xt2, bt2 := local_coord(Pp2,prec,data2);
                     //W0invxt2 := Evaluate(W0^(-1), xt2);
                     //b_vector2 := Matrix(Parent(xt2), Degree(Q), 1, bt2);
                     //yt2 := &+[W0invxt2[2,j]*b_vector2[j,1] : j in [1..Degree(Q)]];
+                    yt1 := bt1[2];
                     yt2 := bt2[2];
-                    print "r", r;
                     pt1 := [Qp_small!Evaluate(c, p*r[1]) : c in [xt1, yt1]];
                     pt2 := [Qp_small!Evaluate(c, p*r[2]) : c in [xt2, yt2]];
-                    // TODO: bring this back
-                    //for k := 1 to #sol_list do // Check if this solution is already known if #sol_list[k] gt 0 then for l := 1 to #sol_list[k] do sol := sol_list[k,l,1]; if are_congruent(pt, sol) then // pt already known -> multiple root sol_list[k,l,2] := true; known := true; end if; end for; end if; end for; // k := 1 to #sol_list do 
                     double_root := false;
                     if [k,i,m] in double_zero_list  then  // 
-                      // multiple roots in this disc for correspondence 1. check if ther
-                      // are multiple roots in this disc  for correspondence 2. 
-                      time roots2, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
-                      // TODO: Check if r among roots2
+                      // multiple roots in this disc for correspondence 1. 
+                      // check if there are multiple roots in this disc for 
+                      // correspondence 2. 
+                      time roots2, droots := two_variable_padic_system_solver(
+                                    g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
+                      // TODO: Check if r among roots2. Doesn't happen in
+                      // our example.
                       double_root := droots gt 0;
                     end if;
-                    Append(~sol_list, <[pt1,pt2], double_root>); // simple root
-                  end if; // val1 ge Nend -3 and val2 ge Nend-3 then
+                    Append(~sol_list, <[pt1,pt2], double_root>); 
+                  end if; // val1 ge Nend-4 and val2 ge Nend-4 then
                 end for; // r in zero_list[1][i,m] 
               end if; // #zero_list[i,m] gt 0 then
             end if; // k eq 1 
@@ -1151,150 +1137,55 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt :
       end if; // G_list1[i] ne 0
     end for;  // i:=1 to numberofpoints 
   end for;  // k := 1 to number_of_correspondences do
-  //vprintf QCMod: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
-  // common_zeroes := [**]; for i := 1 to numberofpoints_1 do common_zeroes[i] := [**]; for m := 1 to numberofpoints_2 do if IsDefined(zeroes_lists[1,i], m) and IsDefined(zeroes_lists[2,i], m) then common_zeroes[i,m] :=[r : r in zeroes_lists[1,i,m] | r in zeroes_lists[2,i,m]]; end if; end for;
+  // TODO: Fix this. What's minrootprec here?
+  //vprintf QCMod, 2: " All roots of the quadratic Chabauty function(s) are correct to precision at least %o^%o.\n", p, min_root_prec;
   //end for;
   // ==========================================================
   // ===                 SANITY CHECK                       ===
   // ==========================================================
 
   /*
-   * Will comment this out, since we now check that all known rational points are recovered below.
-   * This check was not entirely stable due to a missing precision analysis for the
-   * evaluation of the QC function.
+     Check that both QC functions vanish at the images of the known K-points
    */
-  printf "\n\n Now for some redundant sanity checks (remove these!)\n\n"; 
   global_pts_local := [* *];
+  vprintf QCMod, 2: "\n Check that QC-functions vanish at known K-point\n.";
   for i := 1 to number_of_correspondences do
-    printf "\n Sanity check at rational points for correspondence %o.\n  ", i; 
     F1_list := F1_lists[i];
     F2_list := F2_lists[i];
     for j in [1..#good_Kpoints_1] do
+      point := good_affine_K_pts_xy[j];
+      vprintf QCMod, 3: "\n Check that QC-function vanishes at known K-point %o for correspondence %o.\n  ", point, i; 
       P1 := good_Kpoints_1[j]; 
       ind1 := FindQpointQp(P1, Qppoints_1); 
       P2 := good_Kpoints_2[j]; 
       ind2 := FindQpointQp(P2, Qppoints_2); 
       Append(~global_pts_local, <P1,P2>); 
-      //vals := [];
       if ind1 gt 0 and G_list1[ind1] ne 0 and ind2 gt 0 and G_list2[ind2] ne 0 then
         P1p := Qppoints_1[ind1];
         P2p := Qppoints_2[ind2];
         if (not is_bad(P1p,data1)) and (not is_bad(P2p,data2)) and (not P1`inf) then		
           coord1 := (P1`x - P1p`x);
           coord2 := (P2`x - P2p`x);
-          //val1 := Valuation(Qp_small!Evaluate(F_list[ind], P`x - Pp`x)); 
-          //if pl gt 1 then  printf "\nValuation of the quadratic Chabauty function evaluated at (x,y) = %o is \n%o\n", good_affine_K_pts_xy[j], p,  val; end if;
-          //assert val ge Nend-1;  // possible precision loss in evaluating F
-          //assert exists(v){ val : val in vals | val ge Nend-1}; // possible precision loss in evaluating F
           f1 := F1_list[ind1,ind2];
           f2 := F2_list[ind1,ind2];
-                //"f1,f2", f1,f2;
           eval1 := Qp_small!&+[(coord2)^l*Evaluate(Coefficient(f1,l), coord1) : l in [Valuation(f1)..Degree(f1)]];
-          vprintf QCMod: " The valuation of QCfun 1 for correspondence %o at point %o is %o.\n", i, j,  Valuation(eval1);
           eval2 := Qp_small!&+[(coord2)^l*Evaluate(Coefficient(f2,l), coord1) : l in [Valuation(f2)..Degree(f2)]];
-          vprintf QCMod: " The valuation of QCfun 2 for correspondence %o at point %o is %o.\n", i, j,  Valuation(eval2);
-          assert Valuation(eval1) ge Nend;
-          assert Valuation(eval2) ge Nend;
-
-          g1 := make_power_series(f1);
-          g2 := make_power_series(f2);
-          g1_poly, min_val1 := make_poly(g1);
-          g2_poly, min_val2 := make_poly(g2);
-          eval1 := Evaluate(g1_poly, [1/p*coord1, 1/p*coord2]);
-          eval2 := Evaluate(g2_poly, [1/p*coord1, 1/p*coord2]);
-          vprintf QCMod: " The valuation of g1_poly  for correspondence %o at point %o is %o.\n", i, j,  Valuation(eval1);
-          vprintf QCMod: " The valuation of g1_poly for correspondence %o at point %o is %o.\n", i, j,  Valuation(eval2);
-          "indices", ind1,ind2;
-          "root", [1/p*coord1, 1/p*coord2];
-          "now compute roots";
-          precision := Nend-1;
-          prec1 := Nend-1;
-          time roots2, droots2 := two_variable_padic_system_solver(g1_poly, g2_poly, p, prec1, precision : safety := 1);
-          printf "roots bianchi for prec1 = %o and prec2 = %o \n are %o\n", prec1, precision, roots2;
-          //"valuations of differences of computed roots and root from global point";
-          assert Max([Max(Valuation(r[1] - 1/p*coord1), Valuation(r[2] - 1/p*coord2)) : r in roots2]) ge 4;
-
-          /*
-           local_height1_series := local_height_lists_1[i,ind1];
-           local_height2_series := local_height_lists_2[i,ind2];
-           local_height1_from_series := Evaluate(local_height1_series, xcoord1);
-           local_height2_from_series := Evaluate(local_height2_series, xcoord2);
-           // check if one of the local heights is this one
-           maxval1 := Max([Valuation(local_height1_from_series - h) : h in heights1]);
-           maxval2 := Max([Valuation(local_height2_from_series - h) : h in heights2]);
-          "local maxval1, maxval2", maxval1, maxval2;
-
-                 global_height1_series := global_height_lists_1[i,j,k];
-                 global_height2_series := global_height_lists_2[i,j,k];
-                 global_height1_from_series := Evaluate(global_height1_series, xcoord1);
-                 global_height2_from_series := Evaluate(global_height2_series, xcoord2);
-                 maxval1 := Max([Valuation(global_height1_from_series - h) : h in heights1]);
-                 maxval2 := Max([Valuation(global_height2_from_series - h) : h in heights2]);
-                "global maxval1, maxval2", maxval1, maxval2;
-                */
-                 /*
-                   E1s := [to_S12alpha(E1_lists_1[k][l],1),
-                                          to_S12alpha(E1_lists_2[k][m],2)];
-                  E2s := [to_S12alpha(E2_lists_1[k][l],1), 
-                                          to_S12alpha(E2_lists_2[k][m],2)];
-                  E1_E2_S12alpha := E1_tensor_E2_NF(E1s, E2s);
-                  E1_E2_S12 := &cat[Eltseq(E) : E in E1_E2_S12alpha]; 
-              //    "#E1s", #E1s;; "#E2s", #E2s;; "E1_E2_S12alpha", #E1_E2_S12alpha; "E1_E2_S12", #E1_E2_S12;
-                  //Parent(E1_E2);
-                  global_height_1 := &+[height_coeffs1[j,1]*E1_E2_S12[j]:j in [1..dim]];
-                  global_height_2 := &+[height_coeffs2[j,1]*E1_E2_S12[j]:j in [1..dim]];
-                  // end if;
-                  hv1 := to_S12(local_height_lists_1[k,l], 1);
-                  hv2 := to_S12(local_height_lists_2[k,m], 2);
-                  F1_list[l][m] := global_height_1 - hv1;
-                  F2_list[l][m] := global_height_2 - hv2;
-
-                */
-
+          assert Valuation(eval1) ge Nend; // First QC function vanishes
+          assert Valuation(eval2) ge Nend; // Second QC function vanishes
+          vprintf QCMod, 3: " The valuation of QCfun 1 for correspondence %o at point %o is %o.\n", i, j,  Valuation(eval1);
+          vprintf QCMod, 3: " The valuation of QCfun 2 for correspondence %o at point %o is %o.\n", i, j,  Valuation(eval2);
         end if;
       end if;
     end for;
   end for; //  i := 1 to number_of_correspondences 
-  
+  vprintf QCMod, 2: "\n QC-functions vanish at all known K-points!\n.";
+  complete := #sol_list eq #good_affine_K_pts_xy and #double_zero_list eq 0;
 
-  return sol_list, zero_list, double_zero_list, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
+  return good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, global_pts_local, bad_affine_K_pts_xy, data1, data2; //, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
 
 end intrinsic;
 
 /*
-  // ==========================================================
-  // ===               COMMON SOLUTIONS                     ===
-  // ==========================================================
-  for l := 1 to number_of_correspondences do 
-    vprintf QCMod, 3: "\n The list of solutions constructed from correspondence %o is \n %o \n\n", l, sols_lists[l]; 
-  end for;
-  solutions := sols_lists[1];
-  for i in [1..#Qppoints_1] do // residue disks
-    if not IsEmpty(solutions[i]) then
-      len := #solutions[i];
-      include := [1..len];
-      for j := 1 to len do // solutions for first correspondence
-        //"i,j", i,j; solutions[i];
-        pt1 := solutions[i,j,1];  
-        for l := 2 to number_of_correspondences do // correspondences
-          matched := false;
-          for k := 1 to #sols_lists[l][i] do // solutions for lth correspondence
-            pt2 := sols_lists[l,i,k,1];
-            if are_congruent(pt1, pt2) then
-              matched := true;
-              solutions[i,j,2] and:= sols_lists[l,i,k,2]; 
-              // A point is a multiple solution if it's a multiple solution for all correspondences.
-            end if;
-          end for;
-          if not matched then
-            Exclude(~include, j);
-          end if;
-        end for;
-      end for;
-      //"include", include;
-      solutions[i] := [solutions[i,j] : j in include];
-    end if; // not IsEmpty(solutions[i]) then
-  end for; // i in [1..#Qppoints] 
 
 
   // solutions[i] contains the common solutions in the ith residue disk
@@ -1352,7 +1243,6 @@ end intrinsic;
   */
 
 
-
 intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
   -> BoolElt
   {Check that the Hecke operator Tp generates the Hecke algebra}
@@ -1362,84 +1252,4 @@ intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
 end intrinsic;
 
 
-
-intrinsic QCModQuartic(Q::RngUPolElt[RngUPol], S::ModSym :
-                      p := 3, bound := 100, number_of_correspondences := 2, 
-                      known_pts := [], height_bd := 10^4, base_point := 0,
-                      N := 15, prec := 2*N, max_inf_deg := 6 )
-  -> BoolElt, SeqEnum[Pt], RngIntElt, RngUPolElt[RngUPol]
-  {Takes an integer polynomial defining an affine patch of a smooth plane quartic and outputs the rational points.}
-  // S is a space of cusp forms
-  // Q is a polynomial in (K[x])[y] of total degree 4
-  require LeadingCoefficient(Q) eq 1: "Need a monic model in y"; 
-  // TODO: 
-  // - Automatically compute a Tuitman model that contains enough rational points 
-  C, Qxy := CurveFromBivariate(Q);
-  require Degree(Qxy) eq 4: "Curve must be quartic";
-  P2 := Ambient(C);
-  X := P2.1; Y := P2.2; Z := P2.3;
-  
-  p -:= 1;
-  while p lt bound do
-    p := NextPrime(p);
-    bool := false;
-    if (not IsDivisibleBy(Level(S), p)) and HeckeOperatorGenerates(S, p) then
-      // Find a good second affine patch so that
-      // - every residue disk is good (i.e. is affine and the Frobenius lift is defined
-      //   there) on at least one affine patch
-      // - every affine patch contains enough rational points to fit the height pairing.
-
-      vprint QCMod, 2: "\n Find a good second affine patch\n"; // so that the lift of Frobenius is defined for every point on at least one affine patch.";
-      try
-        Q_inf, A := SecondAffinePatch(Q, p : bd := 4, max_inf_deg := max_inf_deg);
-      catch e
-        vprintf QCMod: "\n Error at p = %o: %o\n", p, e;
-        continue;
-      end try;
-
-      vprintf QCMod: "\n Starting quadratic Chabauty computation for the affine patch \n %o = 0\n at the prime p = %o\n\n", Q, p;
-      try 
-        good_pts1, bool1, bad_pts1, data1, fake_pts1, bad_disks1 := QCModAffine(Q, p : number_of_correspondences := number_of_correspondences, base_point := base_point, N:=N, prec:=prec);
-        if not bool1 then  "non-rational common roots (remove this message)"; continue; end if;
-      catch e
-        vprintf QCMod, 2: "\n Error in qc computation at p = %o:\n %o \n",p, e;
-        continue;
-      end try;
-      try
-        vprintf QCMod: "\n Starting quadratic Chabauty computation for the affine patch \n %o = 0\n at the prime p = %o\n\n", Q_inf, p;
-        good_pts2, bool2, bad_pts2, data2, fake_pts2, bad_disks2 := QCModAffine(Q_inf, p : number_of_correspondences := number_of_correspondences, N:=N, prec:=prec);
-        if not bool2 then "non-rational common roots"; continue; end if;
-      catch e
-        vprintf QCMod: "\n Error in qc computation at p = %o\n", p;
-        vprintf QCMod, 2: "%o\n", e;
-        continue;
-      end try;
-
-      C_inf := CurveFromBivariate(Q_inf);
-      a,b,c,d := Explode(A);
-      C1 := Curve(P2, Evaluate(Equation(C), [a*X+Z+b*Y, Y, c*Z+X+d*Y]));
-      pi1 := map<C1 -> C | [a*X+Z+b*Y, Y, c*Z+X+d*Y]>;
-      lc := Rationals()!Coefficient(Equation(C1), Y, 4); 
-      pi2 := map<C_inf -> C1 | [X, Y/lc, Z]>;
-      pi := pi2*pi1;
-
-      Cpts := [C!P : P in good_pts1];
-      good_pts3 := [pi(C_inf!P) : P in good_pts2];
-      for P in good_pts3 do
-        Include(~Cpts, P);
-      end for; 
-      small_pts := Points(C : Bound := height_bd); // check we're not missing any small points
-      for P in small_pts do Include(~known_pts, P); end for;
-      if #known_pts gt #Cpts then
-        error "Not all known rational points were recovered.";
-      end if;
-
-      return true, Cpts, p, Q_inf;  
-    end if; // (not IsDivisibleBy(Level(S), p)) and HeckeOperatorGenerates(S, p) 
-  end while;
-  return false, _, _, _; 
-end intrinsic;
-
-
-  
 

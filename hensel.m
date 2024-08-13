@@ -1,3 +1,9 @@
+// Code to compute roots of systems of 2 p-adic power series in 2
+// variables, originally due to Francesca Bianchi
+//
+// We're only using two_variable_padic_system_solver
+
+
 function hensel_lift_n(flist,p,prec)
 
 // porting Francesca Bianchi's code

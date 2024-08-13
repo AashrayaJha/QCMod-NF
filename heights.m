@@ -349,14 +349,12 @@ E1_NF := function(Phips,changebases,Salpha)
 
   changebases := [ChangeRing(M, Salpha) : M in changebases];
   g := (Nrows(Phips[1]) div 2) - 1;
-  assert g eq 3; // TODO: change
-  d := #changebases;
-  assert d eq 2; // only quadratic fields at this point
+  assert g eq 3; // TODO: generalize
+  d := #changebases; // degree of ground field
+  assert d eq 2; // TODO: generalize
   E1s := [Vector(Salpha,[Phips[j][i,1] : i in [2..g+1]])*changebases[j] : j in [1..d] ]; 
   alpha := Salpha.1;
-  // E1s = [E1(sigma1(P)), E1(sigma2(P))], entries are in Qp^g
   E1s_Salpha := [&+[E1s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
-  // E1s_Salpha = [E1(sigma1(P)), E1(sigma2(P))], entries are in Salpha
   return E1s_Salpha;
 end function;
 
@@ -364,37 +362,18 @@ end function;
 E2_NF := function(Phips,betafils,changebases,Salpha)
   changebases := [ChangeRing(M, Salpha) : M in changebases];
   g := (Nrows(Phips[1]) div 2) - 1;
-  assert g eq 3; // TODO: change
-  d := #betafils;
-  assert d eq 2; // only quadratic fields at this point
+  assert g eq 3; // TODO: generalize
+  d := #betafils; // degree of ground field
+  assert d eq 2; // TODO: generalize
   E2s := [Vector(Salpha,[Phips[i][2*g+2,g+1+j] - betafils[i][j] : j in [1..g]])*changebases[i] : i in [1..d]];
   alpha := Salpha.1;
-  // E2s = [E2(sigma1(P)), E2(sigma2(P))], entries are in Qp^g
   E2s_Salpha := [&+[E2s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
-  // E2s_Salpha = [E2(sigma1(P)), E2(sigma2(P))], entries are in Salpha
   return E2s_Salpha;
 end function;
 
 
-
 E1_tensor_E2_NF := function(E1s, E2s)
 
-/*
-  changebases := [ChangeRing(M, Salpha) : M in changebases];
-  g := (Nrows(Phips[1]) div 2) - 1;
-  assert g eq 3; // TODO: change
-  d := #betafils;
-  assert d eq 2; // only quadratic fields at this point
-  E1s := [Vector(Salpha,[Phips[j][i,1] : i in [2..g+1]])*changebases[j] : j in [1..d] ]; 
-  E2s := [Vector(Salpha,[Phips[i][2*g+2,g+1+j] - betafils[i][j] : j in [1..g]])*changebases[i] : i in [1..d]];
-  alpha := Salpha.1;
-  // E1s = [E1(sigma1(P)), E1(sigma2(P))], entries are in Qp^g
-  // E2s = [E2(sigma1(P)), E2(sigma2(P))], entries are in Qp^g
-  E1s_Salpha := [&+[E1s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
-  E2s_Salpha := [&+[E2s[j][i]*alpha^(i-1) : i in [1..g]] : j in [1..d] ];
-  // E1s_Salpha = [E1(sigma1(P)), E1(sigma2(P))], entries are in Salpha
-  // E2s_Salpha = [E2(sigma1(P)), E2(sigma2(P))], entries are in Salpha
-*/
   E1_E2s_Salpha := [];
   for i := 1 to #E1s do
     for j := 1 to #E2s do
@@ -403,18 +382,6 @@ E1_tensor_E2_NF := function(E1s, E2s)
   end for;
   // E1_E2s_Salpha = [E1(sigma1(P)\otimes E2(sigma1(P)), E1(sigma1(P)\otimes E2(sigma2(P)), E1(sigma2(P)\otimes E2(sigma1(P)), E1(sigma2(P)\otimes E2(sigma2(P))], entries are elements of S_alpha
   return E1_E2s_Salpha;
-end function;
-
-
-E1_tensor_E2:=function(Phi,betafil,changebasis,data,Salpha)
-
-  changebasis:=ChangeRing(changebasis,Salpha);
-  g:=data`g;
-  E1 := Vector(Salpha,[Phi[i,1] : i in [2..g+1]])*changebasis; 
-  E2 := Vector(Salpha,[Phi[2*g+2,g+1+j] - betafil[j] : j in [1..g]])*changebasis;
-
-  return &+[E1[i]*Salpha.1^(i-1) : i in [1..g]] * &+[E2[i]*Salpha.1^(i-1) : i in [1..g]], E1, E2;
-
 end function;
 
 
@@ -433,99 +400,4 @@ expand_algebraic_function:=function(P,g,data,N,prec)
   return &+[eval_poly_Qp(g[i], xt, v, N)*bt[i]:i in [1..NumberOfColumns(g)]];
 end function;
 
-
-
-function height_coefficients(divisors, intersections, local_CG_heights_p, data)
-  // TODO: arbitrary g
-
-  local_CG_heights_away := [ ];
-  p := data`p;
-  g := data`g;
-  if g ne 2 then
-    error "Only genus 2 currently implemented";
-  end if;
-  Qp := pAdicField(p, data`N);
-
-  for i := 1 to #intersections do
-   local_CG_heights_away[i] := IsEmpty(intersections[i]) select 0
-           else &+[Log(Qp!t[1])*t[2] : t in intersections[i] | t[1] ne p];
-  end for;
-
-  heights_basis := [local_CG_heights_p[i] + local_CG_heights_away[i] : i in [1..#local_CG_heights_p]];
-
-  n := g*(g+1) div 2;
-  M := ZeroMatrix(Parent(divisors[1,1,1,1]), n, n);
-
-  integrals := [coleman_integrals_on_basis_divisors(t[2], t[1], data) : t in divisors];
-  M[1,1] := integrals[1,1]*integrals[1,1];
-  M[1,2] := 1/2*(integrals[1,1]*integrals[1,2]+integrals[1,1]*integrals[1,2]);
-  M[1,3] := integrals[1,2]*integrals[1,2];
-  M[2,1] := integrals[1,1]*integrals[2,1];
-  M[2,2] := 1/2*(integrals[1,1]*integrals[2,2]+integrals[2,1]*integrals[1,2]);
-  M[2,3] := integrals[1,2]*integrals[2,2];
-  M[3,1] := integrals[2,1]*integrals[2,1];
-  M[3,2] := 1/2*(integrals[2,1]*integrals[2,2]+integrals[2,1]*integrals[2,2]);
-  M[3,3] := integrals[2,2]*integrals[2,2];
-
-  assert Determinant(M) ne 0;
-  heights_vector := Matrix(BaseRing(M),n, 1, heights_basis);
-
-  alphas := Eltseq(M^-1*heights_vector);
-  return [[alphas[1], alphas[2]], [0, alphas[3]]];
-end function;
-
-
-
-function new_height_coefficients(divisors, intersections, factors, local_CG_heights_p, data)
-  // TODO: arbitrary g
-  // Same as height_coefficients, but allow more general divisors.
-
-
-  g := data`g;
-  if g ne 2 then
-    error "Only genus 2 currently implemented";
-  end if;
-
-  p := data`p;
-  Qp := pAdicField(p, data`N);
-
-  local_CG_heights_away := [ ];
-  for i := 1 to #intersections do
-   local_CG_heights_away[i] := IsEmpty(intersections[i]) select 0
-           else &+[Log(Qp!t[1])*t[2] : t in intersections[i] | t[1] ne p];
-  end for;
-
-  factors1, factors2 := Explode(factors);
-  heights_basis := [local_CG_heights_p[i] - local_CG_heights_away[i] : i in [1..#local_CG_heights_p]];
-  h1 := heights_basis[1]/(factors1[1,1]*factors2[1,1]);
-  h2 := heights_basis[2]/(factors1[1,2]*factors2[1,2]);
-  h3 := heights_basis[3]/(factors1[2,2]*factors2[2,2]);
-  regulator := h1*h3-h2^2;
-
-  n := g*(g+1) div 2;
-  M := ZeroMatrix(Parent(divisors[1,1,1,1]), n, n);
-
-  
-  integrals := [coleman_integrals_on_basis_divisors(t[2], t[1], data) : t in divisors];
-  integrals[1,1] /:= factors1[1,1];
-  integrals[1,2] /:= factors1[1,1];
-  integrals[2,1] /:= factors2[2,2];
-  integrals[2,2] /:= factors2[2,2];
-
-  M[1,1] := integrals[1,1]*integrals[1,1];
-  M[1,2] := 1/2*(integrals[1,1]*integrals[1,2]+integrals[1,1]*integrals[1,2]);
-  M[1,3] := integrals[1,2]*integrals[1,2];
-  M[2,1] := integrals[1,1]*integrals[2,1];
-  M[2,2] := 1/2*(integrals[1,1]*integrals[2,2]+integrals[2,1]*integrals[1,2]);
-  M[2,3] := integrals[1,2]*integrals[2,2];
-  M[3,1] := integrals[2,1]*integrals[2,1];
-  M[3,2] := 1/2*(integrals[2,1]*integrals[2,2]+integrals[2,1]*integrals[2,2]);
-  M[3,3] := integrals[2,2]*integrals[2,2];
-
-  assert Determinant(M) ne 0;  // Points should be independent
-  heights_vector := Matrix(BaseRing(M),n, 1, [h1,h2,h3]);
-
-  alphas := Eltseq(M^-1*heights_vector);
-  return [[alphas[1], alphas[2]], [0, alphas[3]]], regulator;
-end function;
 

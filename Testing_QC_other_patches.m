@@ -58,15 +58,13 @@ correspondence_data:= correspondence_data_list[3]`correspondence_data;
 // The -6 corresponds to prec_loss for correspondences. This was set as the val(det(Finv),p) over Q, so
 // did the analogous thing over K.
 
-//new polynomial: y=a,x=c,b=1.
-//Q:= y^4 + ((-2*u + 9)*x + (2*u + 3))*y^3 + (-3*x^2 + 6*x - 3)*y^2 + ((-170*u + 254)*x^3 + (-150*u + 114)*x^2 + (-54*u + 18)*x - 10*u - 2)*y + (162*u + 144)*x^4 + (-108*u + 48)*x^3 + (-72*u - 144)*x^2 + (12*u - 48)*x + 6*u;
-
 assert &and[P[3] ne 0 : P in known_points_C];
 known_affine_points := [[P[1], P[2]] : P in known_points_C];
 //initialising points in new coordinates
 print "starting QCModAffine";
 SetVerbose("QCMod",2);
-sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2,known_points:=known_affine_points, correspondence_data := correspondence_data, N := 15);
+
+sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
 
 // Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];

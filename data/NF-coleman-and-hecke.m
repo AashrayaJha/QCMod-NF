@@ -2,7 +2,6 @@
 //The main intrinsic is ColemanData (in singleintegral.m), which in particular computes 
 //Frobenius action on H^1_dR(X).
 
-//AttachSpec("CHIMP/CHIMP.spec");
 AttachSpec("QCMod.spec");
 import "auxpolys.m": auxpolys, log;
 import "singleintegrals.m": evalf0, is_bad, local_coord, set_point, tadicprec, teichmueller_pt, xy_coordinates;
