@@ -1085,7 +1085,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     // ===                 FIND ZEROES                     ===
     // ==========================================================
 
-    vprint QCMod, 2: " Find zeroes of the quadratic Chabauty function(s)";
+    vprint QCMod, 2: " Find common zeroes of the quadratic Chabauty functions";
     for i := 1 to numberofpoints_1 do
       if G_list1[i] ne 0 then
         for m := 1 to numberofpoints_2 do
@@ -1095,9 +1095,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
             g2 := make_power_series(F2_list[i,m]);
             g1_poly, min_val1 := make_poly(g1);
             g2_poly, min_val2 := make_poly(g2);
-            //roots, droots := hensel_lift_n([g1_poly,g2_poly], p, Nend-1);
             // Computed this out, since it takes longer than
             // two_variable_padic_system_solver
+            // roots, droots := hensel_lift_n([g1_poly,g2_poly], p, Nend-1);
             //if droots gt 0 then
             if k eq 1 then  // first correspondence: compute roots
               vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty function in the polydisk %o,%o\n", i,m;
@@ -1107,12 +1107,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
                 Append(~double_zero_list, [i,m]);
               end if;
             else // second correspondence
-           // TODO: Fix this. We have power series in 2 variables.  if not &and[Valuation(Coefficient(F1_list[i],j)) - valF(j) ge 0 : j in [i0..Degree(F1_list[i])]] then error "Valuations of coefficients violate lower bound, so the quadratic Chabauty function cannot be correct.  This is a bug -- please report!"; end if;
-            //precf1 := Precision(f1)[1]; bound_val_coeffs_f := valF(precf) + precf; if bound_val_coeffs_f lt N then  // Lemma 4.7 error "TODO: Lower p-adic precision if t-adic prec is too small"; end if;
-
-
-              // Check if functions vanish at zeroes of first system.
-              //
+              // Check if functions vanish at zeroes of first function.
               vprintf QCMod, 3: " Check which zeroes of the first quadratic Chabauty function in the polydisk %o,%o are also zeroes of the second quadratic Chabauty function \n", i,m;
               if #zero_list[i,m] gt 0 then
                 for r in zero_list[i,m] do
@@ -1207,64 +1202,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   return good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, global_pts_local, bad_affine_K_pts_xy, data1, data2; //, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
 
 end intrinsic;
-
-/*
-
-
-  // solutions[i] contains the common solutions in the ith residue disk
-  sols := &cat[L : L in solutions | #L gt 0];
-  vprintf QCMod: "\n The common roots of the quadratic Chabauty function(s) in this affine patch are \n %o \n\n", [t[1] : t in sols];
-  vprintf QCMod, 2: " The lists of zeroes are \n %o \n", zeroes_lists;
-  Qp := pAdicField(p, min_root_prec);
-  fake_rat_pts := [* *]; 
-  recovered_rat_pts_count := 0;
-  number_of_known_rat_pts := #good_affine_rat_pts_xy;
-  for i := 1 to #sols do
-//    P := [alg_approx_Qp(sols[i,1], v), alg_approx_Qp(sols[i,2], v)];
-    known_rational := false;
-    sol := sols[i,1];
-    multiple := sols[i,2];
-    for pt in good_affine_rat_pts_xy do
-      // Check if sols is congruent to a known rational point
-      if are_congruent(sols[i,1], pt) then
-      //if IsZero(Qp!sols[i,1] - Qp!pt[1]) and IsZero (Qp!sols[i,2] - Qp!pt[2]) then
-        vprintf QCMod, 2: " Recovered known rational point %o\n", pt;
-        if multiple then 
-          error "Multiple root at rational point. Try increasing p-adic precision (parameter N).";
-        end if;
-        known_rational := true;
-        recovered_rat_pts_count +:= 1;
-        break;
-      end if;
-    end for;
-    if not known_rational then
-      P := [alg_approx_Qp(Qp!sols[i,1,1], v), alg_approx_Qp(Qp!sols[i,1,2], v)];
-      //vprintf QCMod: "Rational reconstruction of point %o is \%o ", i, P;
-      if IsZero(eval_Q(Q, P[1], P[2], v)) then
-        vprintf QCMod, 2: " Found unknown rational point P\n%o\n", P;
-        if multiple then 
-          error "Multiple root at rational point. Try increasing p-adic precision (parameter N).";
-        end if;
-        Append(~good_affine_rat_pts_xy, P); 
-      else 
-        Append(~fake_rat_pts, sols[i,1]); 
-        vprintf QCMod, 2: " Solution %o does not seem to be rational.\n", sols[i,1]; 
-        // Here multiple roots are fine.
-      end if;
-    end if;
-  end for;
-  if number_of_known_rat_pts gt recovered_rat_pts_count then
-    error "Not all known rational points in good disks were recovered.";
-  end if;
-
-  if #fake_rat_pts gt 0 then
-    return good_affine_rat_pts_xy, false, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_affine_Qppoints;
-  else
-    return good_affine_rat_pts_xy, true, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_affine_Qppoints;
-  end if;
-end intrinsic;
-  */
-
 
 intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
   -> BoolElt
