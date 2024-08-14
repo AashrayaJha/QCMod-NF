@@ -940,7 +940,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     //vprintf QCMod, 4: " difference for j= %o and the second height is %o\n", j, diffj2;
   end for;
   if #heights1 gt dim then // Otherwise nothing was checked
-    vprint QCMod, 2: "\n Height coefficients are correct!"
+    vprint QCMod, 2: "\n Height coefficients are correct!";
   end if;
 
 //  end if;
@@ -1078,7 +1078,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
             //if droots gt 0 then
             if k eq 1 then  // first correspondence: compute roots
               vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty function in the polydisk %o,%o\n", i,m;
-              time roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
+              roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
               zero_list[i,m] := roots;
               if droots gt 0 then  // there are multiple roots in this polydisk
                 Append(~double_zero_list, [i,m]);
@@ -1121,7 +1121,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
                       // multiple roots in this disc for correspondence 1. 
                       // check if there are multiple roots in this disc for 
                       // correspondence 2. 
-                      time roots2, droots := two_variable_padic_system_solver(
+                      roots2, droots := two_variable_padic_system_solver(
                                     g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
                       // TODO: Check if r among roots2. Doesn't happen in
                       // our example.

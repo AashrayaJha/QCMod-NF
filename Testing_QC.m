@@ -34,8 +34,8 @@ known_affine_points:=[Prune(known_projective_points[i]): i in [3..13]];
 //print "starting QCModAffine";
 
 SetVerbose("QCMod",3);
-sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
 
+recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
 // Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];
 for i := 1 to 11 do
@@ -59,6 +59,8 @@ end for;
 "Number of solutions", #sols;
 "Any multiple roots?";
 &or[s[2] : s in sols];
+
+printf "\n Hence the set of K-points whose image under both embeddings over 13 is in a good disk wrt the given affine patch is %o", known_affine_points;
 
 /*
 "Second correspondence";

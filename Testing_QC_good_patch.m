@@ -65,7 +65,7 @@ known_affine_points := [[P[1], P[2]] : P in known_points_C];
 print "starting QCModAffine";
 SetVerbose("QCMod",2);
 
-recovered_Kpts, done, solutions, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
+recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
 
 // Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];
@@ -93,13 +93,10 @@ end for;
 "Check that there are no multiple roots.";
 assert not &or[s[2] : s in sols];
 "No multiple roots!";
-printf "Hence the set of F-rational points on the %o is \n%o,\n where F is the %o.",  C_RSZB, known_points_RSZB, BaseRing(C);
+printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.",  C_RSZB, known_points_RSZB, BaseRing(C);
 
 
 t2:=Cputime();
-printf("This is the time taken %o", t1-t2);
+printf "This is the time taken %o", t1-t2;
 
-
-// SetVerbose("QCMod",3);
-// all_zeroes, double_zeroes, E1_lists_1, E1_lists_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 13);
 
