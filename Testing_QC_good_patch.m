@@ -18,8 +18,7 @@ Qppoints_1 := Qp_points(data_1);
 assert &and[not(is_bad(P, data_1)) : P in Qppoints_1];
 Qppoints_2 := Qp_points(data_2);
 assert &and[not(is_bad(P, data_2)) : P in Qppoints_2];
-// So under both embeddings, all residue disks are good (in particular,
-// affine)
+"So under both embeddings, all residue disks are good (in particular, affine)."
 
 
 // Curve as in RSZB

@@ -14,8 +14,8 @@ Qppoints_1 := Qp_points(data_1);
 assert &and[not(is_bad(P, data_1)) : P in Qppoints_1];
 Qppoints_2 := Qp_points(data_2);
 assert &and[not(is_bad(P, data_2)) : P in Qppoints_2];
-// So under both embeddings, all residue disks are good (in particular,
-// affine)
+"So under both embeddings, all residue disks are good (in particular, affine)."
+  
 
 
 Q_RSZB := Polynomial([PolynomialRing(CyclotomicField(3)) | [[ RationalField() | 1, 1 ], [ RationalField() | 1, -1 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -1 ]], [[ RationalField() | 0, -2 ], [ RationalField() | 0, 3 ], [ RationalField() | 0, -3 ], [ RationalField() | 2, 2 ]], [[ RationalField() | -3, 0 ]], [[ RationalField() | 2, 3 ], [ RationalField() | -1, 1 ]], [[ RationalField() | 1, 0 ]]]);
@@ -64,7 +64,7 @@ known_affine_points := [[P[1], P[2]] : P in known_points_C];
 print "starting QCModAffine";
 SetVerbose("QCMod",2);
 
-sols, all_zeroes, double_zeroes, global_pts_local, F1_lists, F2_lists, Qppoints_1, Qppoints_2 := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
+recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15);
 
 // Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];
@@ -96,9 +96,5 @@ printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %
 
 
 t2:=Cputime();
-printf "This is the time taken: %o seconds. \n", t2-t1;
-
-
-// SetVerbose("QCMod",3);
-// all_zeroes, double_zeroes, E1_lists_1, E1_lists_2 := QCModAffine(Q,p: data1:=data_1,data2:=data_2, known_points:=known_affine_points, correspondence_data := correspondence_data, N := 13);
+printf "This is the time taken %o", t1-t2;
 
