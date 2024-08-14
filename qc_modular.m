@@ -623,8 +623,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
 
     Ncurrent := Min(Nfrob_equiv_iso1, Nfrob_equiv_iso2);
 
-    Append(~c1s1, minvalPhiAZbs1);
-    Append(~c1s2, minvalPhiAZbs2);
+    Append(~c1s1, Min(minvalPhiAZbs1));
+    Append(~c1s2, Min(minvalPhiAZbs2));
 
 
     PhiAZb_to_z1 := [**]; 
@@ -957,45 +957,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   sol_list  := [ ];
   vprintf QCMod, 3: "Computing expansions of quadratic Chabauty functions..\n";
   for k := 1 to number_of_correspondences do
-
-    F1_list := [**];
-    F2_list := [**];
-    // Go through residue polydisks D(l) x D(m), with respective
-    // parameters z1 and z2
-    for l := 1 to numberofpoints_1 do
-      if G_list1[l] eq 0 then 
-        F1_list[l] := 0;
-        F2_list[l] := 0;
-      else
-        F1_list[l] := [**];
-        F2_list[l] := [**];
-        for m := 1 to numberofpoints_2 do
-          if G_list1[m] eq 0 then
-            F1_list[l][m] := 0;
-            F2_list[l][m] := 0;
-          else
-            // Find expansion of E1 tensor E2 in D(l)xD(m)
-            E1s := [to_S12alpha(E1_lists_1[k][l],1), to_S12alpha(E1_lists_2[k][m],2)];
-            E2s := [to_S12alpha(E2_lists_1[k][l],1), to_S12alpha(E2_lists_2[k][m],2)];
-            E1_E2_S12alpha := E1_tensor_E2_NF(E1s, E2s);
-            E1_E2_S12 := &cat[Eltseq(E) : E in E1_E2_S12alpha]; 
-            global_height_1 := &+[height_coeffs1[j,1]*E1_E2_S12[j]:j in [1..dim]];
-            global_height_2 := &+[height_coeffs2[j,1]*E1_E2_S12[j]:j in [1..dim]];
-            hv1 := to_S12(local_height_lists_1[k,l], 1);
-            hv2 := to_S12(local_height_lists_2[k,m], 2);
-            F1_list[l][m] := global_height_1 - hv1; // 1st QC function in D(l)xD(m)
-            F2_list[l][m] := global_height_2 - hv2; // 2nd QC function in D(l)xD(m)
-          end if;
-        end for; // m := 1 to numberofpoints 
-      end if;
-    end for; // l := 1 to numberofpoints 
-    Append(~F1_lists, F1_list);
-    Append(~F2_lists, F2_list);
-    // So Fi_lists[k][l][m] contains the quadratic Chabauty function for
-    // - idele class character i 
-    // - correspondence k
-    // - in the residue polydisk D(l) x D(m) 
-
+  
+    // Define some constants and functions for sanity checks on valuations
+    // of the QC functions. These are used in the precision analysis.
 
     c2_1 := Min([0, valbetafils1[k], minvaleqsplit1, valbetafils1[k]+ minvaleqsplit1]); 
     i0_1:= 0;
@@ -1008,7 +972,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
       // lower bound on valuations of coefficients in entries of F1_list
       assert i ge i0_1;
       valgammafili_1 := i le maxdeggammafils1[k] select minvalgammafils1[k] else 0;
-      return -2*Floor(log(p,i)) +c1s1[k] + Min(c2_1,c3_1+2*minvalchangebasis1);
+      return -2*Floor(log(p,i)) + c1s1[k] + c2_1 + Min(0, c1s1[k]+c3_1+2*minvalchangebasis1);
     end function;
 
     c2_2 := Min([0, valbetafils2[k], minvaleqsplit2, valbetafils2[k]+ minvaleqsplit2]); 
@@ -1022,9 +986,68 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
       // lower bound on valuations of coefficients in entries of F2_list
       assert i ge i0_2;
       valgammafili_2 := i le maxdeggammafils2[k] select minvalgammafils2[k] else 0;
-      return -2*Floor(log(p,i)) +c1s2[k] + Min(c2_2,c3_2+2*minvalchangebasis2);
+      return -2*Floor(log(p,i)) +c1s2[k] + c2_2 + Min(0,c1s2[k]+c3_2+2*minvalchangebasis2);
     end function;
-   
+
+
+    F1_list := [**]; F2_list := [**];
+    // Go through residue polydisks D(l) x D(m), with respective
+    // parameters z1 and z2
+    for l := 1 to numberofpoints_1 do
+      if G_list1[l] eq 0 then 
+        F1_list[l] := 0; F2_list[l] := 0;
+      else
+        F1_list[l] := [**]; F2_list[l] := [**];
+        for m := 1 to numberofpoints_2 do
+          if G_list1[m] eq 0 then
+            F1_list[l][m] := 0; F2_list[l][m] := 0;
+          else
+            // Find expansion of E1 tensor E2 in D(l)xD(m)
+            E1s := [to_S12alpha(E1_lists_1[k][l],1), to_S12alpha(E1_lists_2[k][m],2)];
+            E2s := [to_S12alpha(E2_lists_1[k][l],1), to_S12alpha(E2_lists_2[k][m],2)];
+            E1_E2_S12alpha := E1_tensor_E2_NF(E1s, E2s);
+            E1_E2_S12 := &cat[Eltseq(E) : E in E1_E2_S12alpha]; 
+            global_height_1 := &+[height_coeffs1[j,1]*E1_E2_S12[j]:j in [1..dim]];
+            global_height_2 := &+[height_coeffs2[j,1]*E1_E2_S12[j]:j in [1..dim]];
+            hv1 := to_S12(local_height_lists_1[k,l], 1);
+            hv2 := to_S12(local_height_lists_2[k,m], 2);
+            f1 := global_height_1 - hv1; // 1st QC function in D(l)xD(m)
+            f2 := global_height_2 - hv2; // 2nd QC function in D(l)xD(m)
+                                         //
+            // Check that lower bounds for valuations of QC functions are
+            // not violated.
+            for s := 0 to Degree(f1) do
+              for t := 0 to Degree(Coefficient(f1,s)) do
+                u := s+t;
+                if u ge i0_1 then
+                  assert Valuation(Coefficient(Coefficient(f1, s), t)) ge valF1(u);
+                end if;
+              end for;
+            end for;
+            for s := 0 to Degree(f2) do
+              for t := 0 to Degree(Coefficient(f2,s)) do
+                u := s+t;
+                if u ge i0_2 then
+                  assert Valuation(Coefficient(Coefficient(f2, s), t)) ge valF2(u);
+                end if;
+              end for;
+            end for;
+
+            F1_list[l][m] := f1;
+            F2_list[l][m] := f2;
+          end if;
+        end for; // m := 1 to numberofpoints 
+      end if;
+    end for; // l := 1 to numberofpoints 
+    Append(~F1_lists, F1_list);
+    Append(~F2_lists, F2_list);
+    // So Fi_lists[k][l][m] contains the quadratic Chabauty function for
+    // - idele class character i 
+    // - correspondence k
+    // - in the residue polydisk D(l) x D(m) 
+
+
+     
     Nend := Integers()!Min(Nexpansions[k], Nhtcoeffs); // Precision used for root finding 
     vprintf QCMod: " The quadratic Chabauty function for correspondence %o is correct to precision %o^%o.\n",  k, p, Nend;
     Qp_small   := pAdicField(p,Nend); 
