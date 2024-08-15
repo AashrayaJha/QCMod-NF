@@ -18,68 +18,62 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
                 //      hecke_prime := 0, unit_root_splitting := false, eqsplit := 0,
                 //      height_coeffs := [], rho := 0, use_log_basis := false, use_polys:=[])
   -> SeqEnum, BoolElt, SeqEnum, SeqEnum, List, SeqEnum, Rec, Rec
-  {Run quadratic Chabauty given an equation of a plane affine curve satisfying Tuitman's conditions over a quadratic number field K;
-  a prime p, split in K and of good reduction (in the Balakrishnan-Tuitman sense); a sequence of known K-points and a list of nice correspondences.
+  {Run quadratic Chabauty given an equation of a plane affine curve satisfying Tuitman's conditions over a quadratic number field K,
+  a prime p that is split in K and of good reduction (in the Balakrishnan-Tuitman sense), a sequence of known K-points and a list of nice correspondences constructed using powers of the Hecke operator at p. 
     Outputs a list of K-points mapping under all embedding to disks where Tuitman's Frobenius lift is defined.
     Also outputs additional information.}
-
-  // TODO: Fix output list! Where does this come from?
-  // TODO: Fix documentation
-  // TODO: 
-  //  -Make known_points required, since Jan's code can't compute
-  // K-points. Alternatively, could find the K-points using our code using algebraic 
-  // approximation under the two embeddings. Is this
-  // actually worth doing? Probably not; in all examples one cares about
-  // one should already have a good idea what the points are.
-  // - Make correspondences required, since they take too long. Also note
-  // that we require Tp, and it's the user's responsibility to guarantee
-  // that Tp is correct. Maybe just require that the correspondences come
-  // from powers of Tp
-  // - Comment out things that don't work such as unit_root_splitting and
-  // log-basis stuff. Also in the input.
-  //
-//nice_correspondences := [], away_contributions := [0], 
-// INPUT
-//  * Q is a bivariate polynomial with OK-integral coefficients, where K is a quadratic number field,
-//    defining a smooth affine plane curve such that its smooth projective model X and J = Jac(X) satisfy
-//    * rk(J/Q) = g(X)  // TODO: Adapt!
-//    * J has RM over K
-//    These conditions are not checked!
-//  * v is a split prime ideal of good reduction of K, satisfying some additional Tuitman conditions (these
-//    are checked).
 //
-//  OPIONAL PARAMETERS
+// INPUT
+//  * Q is a polynomial in (K[x])[y] with O_K-integral coefficients, where K is a 
+//    quadratic number field, defining a smooth affine plane curve Y/K such that its 
+//    smooth projective model X and J = Jac(X) satisfy
+//    * rk(J/Q) <= 2(g(X)-1)+(r2(K)+1)*(rk(NS(J))-1)
+//    * J has RM over K`
+//    These conditions are not checked!
+//  * p is a prime that splits in K such that for both primes above p X has good 
+//    reduction in the sense of Balakrishnan-Tuitman and log is an isomorphism on 
+//    the Weil restriction Res_K/Q(J)(Qp) (TODO: Check if that's the right condition)
+//  * known_points is a list of known points in Y(K).
+//  * correspondence_data contains ... TODO: Aash, can you add this?
+//
+//  OPTIONAL PARAMETERS
 //  * N is the p-adic precision used in the computations
 //  * prec is the t-adic precision used for power series computations
 //  * basis0 is a basis of the holomorphic differentials
-//  * basis1 is a set of g independent meromorphic differentials s.t. basis0 and basis1
-//     generate H^1_dR(X).
-//  * Together with basis0, basis1, the sequence basis2 forms a basis of H^1_dR(U), where 
-//    U is the affine patch we work on (bad disks removed).
-//  * number_of_correspondences is the number of quadratic Chabauty functions used for
-//    finding the rational points.  
-//  * base_point is a pair [x,y] specifying a rational point on X to be used as a base
-//    point for Abel Jacobi. If base_point = 0, the first good affine rational point found
-//    is used.
-//  * known_points is a list of known K-points over the base field.
-//  * We determine a basis of bilinear pairings as the dual
-//    basis of the E1\otimes E2-basis for sufficiently many rational points on X. If this isn't possible, we throw an error. TODO: as in QCMode, use a basis given by products of logs (i.e. single integrals of holomorphic forms). 
+//  * basis1 is a set of g independent meromorphic differentials s.t. basis0 and 
+//    basis1 generate H^1_dR(X).
+//  * Together with basis0, basis1, the sequence basis2 forms a basis of H^1_dR(U), 
+//    where U is the affine patch we work on (bad disks removed).
+//  * base_point is a pair [x,y] specifying a rational point on X to be used as a 
+//    base point for Abel Jacobi. If base_point = 0, the first good affine rational 
+//    point found is used.
 //
 //  OUTPUT:
-// return good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, global_pts_local, bad_affine_K_pts_xy, data1, data2; //, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
-//  ** good_affine_rat_pts_xy, bool, bad_affine_rat_pts_xy, data, fake_rat_pts, bad_Qppoints **
+//  ** good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, 
+//     global_pts_local, bad_affine_K_pts_xy, data1, data2
+//  **
 //  where
-//  * good_affine_rat_pts_xy is a list of rational points (x,y) such that Q(x,y)=0 living
-//    in good residue disks (terminology as in Balakrishnan-Tuitman, Explicit Coleman integration for curves 
-//  * bool is true iff the computation proves that good_affine_rat_pts_xy is the complete
-//    list of affine rational points in good residue disks
-//  * bad_affine_rat_pts_xy is a list of bad rational points (x,y) such that Q(x,y)=0. 
-//  * data is the Coleman data at p used in the algorithm.
-//  * fake_rat_pts is a list of solutions to the quadratic Chabauty equations which appear
-//    to be non-rational. This should be empty iff bool is true.
-//  * bad_Qppoints is a list of Qppoints representing bad residue disks.
+//  * good_affine_K_pts_xy is a sequence of points (x,y) in Y(K) such that (x,y) is 
+//    good in Y(K_i) for i=1,2, where K_i is the completion at the prime p_i above p.
+//    under both embeddings of K into Qp (terminology as in Balakrishnan-Tuitman).
+//  * The boolean complete is true iff the computation proves that 
+//    good_affine_rat_pts_xy contains all points of this form.
+//  * sol_list contains a list of pairs ((x1,y1), (x2,y2)) such that (x_i,
+//    y_i) in Y(K_i) is a good point and the pair correponds to a common root of the
+//    quadratic Chabauty functions constructed from correspondence_data.
+//  * zero_list contains the common roots of the quadratic Chabauty
+//    functions across all good residue polydisks (=pairs of good residue
+//    disks, parametrized using a local coordinate x-x(P) for some P in
+//    the disk).
+//  * double_zero_list is a list of pairs [l,m] such that the residue
+//    polydisk corresponding to the lth disk in X(K1) and the mth disk in
+//    X(K2) contains a multiple root for all quadratic Chabauty functions.
+//    These disks can be accessed using Qp_points(data_i).
+//  * bad_affine_K_pts_xy is a list of points (x,y) in Y(K) such that (x,y)
+//    is bad in Y(K_1) or Y(K_2).
+//  * data1 is the Coleman data at p1 used in the algorithm.
+//  * data2 is the Coleman data at p2 used in the algorithm.
 //  
-//  EXAMPLE
 //
 
 
@@ -131,8 +125,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   end if;
   
   // h1basis is a basis of H^1 such that the first g elements span the regular
-  // differentials. Construct a symplectic basis by changing the last g elements of h1basis.
-  //
+  // differentials. Construct a symplectic basis by changing the last g elements of 
+  // h1basis.
+
   standard_sympl_mat := ZeroMatrix(K,2*g,2*g);
   for i in [1..g] do
     standard_sympl_mat[i,g+i] := 1; standard_sympl_mat[g+i,i] := -1;
@@ -143,12 +138,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   if assigned cpm then delete cpm; end if;
   repeat 
     try 
+      // This takes too long, because it works over the splitting field at
+      // infinity
       //cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec);
-      // If this takes very long, try 
-       cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec, split := false);
+      cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec, split := false);
     catch e;
       cpm_prec +:= g;
-      vprint QCMod, 4: "try again";
+      vprint QCMod, 4: "Precision %o too low for cup product computation. Increasing to %o", cpm_prec-g, cpm_prec;
     end try;
   until assigned cpm;
   vprint QCMod, 3: " Cup product matrix", cpm;
@@ -292,13 +288,15 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   // Want rho-1 independent `nice` correspondences.
   // Construct them using powers of Hecke operator
   //q := IsZero(hecke_prime) select p else hecke_prime;
-  
+  // Commented out, since we always take q=p.
 
   //if Type(correspondence_data) eq RngIntElt  then 
   // TODO: Make this work.
   //  correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
   //else
-    correspondences := correspondence_data[2]; Tp:=correspondence_data[1];  corr_loss:=correspondence_data[3];
+  correspondences := correspondence_data[2]; 
+  Tp:=correspondence_data[1];  
+  corr_loss:=correspondence_data[3];
   //end if;
 
   Ncorr := N + Min(corr_loss, 0);
@@ -306,7 +304,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   // represent them via rational approximations.
   Qpcorr := pAdicField(p, Ncorr);
   mat_space := KMatrixSpace(Qpcorr, 2*g, 2*g);
-  //vprintf QCMod, 3: "\nHecke operator at %o acting on H^1:\n%o\n", q, Tq;
+  vprintf QCMod, 3: "\nHecke operator at %o acting on H^1:\n%o\n", p, Tp;
   //if IsDiagonal(Tq) or Degree(CharacteristicPolynomial(Tq)) lt 2*g then
     //error "p-Adic approximation of Hecke operator does not generate the endomorphism algebra. Please pick a different prime. ";
   //end if;
@@ -314,7 +312,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     //printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
   //end if;  
 
-  correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];  // Aash: Should 15=N?
+  correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];  
+  // TODO: Aash: Should 15=N?
   correspondences_Qp2:=[QpMatrix(M,15,v2): M in correspondences];
   //if #use_polys eq 0 then
   // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
@@ -325,7 +324,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
   end if;
   //end if;
-
   //end if;
     
   vprintf QCMod, 3: "\n Nice correspondences:\n%o\n\n", correspondences;
@@ -348,9 +346,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   
   // Compute an End0(J)-equivariant splitting of the Hodge filtration.
   
-  //Just making this run for the moment wihtout considering functionality, 
-  //since will probaby not give unit-root splitting.
-
   //if IsZero(eqsplit) then
   /* TODO: Fix this
     if unit_root_splitting then 
@@ -384,42 +379,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   minvaleqsplit1 := minvalp(eqsplit, v1);
   minvaleqsplit2 := minvalp(eqsplit, v2);
 
- /* if IsZero(eqsplit) then
-    if unit_root_splitting then 
-      // Compute the unit root splitting 
-      FQp := ChangeRing(ChangeRing(Submatrix(data2`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
-      char_poly_frob := CharacteristicPolynomial(FQp);
-      fact := Factorisation(char_poly_frob);
-      assert #fact ge 2;
-      non_unit_root_char_poly := &*[t[1]^t[2] : t in fact | &and[Valuation(Coefficient(t[1],i)) gt 0 : i in [0..Degree(t[1])-1]]];
-      assert Degree(non_unit_root_char_poly) eq g;
-      Mp := EchelonForm(ChangeRing(Evaluate(non_unit_root_char_poly, FQp), pAdicField(p, N-2))); 
-      assert Rank(Mp) eq g;
-      // basis of the unit root subspace wrt symplectic basis
-      W_wrt_simpl := Transpose(Submatrix(ChangeRing(Mp, Rationals()), 1,1,g,2*g));
-      // the splitting matrix is the unique matrix leaving the holomorphic
-      // differentials invariant and vanishing along the unit root subspace.
-      W_lower := ExtractBlock(W_wrt_simpl, g+1, 1, g, g);
-      W_upper_minus := [-Vector(RowSequence(W_wrt_simpl)[i]) : i in [1..g]];
-      split := Transpose(Matrix(Solution(W_lower, W_upper_minus)));
-      eqsplit2 := BlockMatrix(2, 1, [IdentityMatrix(Rationals(),g), split]);
-    else 
-      //eqsplit := eq_split(Tp); // Bug with X0*(303)
-      eqsplit := equivariant_splitting(Tp);
-    end if; // unit_root_splitting
-  end if; // IsZero(eqsplit)
-  */
-
   // Test equivariance of splitting 
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
-  check_equiv := (big_split*Transpose(Tp) - Transpose(Tp)*big_split);
-  //check_equiv := ChangeRing((big_split*Transpose(Tp) - Transpose(Tp)*big_split), pAdicField(p, N-2));     
-  min_val_check_equiv1 := Min([Min([Valuation(check_equiv[i,j], v1) : j in [1..g]]): i in [1..2*g]]);
-  min_val_check_equiv2 := Min([Min([Valuation(check_equiv[i,j], v2) : j in [1..g]]): i in [1..2*g]]);
-  vprintf QCMod, 3: "min_val_check_equiv = %o, %o\n", min_val_check_equiv1, min_val_check_equiv2;
-  assert min_val_check_equiv1 ge N-3; 
-  assert min_val_check_equiv2 ge N-3; 
-  vprintf QCMod, 3: "checking if this is 0: %o", IsZero(big_split*Transpose(Tp) - Transpose(Tp)*big_split); 
   assert IsZero(big_split*Transpose(Tp) - Transpose(Tp)*big_split);     // Test equivariance
   vprintf QCMod, 3: "\n equivariant splitting:\n%o\n", eqsplit;
   
@@ -718,7 +679,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
             Append(~basisH0star_i1, Eltseq(E1Pi1*Tp_small1^i)); 
             Append(~basisH0star_i2, Eltseq(E1Pi2*Tp_small2^i)); 
           end for; 
-          // TODO: If this breaks, it might be due to different base rings.
+          // If this breaks, it might be due to different base rings.
           val_det_i := Min([Valuation(Determinant(Matrix(M))) : 
                                     M in [basisH0star_i1, basisH0star_i2]]);
           if val_det_i lt min_val_det_i then
@@ -755,7 +716,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     // heights contains the list of heights of auxiliary points 
     // if #height_coeffs eq 0 then 
 //      if Dimension(E1_E2_subspace) lt dim then  // add E1_E2(P) to known subspace until dimension is dim.
-//      TODO: Use the above to do only enough computations
 //            to fit the height pairing
       i := 1;
       repeat 
@@ -781,7 +741,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
         Qp_ext := quo< Qpix | Qpix!PolynomialRing(Rationals())!char_poly_Tp>;
         Phiis := [Phii1, Phii2]; 
         betafils := [QpSequence(Eltseq(betafil1),Ni,v1), 
-                      QpSequence(Eltseq(betafil2),Ni,v2)]; // TODO: Ni or N? move above?
+                      QpSequence(Eltseq(betafil2),Ni,v2)]; 
         
         E1_P := E1_NF(Phiis, changebases, Qp_ext); 
         E2_P := E2_NF(Phiis, betafils, changebases, Qp_ext); 
@@ -799,7 +759,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
         //if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then
         if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) or 
           Dimension(E1_E2_subspace) eq dim then  
-          // TODO: only use first condition. The second one is there so that we can test whether the pairing we solve for is actually the height pairing. This is done by computing E1_E2 and the heights for all available points.
+          // We really only use first condition. The second one is there so that we 
+          // can test whether the pairing we solve for is actually the height 
+          // pairing. This is done by computing E1_E2 and the heights for all 
+          // available points.
           if Dimension(new_E1_E2_subspace) gt Dimension(E1_E2_subspace) then //and i le 9 then
             vprintf QCMod, 3: " Using point %o at correspondence %o to fit the height pairing.\n", good_affine_K_pts_xy_no_bpt[i], l;
           else 
@@ -1076,7 +1039,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
         end if;
       end for;
 
-      // TODO: Only take c. Really?
       min_val := Min([minval(Coefficients(c)) : c in coefs | c ne 0]);
       return p^(-min_val)*s2^Valuation(f)*poly, min_val;
     end function;
@@ -1095,13 +1057,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
             g2 := make_power_series(F2_list[i,m]);
             g1_poly, min_val1 := make_poly(g1);
             g2_poly, min_val2 := make_poly(g2);
-            // Computed this out, since it takes longer than
-            // two_variable_padic_system_solver
+            // Computed this out, since it takes longer and is less stable
+            // than two_variable_padic_system_solver
             // roots, droots := hensel_lift_n([g1_poly,g2_poly], p, Nend-1);
             //if droots gt 0 then
             if k eq 1 then  // first correspondence: compute roots
               vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty function in the polydisk %o,%o\n", i,m;
-              roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
+              roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, 
+                                                        Nend-1, Nend-1 :safety :=1);
               zero_list[i,m] := roots;
               if droots gt 0 then  // there are multiple roots in this polydisk
                 Append(~double_zero_list, [i,m]);
@@ -1166,7 +1129,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
      Check that both QC functions vanish at the images of the known K-points
    */
   global_pts_local := [* *];
-  vprintf QCMod, 2: "\n Check that QC-functions vanish at known K-point\n.";
+  vprintf QCMod, 2: "\n Check that QC-functions vanish at known K-points.\n";
   for i := 1 to number_of_correspondences do
     F1_list := F1_lists[i];
     F2_list := F2_lists[i];
@@ -1196,7 +1159,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
       end if;
     end for;
   end for; //  i := 1 to number_of_correspondences 
-  vprintf QCMod, 2: "\n QC-functions vanish at all known K-points!\n.";
+  vprintf QCMod, 2: "\n QC-functions vanish at all known K-points!\n";
   complete := #sol_list eq #good_affine_K_pts_xy and #double_zero_list eq 0;
 
   return good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, global_pts_local, bad_affine_K_pts_xy, data1, data2; //, F1_lists, F2_lists, Qppoints_1, Qppoints_2;
