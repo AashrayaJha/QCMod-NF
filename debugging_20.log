@@ -74337,3 +74337,6 @@ rho
 Run quadratic Chabauty given an equation of a plane affine curve satisfying Tuitman's conditions over a quadratic number field K; a prime p, split in K and of good reduction (in the Balakrishnan-Tuitman sense); a sequence of known K-points and a list of nice correspondences. Outputs a list of K-points mapping under all embedding to disks where Tuitman's Frobenius lift is defined. Also outputs additional information.
 
 
+
+
+Total time: 15.269 seconds, Total memory usage: 1217.94MB

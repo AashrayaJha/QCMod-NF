@@ -30,8 +30,9 @@ bool, trans_seq := IsIsomorphicPlaneQuartics(C_RSZB,C);
 trans := trans_seq[1];
 a,b,c := GetVersion();
 if b lt 28 then
-  trans:=trans^(-1);  //AJ: Need this for Magma version V2.27-5
-                      // TODO: Find out when this change was made.
+  if c lt 10 then
+    trans:=trans^(-1);  
+  end if;
 end if;
 known_points_RSZB := [C_RSZB!P : P in [
   [1,0,0], // j = 1728, D = -4
