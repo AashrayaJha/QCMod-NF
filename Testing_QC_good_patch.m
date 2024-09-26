@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-load "data/Coleman_good_patch.m";
-load "data/Hecke_good_patch_400.m";
+// load "data/Coleman_good_patch.m";
+// load "data/Hecke_good_patch_400.m";
 
 import "applications.m": Qp_points;
 import "singleintegrals.m": is_bad, xy_coordinates;
@@ -18,7 +18,7 @@ Qppoints_1 := Qp_points(data_1);
 assert &and[not(is_bad(P, data_1)) : P in Qppoints_1];
 Qppoints_2 := Qp_points(data_2);
 assert &and[not(is_bad(P, data_2)) : P in Qppoints_2];
-"So under both embeddings, all residue disks are good (in particular, affine)."
+//"So under both embeddings, all residue disks are good (in particular, affine)."
 
 
 // Curve as in RSZB
@@ -93,10 +93,10 @@ end for;
 "Check that there are no multiple roots.";
 assert not &or[s[2] : s in sols];
 "No multiple roots!";
-printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.",  C_RSZB, known_points_RSZB, BaseRing(C);
-
+printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.\n",  C_RSZB, known_points_RSZB, BaseRing(C);
 
 t2:=Cputime();
-printf "This is the time taken %o", t1-t2;
+printf "This is the time taken %o", t2-t1;
+
 
 
