@@ -97,7 +97,7 @@ assert not &or[s[2] : s in sols];
 printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.\n",  C_RSZB, known_points_RSZB, BaseRing(C);
 
 t2:=Cputime();
-printf "This is the time taken %o", t2-t1;
+printf "This is the time taken: %o", t2-t1;
 
 
 
