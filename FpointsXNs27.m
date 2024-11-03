@@ -247,7 +247,8 @@ points:= [XH![P[2],P[1],P[3]] : P in [
 ]];
 
 CM_points:=[points[i]: i in [1..12]];
-non_CMpoints:=points[13];
+non_CMpoint:=points[13];
+non_CMns27:=RationalPoints(non_CMpoint@@phi);
 //CMj := [0,1728,-3375,8000,-32768,54000,287496,-884736,-12288000,16581375,-884736000,-147197952000,-262537412640768000];
 Rationalpts:=[**];
 Kpoints:=[**];
@@ -287,8 +288,12 @@ phi3 := map<P1 -> P1 | [(-15*P1.1^9 - 81*P1.1^8*P1.2 - 27*P1.1^7*P1.2^2 + 117*P1
 (P1.1^9 - 9*P1.1^7*P1.2^2 + 3*P1.1^6*P1.2^3 + 27*P1.1^5*P1.2^4 - 18*P1.1^4*P1.2^5 - 
 	24*P1.1^3*P1.2^6 + 27*P1.1^2*P1.2^7 - 9*P1.1*P1.2^8 + P1.2^9)^3]>;
 
+
+
+
 printf "The number of Q(zeta_3) points of X_ns^+(27) is %o, and of these %o are Q-points.\n", #Kpoints,#Rationalpts;
-printf "X_{ns}^+(27) has %o Q(zeta_3)-points which are CM", #KpointsCM;
+printf "X_{ns}^+(27) has %o Q(zeta_3)-points which are CM. \n", #KpointsCM;
+printf "There are %o non-CM point (s), which are \n %o.\n" , #non_CMns27, non_CMns27;
 // jinvlist:=[]; 
 // x:=0 ; //CMcount
  
