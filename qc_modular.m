@@ -173,7 +173,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   end if;  
   vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v2, N;
 
-  prec := Max(100, tadicprec(data1, 1));
+  prec := Max([prec, 40, tadicprec(data1, 1)]);
   prec := Max(tadicprec(data2, 1), tadicprec(data1, 1));
   S<t>    := LaurentSeriesRing(Qp,prec);
   S1<z1>  := LaurentSeriesRing(Qp,prec);
@@ -241,7 +241,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   good_coordinates_1 := [xy_coordinates(P,data1) : P in good_Kpoints_1];
   good_affine_K_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in good_coordinates_1]; 
   bad_coordinates_1 := [xy_coordinates(P,data1) : P in bad_Kpoints_1];
-  // TODO: This might not always work for very bad points
+  // TODO: This might not always work for very bad points. Not a problem
+  // in our example.
   bad_affine_K_pts_xy := [[alg_approx_Qp(P[1], v1), alg_approx_Qp(P[2], v1)] : P in bad_coordinates_1]; 
 
   vprintf QCMod, 2: "\n Good affine K-points:\n%o\n", good_affine_K_pts_xy;
@@ -312,9 +313,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     //printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
   //end if;  
 
-  correspondences_Qp1:=[QpMatrix(M,15,v1): M in correspondences];  
+  correspondences_Qp1:=[QpMatrix(M,N,v1): M in correspondences];  
   // TODO: Aash: Should 15=N?
-  correspondences_Qp2:=[QpMatrix(M,15,v2): M in correspondences];
+  correspondences_Qp2:=[QpMatrix(M,N,v2): M in correspondences];
   //if #use_polys eq 0 then
   // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
   if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp1, mat_space)>) lt rho-1 then
@@ -935,7 +936,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
       // lower bound on valuations of coefficients in entries of F1_list
       assert i ge i0_1;
       valgammafili_1 := i le maxdeggammafils1[k] select minvalgammafils1[k] else 0;
-      return -2*Floor(log(p,i)) + c1s1[k] + c2_1 + Min(0, c1s1[k]+c3_1+2*minvalchangebasis1);
+      return -2*Floor(log(p,i)) + c1s1[k] + Min(c2_1, c1s1[k]+c3_1+2*minvalchangebasis1);
     end function;
 
     c2_2 := Min([0, valbetafils2[k], minvaleqsplit2, valbetafils2[k]+ minvaleqsplit2]); 
@@ -944,12 +945,14 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     repeat 
       i0_2 +:= 1;
     until -Floor(log(p,i0_2)) le i0_threshold_2;
+    "i0_1", i0_1; 
+    "i0_2", i0_2; 
 
     function valF2(i) 
       // lower bound on valuations of coefficients in entries of F2_list
       assert i ge i0_2;
       valgammafili_2 := i le maxdeggammafils2[k] select minvalgammafils2[k] else 0;
-      return -2*Floor(log(p,i)) +c1s2[k] + c2_2 + Min(0,c1s2[k]+c3_2+2*minvalchangebasis2);
+      return -2*Floor(log(p,i)) + c1s2[k] + Min(c2_2,c1s2[k]+c3_2+2*minvalchangebasis2);
     end function;
 
 
@@ -1009,8 +1012,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     // - correspondence k
     // - in the residue polydisk D(l) x D(m) 
 
-
-     
     Nend := Integers()!Min(Nexpansions[k], Nhtcoeffs); // Precision used for root finding 
     vprintf QCMod: " The quadratic Chabauty function for correspondence %o is correct to precision %o^%o.\n",  k, p, Nend;
     Qp_small   := pAdicField(p,Nend); 
@@ -1023,7 +1024,9 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
       // Coerce into Qpt12
       series := Qpt12!&+[(p*t2)^j*Evaluate(Coefficient(Qpt12!f,j), p*t1) 
                                           : j in [Valuation(f)..Degree(f)]];
-      return series;
+      prect2 := AbsolutePrecision(series);
+      prect1 := Min([AbsolutePrecision(c) : c in Coefficients(series)]);
+      return series, Min(prect2, prect1);
     end function;
 
     function make_poly(f)
@@ -1053,15 +1056,24 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
         for m := 1 to numberofpoints_2 do
           if G_list1[m] ne 0 then
 
-            g1 := make_power_series(F1_list[i,m]);
-            g2 := make_power_series(F2_list[i,m]);
+            g1, precg1 := make_power_series(F1_list[i,m]);
+            g2, precg2 := make_power_series(F2_list[i,m]);
+              
+            bound_val_coeffs1 := valF1(precg1) + 2*precg1;
+            bound_val_coeffs2 := valF2(precg2) + 2*precg2;
+            if Min(bound_val_coeffs1, bound_val_coeffs2) lt N then  
+              error "Root finding won't yield meaningful results. Lower p-adic precision or increase t-adic precision";
+            end if;
+
             g1_poly, min_val1 := make_poly(g1);
             g2_poly, min_val2 := make_poly(g2);
-            // Computed this out, since it takes longer and is less stable
+            // Commented this out, since it takes longe and is less stable
             // than two_variable_padic_system_solver
             // roots, droots := hensel_lift_n([g1_poly,g2_poly], p, Nend-1);
             //if droots gt 0 then
             if k eq 1 then  // first correspondence: compute roots
+              g1_poly_1 := g1_poly;
+              g1_poly_2 := g2_poly;
               vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty function in the polydisk %o,%o\n", i,m;
               roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, 
                                                         Nend-1, Nend-1 :safety :=1);
@@ -1073,44 +1085,71 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
               // Check if functions vanish at zeroes of first function.
               vprintf QCMod, 3: " Check which zeroes of the first quadratic Chabauty function in the polydisk %o,%o are also zeroes of the second quadratic Chabauty function \n", i,m;
               if #zero_list[i,m] gt 0 then
-                for r in zero_list[i,m] do
-                  val1 := Valuation(Evaluate(g1_poly, r));
-                  val2 := Valuation(Evaluate(g2_poly, r));
-                  if val1 ge Nend-4 and val2 ge Nend-4 then
-                    // common root to prec Nend-4, as safety measure
-                    // find affine local coordinates 
-                    Pp1 := Qppoints_1[i];
-                    xt1, bt1 := local_coord(Pp1,prec,data1);
-                    Pp2 := Qppoints_2[m];
-                    xt2, bt2 := local_coord(Pp2,prec,data2);
-                    // Commented out the following lines, since W0=I_4 in our
-                    // example. 
-                    // TODO: Need to uncomment for other examples, and need to
-                    // change the base ring of W0 from F(x) to Qp(x).
-                    //W0invxt1 := Evaluate(W0^(-1), xt1);
-                    //b_vector1 := Matrix(Parent(xt1), Degree(Q), 1, bt1);
-                    //yt1 := &+[W0invxt1[2,j]*b_vector1[j,1] : j in [1..Degree(Q)]];
-                    //W0invxt2 := Evaluate(W0^(-1), xt2);
-                    //b_vector2 := Matrix(Parent(xt2), Degree(Q), 1, bt2);
-                    //yt2 := &+[W0invxt2[2,j]*b_vector2[j,1] : j in [1..Degree(Q)]];
-                    yt1 := bt1[2];
-                    yt2 := bt2[2];
-                    pt1 := [Qp_small!Evaluate(c, p*r[1]) : c in [xt1, yt1]];
-                    pt2 := [Qp_small!Evaluate(c, p*r[2]) : c in [xt2, yt2]];
-                    double_root := false;
-                    if [k,i,m] in double_zero_list  then  // 
-                      // multiple roots in this disc for correspondence 1. 
-                      // check if there are multiple roots in this disc for 
-                      // correspondence 2. 
-                      roots2, droots := two_variable_padic_system_solver(
-                                    g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
-                      // TODO: Check if r among roots2. Doesn't happen in
-                      // our example.
-                      double_root := droots gt 0;
-                    end if;
-                    Append(~sol_list, <[pt1,pt2], double_root>); 
-                  end if; // val1 ge Nend-4 and val2 ge Nend-4 then
-                end for; // r in zero_list[1][i,m] 
+
+                if [k,i,m] notin double_zero_list  then  
+                  // Hensel condition satisfied for first correspondence
+                  // for all roots in this polydisk
+
+                  for r in zero_list[i,m] do
+
+                    val1 := Valuation(Evaluate(g1_poly, r));
+                    val2 := Valuation(Evaluate(g2_poly, r));
+                    if val1 ge Nend-3 and val2 ge Nend-3 then
+                      // common root to prec Nend-3, as safety measure
+                      // find affine local coordinates 
+                      Pp1 := Qppoints_1[i];
+                      xt1, bt1 := local_coord(Pp1,prec,data1);
+                      Pp2 := Qppoints_2[m];
+                      xt2, bt2 := local_coord(Pp2,prec,data2);
+                      // Commented out the following lines, since W0=I_4 in our
+                      // example. 
+                      // TODO: Need to uncomment for other examples, and need to
+                      // change the base ring of W0 from F(x) to Qp(x).
+                      //W0invxt1 := Evaluate(W0^(-1), xt1);
+                      //b_vector1 := Matrix(Parent(xt1), Degree(Q), 1, bt1);
+                      //yt1 := &+[W0invxt1[2,j]*b_vector1[j,1] : j in [1..Degree(Q)]];
+                      //W0invxt2 := Evaluate(W0^(-1), xt2);
+                      //b_vector2 := Matrix(Parent(xt2), Degree(Q), 1, bt2);
+                      //yt2 := &+[W0invxt2[2,j]*b_vector2[j,1] : j in [1..Degree(Q)]];
+                      yt1 := bt1[2];
+                      yt2 := bt2[2];
+                      pt1 := [Qp_small!Evaluate(c, p*r[1]) : c in [xt1, yt1]];
+                      pt2 := [Qp_small!Evaluate(c, p*r[2]) : c in [xt2, yt2]];
+                      double_root := false;
+
+                      Append(~sol_list, <[pt1,pt2], double_root>); 
+                    end if; // val1 ge Nend-3 and val2 ge Nend-3 then
+                  end for; // r in zero_list[1][i,m] 
+                else
+                  // multiple roots in this disc for correspondence 1. 
+                  // find roots for correspondence 2. 
+                  vprintf QCMod, 3: " The QC functions wrt the first correspondence have a root in polydisk %o,%o not satisfying the Hensel condition. Find roots of QC functions wrt the second correspondence. \n", i,m;
+                  roots2, droots2 := two_variable_padic_system_solver(
+                                g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
+                  assert droots2 eq 0; // Hensel condition satisfied
+                  for r in roots2 do
+                    // Now check if QC fns for first correspondence vanish
+                    // at roots of QC fns for second correspondence
+                    val1 := Valuation(Evaluate(g1_poly_1, r));
+                    val2 := Valuation(Evaluate(g1_poly_2, r));
+                    if val1 ge Nend-3 and val2 ge Nend-3 then
+                      // common root to prec Nend-3, as safety measure
+                      // find affine local coordinates 
+                      Pp1 := Qppoints_1[i];
+                      xt1, bt1 := local_coord(Pp1,prec,data1);
+                      Pp2 := Qppoints_2[m];
+                      xt2, bt2 := local_coord(Pp2,prec,data2);
+                      // TODO: For other examples fix W0 issue, same as above.
+                      yt1 := bt1[2];
+                      yt2 := bt2[2];
+                      pt1 := [Qp_small!Evaluate(c, p*r[1]) : c in [xt1, yt1]];
+                      pt2 := [Qp_small!Evaluate(c, p*r[2]) : c in [xt2, yt2]];
+                      double_root := false;
+                      Append(~sol_list, <[pt1,pt2], double_root>); 
+                    end if; // val1 ge Nend-3 and val2 ge Nend-3 then
+                  end for; // r in roots2
+                  
+                end if; // [k,i,m] notin double_zero_list  then  
               end if; // #zero_list[i,m] gt 0 then
             end if; // k eq 1 
           end if; // G_list1[m] ne 0
@@ -1129,13 +1168,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
      Check that both QC functions vanish at the images of the known K-points
    */
   global_pts_local := [* *];
-  vprintf QCMod, 2: "\n Check that QC-functions vanish at known K-points.\n";
+  vprintf QCMod, 2: "\n Check that QC-functionss vanish at known K-points.\n";
   for i := 1 to number_of_correspondences do
     F1_list := F1_lists[i];
     F2_list := F2_lists[i];
     for j in [1..#good_Kpoints_1] do
       point := good_affine_K_pts_xy[j];
-      vprintf QCMod, 3: "\n Check that QC-function vanishes at known K-point %o for correspondence %o.\n  ", point, i; 
+      vprintf QCMod, 3: "\n Check that QC-functions vanish at known K-point %o for correspondence %o.\n  ", point, i; 
       P1 := good_Kpoints_1[j]; 
       ind1 := FindQpointQp(P1, Qppoints_1); 
       P2 := good_Kpoints_2[j]; 

@@ -230,8 +230,6 @@ for F in flist do
 end for;
 
 precision := Min(precvec);
-
-
 R := PolynomialRing(pAdicField(p,precision), #flist);
 flistnew := [];
 for F in flist do
@@ -260,6 +258,7 @@ for i in [1..#sols] do
     end if;
 end for;
 actual_roots := roots2;
+//"roots2", roots2;
 for r in roots do
     ind_roots := Index(roots, r);
     rt_info := roots_info[ind_roots];
@@ -275,8 +274,8 @@ for r in roots do
         B := Transpose(Jeval)*Jeval;
         const2:=Ceiling(Log( ((prec2-rt_info[2])/rt_info[1]))/Log(2.)) + 1 ;
         k := 0;
-        while k  lt const2 and Determinant(B) ne 0 do
-            A := Matrix(#flistnew, 1, [-Evaluate(f, rnew): f in flistnew]);
+        while k lt const2 and Determinant(B) ne 0 do
+            A := Matrix(#flistnew, 1, [-Evaluate(f, Eltseq(i_l)): f in flistnew]);
             i_l := i_l + B^(-1)*Transpose(Jeval)*A;
             for i in [1..#flist] do
                 Append(~variables, i_l[i,1]);
@@ -292,3 +291,5 @@ end for;
 
 return actual_roots, #roots2;
 end function;
+
+
