@@ -1,18 +1,27 @@
-This is Magma code to carry out quadratic Chabauty for curves X/Q of genus > 1 over the
-rationals satisfying the following conditions
-* rank = genus
-* real multiplication
-* enough rational points on the curve to solve for the height pairing, unless the genus is 2.
-* ps is a prime of good reduction such that 
-  * the closure of Jac(X)(Q) in Jac(X)(Qp) has finite index
+``This is currently wokr in progress : AJ''
+
+This is Magma code to carry out quadratic Chabauty for a nice (modular) curves X/K, where K 
+is an imaginary quadratic field  and X is a curve of of genus > 1 over K satisfying
+the following conditions :
+
+* rank = 2*genus 
+* real multiplication 
+* enough rational points on the curve to solve for the height pairing. 
+* p is a rational prime, which splits in K, and 
+  * X has good reduction at all primes of K dividing p, and Assumption 1 in `Counting points 
+    on curves using a map to P1`, Math. Comp. 2016Tuitman is satisfied for all primes above p.
+  * the closure of Jac(X)(K) in Jac(X)(K\otimes Qp) has finite index
   * the Hecke operator at p generates the Hecke algebra.
 
-The theory is described in `Quadratic Chabauty for modular curves: Algorithms and
-Examples` and `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13`
-by J.S. Balakrishnan, N. Dogra, J.S. Müller, J. Tuitman and J. Vonk.
+The theory is described in `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF
+LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  Jennifer S. Balakrishnan,
+L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. This follows the papers
+`Quadratic Chabauty for modular curves: Algorithms and Examples` and `Explicit Chabauty-Kim 
+for the Split Cartan Modular Curve of Level 13` by J.S. Balakrishnan, N. Dogra, J.S. Müller,
+J. Tuitman and J. Vonk.
 
-Most of the code consists of wrappers around a slightly modified earlier version, mostly written by Jan Tuitman and based on even earlier SAGE code by Netan Dogra; the latter was hardcoded for the computations in `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13`. 
-Also includes contributions by Jennifer Balakrishnan and Jan Vonk, as well as code for the Mordell-Weil sieve based on code due to Michael Stoll.
+Most of the code consists of wrappers around a slightly modified earlier version QCMod on Steffen 
+Müller's repository. 
 
 
 List of files:
@@ -22,8 +31,6 @@ List of files:
       in those disks where Tuitman's Frobenius lift is defined. Also outputs additional information, such 
       as additional p-adic solutions which don't look rational.
       Includes numerous optional arguments.
-   - QCModQuartic: takes an integer polynomial defining an affine patch of a smooth plane quartic
-      and outputs the rational points.
 -- divisor_heights.m: Contains the function local_height_divisors_p, which computes the local height pairing
     between two divisors with disjoint support on an odd degree hyperelliptic curve (with
     various restrictions) using construction of Coleman-Gross. Essentially ports earlier Sage code due to 
@@ -74,6 +81,6 @@ List of files:
 
 If you have questions or suggestions or if you find bugs, let me know.
 
-Steffen Müller, Rijksuniversiteit Groningen
-steffen.muller@rug.nl
+Aashraya Jha, Boston University
+aashjha@bu.edu
 
