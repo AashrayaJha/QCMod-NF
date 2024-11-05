@@ -257,6 +257,7 @@ KpointsCM:=[**];
 x:=0;
 for pt in points do
     pt_preimage_list := RationalPoints(pt@@phi);
+#pt_preimage_list;
     for ptinv in pt_preimage_list do
         Append(~Kpoints,ptinv);
         try
@@ -275,6 +276,9 @@ for pt in CM_points do
     end for;    
 end for;   
 
+Kpointsseq := SetToSequence(SequenceToSet([P : P in Kpoints]));
+KpointsCMseq := SetToSequence(SequenceToSet([P : P in KpointsCM]));
+
 P1 := ProjectiveSpace(K,1);
 
 phi2 := map<XH -> P1 | [[(zeta-1)*XH.1+(-2*zeta-1)*XH.2+(zeta-1)*XH.3,(-zeta-2)*XH.1+(-zeta-2)*XH.2+(-zeta+1)*XH.3],[1/3*(-zeta + 1)*XH.1^3 + 1/3*(4*zeta - 1)*XH.1^2*XH.2 + 1/3*(-4*zeta + 1)*XH.1*XH.2^2
@@ -291,8 +295,8 @@ phi3 := map<P1 -> P1 | [(-15*P1.1^9 - 81*P1.1^8*P1.2 - 27*P1.1^7*P1.2^2 + 117*P1
 
 
 
-printf "The number of Q(zeta_3) points of X_ns^+(27) is %o, and of these %o are Q-points.\n", #Kpoints,#Rationalpts;
-printf "X_{ns}^+(27) has %o Q(zeta_3)-points which are CM. \n", #KpointsCM;
+printf "The number of Q(zeta_3) points of X_ns^+(27) is %o, and of these %o are Q-points.\n", #Kpointsseq,#Rationalpts;
+printf "X_{ns}^+(27) has %o Q(zeta_3)-points which are CM. \n", #KpointsCMseq;
 printf "There are %o non-CM point (s), which are \n %o.\n" , #non_CMns27, non_CMns27;
 // jinvlist:=[]; 
 // x:=0 ; //CMcount
