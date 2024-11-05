@@ -1,0 +1,29 @@
+> load "data/non_essential/plane_quartic_experiments.m";
+Loading "data/non_essential/plane_quartic_experiments.m"
+[
+[ 1  0  1]
+[ 0 -1  0]
+[ 0  0 -1],
+
+[1 0 1]
+[0 1 0]
+[0 0 1]
+]
+[
+[       1        0        1]
+[       0 -4*u - 8        0]
+[       1        0 -4*u - 7]
+]
+Intrinsic 'IsIsomorphicPlaneQuartics'
+
+Signatures:
+
+Defined in file: /Applications/Magma/package/Geometry/CrvG3/isomorphisms/QuarticIso.m, line 157, column 11:
+(X1::CrvPln, X2::CrvPln) -> BoolElt, SeqEnum
+[
+geometric
+]
+
+Determine if the plane quartic curves X1 and X2 are isomorphic, and return the isomorphism between them. If the flag geometric is set to true, then test is performed over the algebraic closure of the base field, over which the isomorphisms are then determined as well.
+
+
