@@ -18,24 +18,30 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
                 //      hecke_prime := 0, unit_root_splitting := false, eqsplit := 0,
                 //      height_coeffs := [], rho := 0, use_log_basis := false, use_polys:=[])
   -> SeqEnum, BoolElt, SeqEnum, SeqEnum, List, SeqEnum, Rec, Rec
-  {Run quadratic Chabauty given an equation of a plane affine curve satisfying Tuitman's conditions over a quadratic number field K,
-  a prime p that is split in K and of good reduction (in the Balakrishnan-Tuitman sense), a sequence of known K-points and a list of nice correspondences constructed using powers of the Hecke operator at p. 
-    Outputs a list of K-points mapping under all embedding to disks where Tuitman's Frobenius lift is defined.
-    Also outputs additional information.}
-//
+  {Run quadratic Chabauty given an equation of a plane affine curve satisfying Tuitman's conditions over a quadratic imaginary number field K,
+   a prime p that is split in K and of good reduction (in the Balakrishnan-Tuitman sense), a sequence of known K-points and a list of nice correspondences
+    constructed using powers of the Hecke operator at p. 
+    
+  Outputs a list of K-points mapping under all embedding to disks where Tuitman's Frobenius lift is defined.
+  Also outputs additional information.}
+
 // INPUT
-//  * Q is a polynomial in (K[x])[y] with O_K-integral coefficients, where K is a 
-//    quadratic number field, defining a smooth affine plane curve Y/K such that its 
-//    smooth projective model X and J = Jac(X) satisfy
-//    * rk(J/Q) <= 2(g(X)-1)+(r2(K)+1)*(rk(NS(J))-1)
-//    * J has RM over K`
+//  * Q is a polynomial in (K[x])[y] with O_K-integral coefficients, where K is a imaginary
+//    quadratic number field, defining a affine plane curve Y/K which is birational to an affine open
+//    of a smooth projective model X and J = Jac(X). We requre the follwoing conditions to be checked:
+//    * rk(J(K)) = 2(g(X))
+//    * rank of Neron--Severi of J (over K) is greater thank 1. This is the same as the rank of the ring of
+//      Rosati-fixed endomorphisms of J. 
 //    These conditions are not checked!
+//    
 //  * p is a prime that splits in K such that for both primes above p X has good 
 //    reduction in the sense of Balakrishnan-Tuitman and log is an isomorphism on 
-//    the Weil restriction Res_K/Q(J)(Qp) (TODO: Check if that's the right condition)
+//    the (J)(K\otimesQp)\to T\otimes Qp where T=H^0(X,\Omega^1) is the tangent space at the origin.
 //  * known_points is a list of known points in Y(K).
-//  * correspondence_data contains ... TODO: Aash, can you add this?
-//
+//  * correspondence_data contains three entries. The first is the action of some correspondence, which 
+//    is currently assumed to be the Hecke correspondence T_p. The second entry is a list of
+//    linearly independent correspondences which are nice in the sense of BDMTV, obtained from powers of Tp. 
+//    
 //  OPTIONAL PARAMETERS
 //  * N is the p-adic precision used in the computations
 //  * prec is the t-adic precision used for power series computations

@@ -13,6 +13,7 @@
     qc_init_g2.m
     string-replace.m
     hodge_generic.m
+    misc.m
 }
 
 

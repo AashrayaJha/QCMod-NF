@@ -8,6 +8,23 @@ import "coho.m": ord_r_mat;
 import "singleintegrals.m": is_bad, coleman_integrals_on_basis_divisors, eval_poly_Qp;
 import "froblift.m": getrings;
 
+intrinsic CurveFromBivariate(Q::RngUPolElt[RngUPol])
+  -> CrvPln, RngMPolElt
+  {Given a bivariate polynomial in K[x][y], construct the curve Q = 0.}
+  K := BaseRing(BaseRing(Q));
+  PK3<X,Y,Z>:=PolynomialRing(K,3);                         
+  Q_dehom:=PK3!0;
+  d := Degree(Q);
+  for i:=0 to d do
+    for j:=0 to Degree(Coefficient(Q,i)) do
+      Q_dehom +:= Coefficient(Coefficient(Q,i),j)*Y^i*X^j;
+    end for;
+  end for;
+  Q_hom := Homogenization(Q_dehom, Z);                                                                
+  P2<X1,Y1,Z1> := ProjectiveSpace(K, 2);
+  C_Q := Curve(P2,Q_hom);
+  return C_Q, Q_dehom;
+end intrinsic;
 
 // Algebraic recognition for element in Qp.
 function algdepQp(a,deg)
