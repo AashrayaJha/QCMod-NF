@@ -1,6 +1,6 @@
 AttachSpec("QCMod.spec");
-// load "data/Coleman_good_patch.m";
-// load "data/Hecke_good_patch_400.m";
+load "data/Coleman_good_patch.m";
+load "data/Hecke_good_patch_400.m";
 
 import "applications.m": Qp_points;
 import "singleintegrals.m": is_bad, xy_coordinates;
