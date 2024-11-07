@@ -70,7 +70,7 @@ List of files:
     `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  
     Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller which appears as a quotient of Xns+(27). 
 -- data: Most of this is data for the smooth plane quartic X_H'. Contains  coleman_good_patch.m and 
-   Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some data collection files too,
+   Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some files which we used to collect data,
    and the misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed
    to run QCModAffine. 
 --tests: Some tests while extending code to run for number fields. Used examples in QCMod on Steffen Müller's 
