@@ -1,4 +1,5 @@
-AJ, 6/11: This is a work in progress.
+
+TODO: Hecke correspondence (Hecke_NF, Trace_zero_correspondence)
 
 This is Magma code to carry out quadratic Chabauty for nice (modular) curves X/K, where K 
 is an imaginary quadratic field  and X is a curve of of genus > 1 over K satisfying
@@ -26,19 +27,22 @@ and power series can now be done over completions of number fields.
 Contributions were made by Jennifer Balakrishnan, Daniel Hast, Aashraya Jha, and Steffen Müller.
 
 List of files:
+-- QCMod.spec, coleman.spec: spec files for attaching relevant intrinsics for running qc_modular and aspects
+   of coleman integration required in quadratic Chabauty respectively. 
 -- qc_modular.m: Contains
    - QCModAffine: Main function, takes a plane affine curve (not necessarily 
-      smooth) with integer coefficients, monic in y, and a prime p and outputs the rational points 
-      in those disks where Tuitman's Frobenius lift is defined. We also require the action of a nice
-      correspondence on H^1_dR(X). Also outputs additional information, such as additional p-adic solutions which don't look rational.
-      Includes numerous optional arguments.
+    smooth) with integer coefficients, monic in y, a prime p, data about the action of nice correspondences
+    on H^1_dR(X) and outputs the rational points in those disks where Tuitman's Frobenius lift is defined. 
+    Also outputs additional information, Outputs a list of K-points mapping under all embedding to disks
+    where Tuitman's Frobenius lift is defined.such as additional p-adic solutions which don't look rational.
+    Includes numerous optional arguments.    
 -- hodge.m: Computes the Hodge filtration using the algorithm described in section 4 of 
     `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13`
---hodge_generic.m: Wrapper of hodhe.m, which enables us to do a lot fo the linear algebra of 
-    required to compute the Hodge filtration in a smaller ground field.
+--hodge_generic.m: Wrapper of hodge.m, which enables us to do a lot of the linear algebra required to compute
+    the Hodge filtration in a smaller ground field.
 -- frobenius.m: Computes the Frobenius structure using the algorithm described in section 4 of 
-    `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13`
--- hensel.m: Computes     
+    `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13` extended to work over number fields
+-- hensel.m: Computes the common zeroes of a system of bivariate power series. 
 -- heights.m: Computes Nekovar heights as described in 
     `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13` and various
     related functions.
@@ -47,19 +51,30 @@ List of files:
 -- symplectic_basis.m: Given a basis of H^1_dR of a smooth projective curve such that the
     first g elements generate regular differentials, computes the cup product and a
     symplectic basis with respect to the cup product.
--- misc.m: various functions, such as an implementation of rational reconstruction of p-adic
-    numbers using LLL, rank computations using Kolyvagin-Logachev, equivariant splittings of
+-- misc.m: various functions, such as an implementation of reconstruction of global numbers from 
+    p-adic numbers using LLL, rank computations using Kolyvagin-Logachev, equivariant splittings of
     the Hodge filtration of H^1 and coefficients mod p^N of p-adic points under Abel-Jacobi in
-    terms of generators. Contains a function for 
--- applications.m, auxpolys.m, coho.m, coleman.m, froblift.m, reductions.m, singleintegrals.m: 
+    terms of generators. 
+-- hecke_correspondence.m: Given the Frobenius data calculated via ColemanData, it will calculate the 
+    Hecke_correspondence at a place dividing p. Wrapper to do this directly with inputs the curve, the place
+    of the number filed and precision also provided.    
+-- applications.m, auxpolys.m, coho.m,, froblift.m, reductions.m, singleintegrals.m: 
     Due to Jan Tuitman, computes Frobenius lifts and  Coleman integrals, based on 
       - Tuitman, `Counting points on curves using a map to P1`, Math. Comp. 2016
       - Tuitman, `Counting points on curves using a map to P1, II`, Finite Fields Appl, 2017
       - Balakrishnan-Tuitman, `Jennifer S. Balakrishnan and Jan Tuitman. Explicit Coleman
-        integration for curves`, Math. Comp.
-    with some minor modifications. 
--- Examples: Contains code to find Q(zeta_3) points of Xns+(27) and a smooth plane quartic X which appears as
-   a quotient of Xns+(27). 
+        integration for curves`, Math. Comp. 
+    Modifications made to make functions work over number fields, primarily due to Daniel Hast and Steffen Müller.
+-- string-replace.m: Intrinsics to replace strings, also in CHIMP. Useful for printing magma data. 
+-- Examples: Contains code to find Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' in Theorem 1.1
+    `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  Jennifer S. Balakrishnan,
+    L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üllerof which appears as a quotient of Xns+(27). 
+-- data: Most of this is data for the smooth plane quartic X_H'. Contains  coleman_good_patch.m and 
+   Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some data collection files too,
+   and the misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed
+   to run QCModAffine. 
+--tests: Some tests while extending code to run for number fields. Used examples in QCMod on Steffen Müller's 
+         GitHub. 
 
 If you have questions or suggestions or if you find bugs, let me know.
 

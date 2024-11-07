@@ -38,10 +38,12 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
 //    reduction in the sense of Balakrishnan-Tuitman and log is an isomorphism on 
 //    the (J)(K\otimesQp)\to T\otimes Qp where T=H^0(X,\Omega^1) is the tangent space at the origin.
 //  * known_points is a list of known points in Y(K).
-//  * correspondence_data contains three entries. The first is the action of some correspondence, which 
+//  * correspondence_data contains three entries. The first is the action of some correspondence on H1dR, which 
 //    is currently assumed to be the Hecke correspondence T_p. The second entry is a list of
-//    linearly independent correspondences which are nice in the sense of BDMTV, obtained from powers of Tp. 
-//    
+//    linearly independent correspondences which are nice in the sense of BDMTV, obtained from powers of Tp.
+//    The third entry is a p-adic precision loss bound from the correspondence. This can be calculated by calling
+//    the intrinsic HeckeCorrespondenceNF.
+
 //  OPTIONAL PARAMETERS
 //  * N is the p-adic precision used in the computations
 //  * prec is the t-adic precision used for power series computations
@@ -320,7 +322,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   //end if;  
 
   correspondences_Qp1:=[QpMatrix(M,N,v1): M in correspondences];  
-  // TODO: Aash: Should 15=N?
+
   correspondences_Qp2:=[QpMatrix(M,N,v2): M in correspondences];
   //if #use_polys eq 0 then
   // Check if Hecke operator generates. Need to do this using p-adic arithmetic.

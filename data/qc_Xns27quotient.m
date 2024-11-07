@@ -1,10 +1,11 @@
+//load this file in the main directory.
+
 AttachSpec("QCMod.spec");
 load "data/Coleman_good_patch.m";
 load "data/Hecke_good_patch_400.m";
 
 import "applications.m": Qp_points;
 import "singleintegrals.m": is_bad, xy_coordinates;
-
 
 t1:=Cputime();
 
@@ -97,7 +98,7 @@ assert not &or[s[2] : s in sols];
 printf "Hence the set of K-rational points on the %o is \n%o,\n where K is the %o.\n",  C_RSZB, known_points_RSZB, BaseRing(C);
 
 t2:=Cputime();
-printf "This is the time taken: %o", t2-t1;
+printf "This is the time taken: %o\n", t2-t1;
 
 
 

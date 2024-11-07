@@ -1,3 +1,6 @@
+// Fidning good patches for the curve, as described in Section 3.4 of `RATIONAL POINTS ON THE NON-SPLIT 
+// CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS'.
+
 AttachSpec("QCMod.spec");
 AttachSpec("coleman.spec");
 import "applications.m": Qp_points;
