@@ -67,8 +67,8 @@ List of files:
     Modifications made to make functions work over number fields, primarily due to Daniel Hast and Steffen Müller.
 -- string-replace.m: Intrinsics to replace strings, also in CHIMP. Useful for printing magma data. 
 -- Examples: Contains code to find Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' in Theorem 1.1
-    `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  Jennifer S. Balakrishnan,
-    L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üllerof which appears as a quotient of Xns+(27). 
+    `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  
+    Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller which appears as a quotient of Xns+(27). 
 -- data: Most of this is data for the smooth plane quartic X_H'. Contains  coleman_good_patch.m and 
    Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some data collection files too,
    and the misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed
