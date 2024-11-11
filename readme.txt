@@ -1,6 +1,3 @@
-
-TODO: Hecke correspondence (Hecke_NF, Trace_zero_correspondence)
-
 This is Magma code to carry out quadratic Chabauty for nice (modular) curves X/K, where K 
 is an imaginary quadratic field  and X is a curve of of genus > 1 over K satisfying
 the following conditions :
@@ -33,8 +30,7 @@ List of files:
    - QCModAffine: Main function, takes a plane affine curve (not necessarily 
     smooth) with integer coefficients, monic in y, a prime p, data about the action of nice correspondences
     on H^1_dR(X) and outputs the rational points in those disks where Tuitman's Frobenius lift is defined. 
-    Also outputs additional information, Outputs a list of K-points mapping under all embedding to disks
-    where Tuitman's Frobenius lift is defined.such as additional p-adic solutions which don't look rational.
+    Also outputs additional information, such as additional p-adic solutions which don't look rational.
     Includes numerous optional arguments.    
 -- hodge.m: Computes the Hodge filtration using the algorithm described in section 4 of 
     `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13`
@@ -57,7 +53,7 @@ List of files:
     terms of generators. 
 -- hecke_correspondence.m: Given the Frobenius data calculated via ColemanData, it will calculate the 
     Hecke_correspondence at a place dividing p. Wrapper to do this directly with inputs the curve, the place
-    of the number filed and precision also provided.    
+    of the number field and precision also provided.    
 -- applications.m, auxpolys.m, coho.m,, froblift.m, reductions.m, singleintegrals.m: 
     Due to Jan Tuitman, computes Frobenius lifts and  Coleman integrals, based on 
       - Tuitman, `Counting points on curves using a map to P1`, Math. Comp. 2016
