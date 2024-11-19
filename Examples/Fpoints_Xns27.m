@@ -300,7 +300,6 @@ des3 := [
     ];
 // Morphism from X_{ns}^+(27) -> X_{ns}^+(9), one can check the Degree(BaseScheme(phi)) has degree 0.
 
-assert Degree(BaseScheme(phi)) eq 0;
 phi := map<Xns27K -> P1 | [des1,des2,des3]>;
 assert Degree(BaseScheme(phi)) eq 0;
 
