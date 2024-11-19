@@ -78,7 +78,7 @@ Is := [GaloisImage(E,bas,3) : bas in bases];
 
 H3 := sub<GL2 | [GL2!Matrix(GF(3), 2,2, list) :  list in [[0,26,4,6], [10,1,25,26]]]>;
 &and[I eq H3 : I in Is];
-assert IsNormal(H3, GL2);
+assert IsNormal(GL2, H3);
 
 
 
