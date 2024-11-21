@@ -222,7 +222,7 @@ XH := Curve(ProjectiveSpace(K,2),pol);
 
 // Staring at the Fourier expansions of modular forms that David Zywina's code produces 
 // and matching those with the modular forms for the subgroup H whose determinant isn't
-// surjective yields the following birational map. (Given to us by Jeremy Rouse)
+// surjective yields the following rational map. (Given to us by Jeremy Rouse)
 
 phi1 := map<Xns27K -> XH | [(1/3)*((-2-zeta)*Xns27K.11 + (1-zeta)*Xns27K.12), 
 (-1/3)*((1+2*zeta)*Xns27K.9 + (-1+zeta)*Xns27K.10),
@@ -242,7 +242,7 @@ points:= [XH![P[2],P[1],P[3]] : P in [
     [ (1/3)*(-zeta-2), (1/3)*(zeta+2),1], // j = -147197952000, D = -67
   [(-1/2)*zeta,-1/2,1], // j = 1728, D = -4
   [(1/7)*(5*zeta+4),-1,1],// j=-262737412640768000, D = -163
-  [(1/2)*(zeta-3),(1/2)*(zeta+2),1] // j = (-3238903991430*zeta - 4786881515880)^3/1/9^27, non-CM
+  [(1/2)*(zeta-3),(1/2)*(zeta+2),1] // j = (-3238903991430*zeta - 4786881515880)^3/19^27, non-CM
 ]];
 
 CM_points:=[points[i]: i in [1..12]];
@@ -260,7 +260,7 @@ phi2 := map<XH -> P1 | [[(zeta-1)*XH.1+(-2*zeta-1)*XH.2+(zeta-1)*XH.3,(-zeta-2)*
     1/3*(-8*zeta - 4)*XH.2^2*XH.3 + 1/3*(zeta - 1)*XH.1*XH.3^2 + 1/3*(5*zeta + 
     1)*XH.2*XH.3^2 + 1/3*(-2*zeta - 1)*XH.3^3,XH.2^3 + (zeta - 1)*XH.2^2*XH.3 + (-2*zeta - 1)*XH.2*XH.3^2]]>;
 
-// The follwoing will be the coordinates of a morphism from Xns+(27) to Xns+(9)
+// The following will be the coordinates of a morphism from Xns+(27) to Xns+(9)
 des1 := [(zeta+1)*Xns27K.7 - zeta*Xns27K.8 - Xns27K.9 + (-zeta-1)*Xns27K.10 + Xns27K.11 + zeta*Xns27K.12,
 (-zeta-1)*Xns27K.7 + zeta*Xns27K.8 + zeta*Xns27K.9 - Xns27K.10 + (zeta+1)*Xns27K.11 - Xns27K.12];
 des2 := [(zeta^2+1)*Xns27K.7 - zeta^2*Xns27K.8 - Xns27K.9 + (-zeta^2-1)*Xns27K.10 + Xns27K.11 + zeta^2*Xns27K.12,
