@@ -41,7 +41,7 @@ end function;
 
 K<zeta> := CyclotomicField(3);
 RR<A,B,C> := PolynomialRing(K,3);
-j := (-3238903991430*zeta - 4786881515880)^3/9^27; // Aash's file
+j1 := (-3238903991430*zeta - 4786881515880)^3/19^27; // Aash's file
 j:= 2^3 * 5^3 * 19^(-27) * (-15- 2*zeta)^3 * (452 +431*zeta)^3 * (53515427 + 41314914*zeta)^3; // RSZB
 
 E := WeierstrassModel(EllipticCurveWithjInvariant(j));
