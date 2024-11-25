@@ -1,0 +1,1263 @@
+The modular forms for subgroup HH have a Fourier expansion expressible in terms 
+of q^(1/27).
+Found good field number 1.
+The Fourier coefficients of the modular forms live in the field Cyclotomic Field
+of order 27 and degree 18.
+Precision goes up to q^300.
+The subgroup contained in group 1 has has genus 12. It has 9 cusps and 1 Galois 
+orbits of cusps with sizes [ 18 ].
+Trying to choose a minimal number of representatives for the cosets.
+Found a good set of generators for HH0 of size 1.
+The space of Eisenstein series has dimension 323.
+Computing action of generators of subsub intersect SL_2 on Eisenstein series for
+Gamma(27).
+Finding vectors invariant under subsub intersect SL_2.
+The dimension of the space of Eisenstein series for subsub intersect SL_2 is 8.
+Computing the action of the generators of subsub on the Q-vector space of 
+dimension 144.
+Finding vectors invariant under subsub.
+The dimension is 16.
+Computing Weierstrass p-function Fourier expansions.
+Computing expansion 1 of 323.
+Computing expansion 2 of 323.
+Computing expansion 3 of 323.
+Computing expansion 4 of 323.
+Computing expansion 5 of 323.
+Computing expansion 6 of 323.
+Computing expansion 7 of 323.
+Computing expansion 8 of 323.
+Computing expansion 9 of 323.
+Computing expansion 10 of 323.
+Computing expansion 11 of 323.
+Computing expansion 12 of 323.
+Computing expansion 13 of 323.
+Computing expansion 14 of 323.
+Computing expansion 15 of 323.
+Computing expansion 16 of 323.
+Computing expansion 17 of 323.
+Computing expansion 18 of 323.
+Computing expansion 19 of 323.
+Computing expansion 20 of 323.
+Computing expansion 21 of 323.
+Computing expansion 22 of 323.
+Computing expansion 23 of 323.
+Computing expansion 24 of 323.
+Computing expansion 25 of 323.
+Computing expansion 26 of 323.
+Computing expansion 27 of 323.
+Computing expansion 28 of 323.
+Computing expansion 29 of 323.
+Computing expansion 30 of 323.
+Computing expansion 31 of 323.
+Computing expansion 32 of 323.
+Computing expansion 33 of 323.
+Computing expansion 34 of 323.
+Computing expansion 35 of 323.
+Computing expansion 36 of 323.
+Computing expansion 37 of 323.
+Computing expansion 38 of 323.
+Computing expansion 39 of 323.
+Computing expansion 40 of 323.
+Computing expansion 41 of 323.
+Computing expansion 42 of 323.
+Computing expansion 43 of 323.
+Computing expansion 44 of 323.
+Computing expansion 45 of 323.
+Computing expansion 46 of 323.
+Computing expansion 47 of 323.
+Computing expansion 48 of 323.
+Computing expansion 49 of 323.
+Computing expansion 50 of 323.
+Computing expansion 51 of 323.
+Computing expansion 52 of 323.
+Computing expansion 53 of 323.
+Computing expansion 54 of 323.
+Computing expansion 55 of 323.
+Computing expansion 56 of 323.
+Computing expansion 57 of 323.
+Computing expansion 58 of 323.
+Computing expansion 59 of 323.
+Computing expansion 60 of 323.
+Computing expansion 61 of 323.
+Computing expansion 62 of 323.
+Computing expansion 63 of 323.
+Computing expansion 64 of 323.
+Computing expansion 65 of 323.
+Computing expansion 66 of 323.
+Computing expansion 67 of 323.
+Computing expansion 68 of 323.
+Computing expansion 69 of 323.
+Computing expansion 70 of 323.
+Computing expansion 71 of 323.
+Computing expansion 72 of 323.
+Computing expansion 73 of 323.
+Computing expansion 74 of 323.
+Computing expansion 75 of 323.
+Computing expansion 76 of 323.
+Computing expansion 77 of 323.
+Computing expansion 78 of 323.
+Computing expansion 79 of 323.
+Computing expansion 80 of 323.
+Computing expansion 81 of 323.
+Computing expansion 82 of 323.
+Computing expansion 83 of 323.
+Computing expansion 84 of 323.
+Computing expansion 85 of 323.
+Computing expansion 86 of 323.
+Computing expansion 87 of 323.
+Computing expansion 88 of 323.
+Computing expansion 89 of 323.
+Computing expansion 90 of 323.
+Computing expansion 91 of 323.
+Computing expansion 92 of 323.
+Computing expansion 93 of 323.
+Computing expansion 94 of 323.
+Computing expansion 95 of 323.
+Computing expansion 96 of 323.
+Computing expansion 97 of 323.
+Computing expansion 98 of 323.
+Computing expansion 99 of 323.
+Computing expansion 100 of 323.
+Computing expansion 101 of 323.
+Computing expansion 102 of 323.
+Computing expansion 103 of 323.
+Computing expansion 104 of 323.
+Computing expansion 105 of 323.
+Computing expansion 106 of 323.
+Computing expansion 107 of 323.
+Computing expansion 108 of 323.
+Computing expansion 109 of 323.
+Computing expansion 110 of 323.
+Computing expansion 111 of 323.
+Computing expansion 112 of 323.
+Computing expansion 113 of 323.
+Computing expansion 114 of 323.
+Computing expansion 115 of 323.
+Computing expansion 116 of 323.
+Computing expansion 117 of 323.
+Computing expansion 118 of 323.
+Computing expansion 119 of 323.
+Computing expansion 120 of 323.
+Computing expansion 121 of 323.
+Computing expansion 122 of 323.
+Computing expansion 123 of 323.
+Computing expansion 124 of 323.
+Computing expansion 125 of 323.
+Computing expansion 126 of 323.
+Computing expansion 127 of 323.
+Computing expansion 128 of 323.
+Computing expansion 129 of 323.
+Computing expansion 130 of 323.
+Computing expansion 131 of 323.
+Computing expansion 132 of 323.
+Computing expansion 133 of 323.
+Computing expansion 134 of 323.
+Computing expansion 135 of 323.
+Computing expansion 136 of 323.
+Computing expansion 137 of 323.
+Computing expansion 138 of 323.
+Computing expansion 139 of 323.
+Computing expansion 140 of 323.
+Computing expansion 141 of 323.
+Computing expansion 142 of 323.
+Computing expansion 143 of 323.
+Computing expansion 144 of 323.
+Computing expansion 145 of 323.
+Computing expansion 146 of 323.
+Computing expansion 147 of 323.
+Computing expansion 148 of 323.
+Computing expansion 149 of 323.
+Computing expansion 150 of 323.
+Computing expansion 151 of 323.
+Computing expansion 152 of 323.
+Computing expansion 153 of 323.
+Computing expansion 154 of 323.
+Computing expansion 155 of 323.
+Computing expansion 156 of 323.
+Computing expansion 157 of 323.
+Computing expansion 158 of 323.
+Computing expansion 159 of 323.
+Computing expansion 160 of 323.
+Computing expansion 161 of 323.
+Computing expansion 162 of 323.
+Computing expansion 163 of 323.
+Computing expansion 164 of 323.
+Computing expansion 165 of 323.
+Computing expansion 166 of 323.
+Computing expansion 167 of 323.
+Computing expansion 168 of 323.
+Computing expansion 169 of 323.
+Computing expansion 170 of 323.
+Computing expansion 171 of 323.
+Computing expansion 172 of 323.
+Computing expansion 173 of 323.
+Computing expansion 174 of 323.
+Computing expansion 175 of 323.
+Computing expansion 176 of 323.
+Computing expansion 177 of 323.
+Computing expansion 178 of 323.
+Computing expansion 179 of 323.
+Computing expansion 180 of 323.
+Computing expansion 181 of 323.
+Computing expansion 182 of 323.
+Computing expansion 183 of 323.
+Computing expansion 184 of 323.
+Computing expansion 185 of 323.
+Computing expansion 186 of 323.
+Computing expansion 187 of 323.
+Computing expansion 188 of 323.
+Computing expansion 189 of 323.
+Computing expansion 190 of 323.
+Computing expansion 191 of 323.
+Computing expansion 192 of 323.
+Computing expansion 193 of 323.
+Computing expansion 194 of 323.
+Computing expansion 195 of 323.
+Computing expansion 196 of 323.
+Computing expansion 197 of 323.
+Computing expansion 198 of 323.
+Computing expansion 199 of 323.
+Computing expansion 200 of 323.
+Computing expansion 201 of 323.
+Computing expansion 202 of 323.
+Computing expansion 203 of 323.
+Computing expansion 204 of 323.
+Computing expansion 205 of 323.
+Computing expansion 206 of 323.
+Computing expansion 207 of 323.
+Computing expansion 208 of 323.
+Computing expansion 209 of 323.
+Computing expansion 210 of 323.
+Computing expansion 211 of 323.
+Computing expansion 212 of 323.
+Computing expansion 213 of 323.
+Computing expansion 214 of 323.
+Computing expansion 215 of 323.
+Computing expansion 216 of 323.
+Computing expansion 217 of 323.
+Computing expansion 218 of 323.
+Computing expansion 219 of 323.
+Computing expansion 220 of 323.
+Computing expansion 221 of 323.
+Computing expansion 222 of 323.
+Computing expansion 223 of 323.
+Computing expansion 224 of 323.
+Computing expansion 225 of 323.
+Computing expansion 226 of 323.
+Computing expansion 227 of 323.
+Computing expansion 228 of 323.
+Computing expansion 229 of 323.
+Computing expansion 230 of 323.
+Computing expansion 231 of 323.
+Computing expansion 232 of 323.
+Computing expansion 233 of 323.
+Computing expansion 234 of 323.
+Computing expansion 235 of 323.
+Computing expansion 236 of 323.
+Computing expansion 237 of 323.
+Computing expansion 238 of 323.
+Computing expansion 239 of 323.
+Computing expansion 240 of 323.
+Computing expansion 241 of 323.
+Computing expansion 242 of 323.
+Computing expansion 243 of 323.
+Computing expansion 244 of 323.
+Computing expansion 245 of 323.
+Computing expansion 246 of 323.
+Computing expansion 247 of 323.
+Computing expansion 248 of 323.
+Computing expansion 249 of 323.
+Computing expansion 250 of 323.
+Computing expansion 251 of 323.
+Computing expansion 252 of 323.
+Computing expansion 253 of 323.
+Computing expansion 254 of 323.
+Computing expansion 255 of 323.
+Computing expansion 256 of 323.
+Computing expansion 257 of 323.
+Computing expansion 258 of 323.
+Computing expansion 259 of 323.
+Computing expansion 260 of 323.
+Computing expansion 261 of 323.
+Computing expansion 262 of 323.
+Computing expansion 263 of 323.
+Computing expansion 264 of 323.
+Computing expansion 265 of 323.
+Computing expansion 266 of 323.
+Computing expansion 267 of 323.
+Computing expansion 268 of 323.
+Computing expansion 269 of 323.
+Computing expansion 270 of 323.
+Computing expansion 271 of 323.
+Computing expansion 272 of 323.
+Computing expansion 273 of 323.
+Computing expansion 274 of 323.
+Computing expansion 275 of 323.
+Computing expansion 276 of 323.
+Computing expansion 277 of 323.
+Computing expansion 278 of 323.
+Computing expansion 279 of 323.
+Computing expansion 280 of 323.
+Computing expansion 281 of 323.
+Computing expansion 282 of 323.
+Computing expansion 283 of 323.
+Computing expansion 284 of 323.
+Computing expansion 285 of 323.
+Computing expansion 286 of 323.
+Computing expansion 287 of 323.
+Computing expansion 288 of 323.
+Computing expansion 289 of 323.
+Computing expansion 290 of 323.
+Computing expansion 291 of 323.
+Computing expansion 292 of 323.
+Computing expansion 293 of 323.
+Computing expansion 294 of 323.
+Computing expansion 295 of 323.
+Computing expansion 296 of 323.
+Computing expansion 297 of 323.
+Computing expansion 298 of 323.
+Computing expansion 299 of 323.
+Computing expansion 300 of 323.
+Computing expansion 301 of 323.
+Computing expansion 302 of 323.
+Computing expansion 303 of 323.
+Computing expansion 304 of 323.
+Computing expansion 305 of 323.
+Computing expansion 306 of 323.
+Computing expansion 307 of 323.
+Computing expansion 308 of 323.
+Computing expansion 309 of 323.
+Computing expansion 310 of 323.
+Computing expansion 311 of 323.
+Computing expansion 312 of 323.
+Computing expansion 313 of 323.
+Computing expansion 314 of 323.
+Computing expansion 315 of 323.
+Computing expansion 316 of 323.
+Computing expansion 317 of 323.
+Computing expansion 318 of 323.
+Computing expansion 319 of 323.
+Computing expansion 320 of 323.
+Computing expansion 321 of 323.
+Computing expansion 322 of 323.
+Computing expansion 323 of 323.
+Computing actual Eisenstein series.
+Working out Fourier expansions under all cosets of HH in HH0.
+Doing series 1.
+Doing series 2.
+Doing series 3.
+Doing series 4.
+Doing series 5.
+Doing series 6.
+Doing series 7.
+Doing series 8.
+Doing series 9.
+Doing series 10.
+Doing series 11.
+Doing series 12.
+Doing series 13.
+Doing series 14.
+Doing series 15.
+Doing series 16.
+LLL-ing Eisenstein series Fourier expansions.
+Nicefying 16x3936618 matrix with denominator 5833.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Working on forms of weight 6.
+Trying 3-tuples of the first 16 Eisenstein series.
+Multiplying. Choosing order randomly.
+Doing product 1 of 816. We get basis element 1 of 164.
+Doing product 2 of 816. We get basis element 2 of 164.
+Doing product 3 of 816. We get basis element 3 of 164.
+Doing product 4 of 816. We get basis element 4 of 164.
+Doing product 5 of 816. We get basis element 5 of 164.
+Doing product 6 of 816. We get basis element 6 of 164.
+Doing product 7 of 816. We get basis element 7 of 164.
+Doing product 8 of 816. We get basis element 8 of 164.
+Doing product 9 of 816. We get basis element 9 of 164.
+Doing product 10 of 816. We get basis element 10 of 164.
+Doing product 11 of 816. We get basis element 11 of 164.
+Doing product 12 of 816. We get basis element 12 of 164.
+Doing product 13 of 816. We get basis element 13 of 164.
+Doing product 14 of 816. We get basis element 14 of 164.
+Doing product 15 of 816. We get basis element 15 of 164.
+Doing product 16 of 816. We get basis element 16 of 164.
+Doing product 17 of 816. We get basis element 17 of 164.
+Doing product 18 of 816. We get basis element 18 of 164.
+Doing product 19 of 816. We get basis element 19 of 164.
+Doing product 20 of 816. We get basis element 20 of 164.
+Doing product 21 of 816. We get basis element 21 of 164.
+Doing product 22 of 816. We get basis element 22 of 164.
+Doing product 23 of 816. We get basis element 23 of 164.
+Doing product 24 of 816. We get basis element 24 of 164.
+Doing product 25 of 816. We get basis element 25 of 164.
+Doing product 26 of 816. We get basis element 26 of 164.
+Doing product 27 of 816. We get basis element 27 of 164.
+Doing product 28 of 816. We get basis element 28 of 164.
+Doing product 29 of 816. We get basis element 29 of 164.
+Doing product 30 of 816. We didn't get anything new!
+Doing product 31 of 816. We get basis element 30 of 164.
+Doing product 32 of 816. We get basis element 31 of 164.
+Doing product 33 of 816. We get basis element 32 of 164.
+Doing product 34 of 816. We get basis element 33 of 164.
+Doing product 35 of 816. We get basis element 34 of 164.
+Doing product 36 of 816. We didn't get anything new!
+Doing product 37 of 816. We didn't get anything new!
+Doing product 38 of 816. We get basis element 35 of 164.
+Doing product 39 of 816. We get basis element 36 of 164.
+Doing product 40 of 816. We get basis element 37 of 164.
+Doing product 41 of 816. We get basis element 38 of 164.
+Doing product 42 of 816. We get basis element 39 of 164.
+Doing product 43 of 816. We get basis element 40 of 164.
+Doing product 44 of 816. We get basis element 41 of 164.
+Doing product 45 of 816. We get basis element 42 of 164.
+Doing product 46 of 816. We get basis element 43 of 164.
+Doing product 47 of 816. We get basis element 44 of 164.
+Doing product 48 of 816. We get basis element 45 of 164.
+Doing product 49 of 816. We get basis element 46 of 164.
+Doing product 50 of 816. We get basis element 47 of 164.
+Doing product 51 of 816. We get basis element 48 of 164.
+Doing product 52 of 816. We get basis element 49 of 164.
+Doing product 53 of 816. We get basis element 50 of 164.
+Doing product 54 of 816. We get basis element 51 of 164.
+Doing product 55 of 816. We didn't get anything new!
+Doing product 56 of 816. We get basis element 52 of 164.
+Doing product 57 of 816. We get basis element 53 of 164.
+Doing product 58 of 816. We get basis element 54 of 164.
+Doing product 59 of 816. We get basis element 55 of 164.
+Doing product 60 of 816. We didn't get anything new!
+Doing product 61 of 816. We get basis element 56 of 164.
+Doing product 62 of 816. We get basis element 57 of 164.
+Doing product 63 of 816. We didn't get anything new!
+Doing product 64 of 816. We get basis element 58 of 164.
+Doing product 65 of 816. We get basis element 59 of 164.
+Doing product 66 of 816. We get basis element 60 of 164.
+Doing product 67 of 816. We get basis element 61 of 164.
+Doing product 68 of 816. We get basis element 62 of 164.
+Doing product 69 of 816. We get basis element 63 of 164.
+Doing product 70 of 816. We get basis element 64 of 164.
+Doing product 71 of 816. We get basis element 65 of 164.
+Doing product 72 of 816. We didn't get anything new!
+Doing product 73 of 816. We get basis element 66 of 164.
+Doing product 74 of 816. We get basis element 67 of 164.
+Doing product 75 of 816. We didn't get anything new!
+Doing product 76 of 816. We get basis element 68 of 164.
+Doing product 77 of 816. We get basis element 69 of 164.
+Doing product 78 of 816. We get basis element 70 of 164.
+Doing product 79 of 816. We didn't get anything new!
+Doing product 80 of 816. We get basis element 71 of 164.
+Doing product 81 of 816. We get basis element 72 of 164.
+Doing product 82 of 816. We get basis element 73 of 164.
+Doing product 83 of 816. We get basis element 74 of 164.
+Doing product 84 of 816. We get basis element 75 of 164.
+Doing product 85 of 816. We didn't get anything new!
+Doing product 86 of 816. We get basis element 76 of 164.
+Doing product 87 of 816. We didn't get anything new!
+Doing product 88 of 816. We didn't get anything new!
+Doing product 89 of 816. We get basis element 77 of 164.
+Doing product 90 of 816. We get basis element 78 of 164.
+Doing product 91 of 816. We get basis element 79 of 164.
+Doing product 92 of 816. We get basis element 80 of 164.
+Doing product 93 of 816. We get basis element 81 of 164.
+Doing product 94 of 816. We get basis element 82 of 164.
+Doing product 95 of 816. We get basis element 83 of 164.
+Doing product 96 of 816. We get basis element 84 of 164.
+Doing product 97 of 816. We get basis element 85 of 164.
+Doing product 98 of 816. We get basis element 86 of 164.
+Doing product 99 of 816. We get basis element 87 of 164.
+Doing product 100 of 816. We get basis element 88 of 164.
+Doing product 101 of 816. We didn't get anything new!
+Doing product 102 of 816. We get basis element 89 of 164.
+Doing product 103 of 816. We get basis element 90 of 164.
+Doing product 104 of 816. We didn't get anything new!
+Doing product 105 of 816. We get basis element 91 of 164.
+Doing product 106 of 816. We get basis element 92 of 164.
+Doing product 107 of 816. We get basis element 93 of 164.
+Doing product 108 of 816. We get basis element 94 of 164.
+Doing product 109 of 816. We get basis element 95 of 164.
+Doing product 110 of 816. We get basis element 96 of 164.
+Doing product 111 of 816. We get basis element 97 of 164.
+Doing product 112 of 816. We get basis element 98 of 164.
+Doing product 113 of 816. We get basis element 99 of 164.
+Doing product 114 of 816. We didn't get anything new!
+Doing product 115 of 816. We get basis element 100 of 164.
+Doing product 116 of 816. We didn't get anything new!
+Doing product 117 of 816. We get basis element 101 of 164.
+Doing product 118 of 816. We get basis element 102 of 164.
+Doing product 119 of 816. We get basis element 103 of 164.
+Doing product 120 of 816. We get basis element 104 of 164.
+Doing product 121 of 816. We get basis element 105 of 164.
+Doing product 122 of 816. We didn't get anything new!
+Doing product 123 of 816. We get basis element 106 of 164.
+Doing product 124 of 816. We get basis element 107 of 164.
+Doing product 125 of 816. We get basis element 108 of 164.
+Doing product 126 of 816. We get basis element 109 of 164.
+Doing product 127 of 816. We get basis element 110 of 164.
+Doing product 128 of 816. We didn't get anything new!
+Doing product 129 of 816. We get basis element 111 of 164.
+Doing product 130 of 816. We get basis element 112 of 164.
+Doing product 131 of 816. We get basis element 113 of 164.
+Doing product 132 of 816. We get basis element 114 of 164.
+Doing product 133 of 816. We get basis element 115 of 164.
+Doing product 134 of 816. We get basis element 116 of 164.
+Doing product 135 of 816. We get basis element 117 of 164.
+Doing product 136 of 816. We didn't get anything new!
+Doing product 137 of 816. We didn't get anything new!
+Doing product 138 of 816. We get basis element 118 of 164.
+Doing product 139 of 816. We get basis element 119 of 164.
+Doing product 140 of 816. We get basis element 120 of 164.
+Doing product 141 of 816. We get basis element 121 of 164.
+Doing product 142 of 816. We didn't get anything new!
+Doing product 143 of 816. We get basis element 122 of 164.
+Doing product 144 of 816. We get basis element 123 of 164.
+Doing product 145 of 816. We get basis element 124 of 164.
+Doing product 146 of 816. We didn't get anything new!
+Doing product 147 of 816. We get basis element 125 of 164.
+Doing product 148 of 816. We didn't get anything new!
+Doing product 149 of 816. We get basis element 126 of 164.
+Doing product 150 of 816. We get basis element 127 of 164.
+Doing product 151 of 816. We get basis element 128 of 164.
+Doing product 152 of 816. We didn't get anything new!
+Doing product 153 of 816. We get basis element 129 of 164.
+Doing product 154 of 816. We didn't get anything new!
+Doing product 155 of 816. We get basis element 130 of 164.
+Doing product 156 of 816. We get basis element 131 of 164.
+Doing product 157 of 816. We get basis element 132 of 164.
+Doing product 158 of 816. We didn't get anything new!
+Doing product 159 of 816. We get basis element 133 of 164.
+Doing product 160 of 816. We get basis element 134 of 164.
+Doing product 161 of 816. We didn't get anything new!
+Doing product 162 of 816. We get basis element 135 of 164.
+Doing product 163 of 816. We didn't get anything new!
+Doing product 164 of 816. We didn't get anything new!
+Doing product 165 of 816. We get basis element 136 of 164.
+Doing product 166 of 816. We get basis element 137 of 164.
+Doing product 167 of 816. We didn't get anything new!
+Doing product 168 of 816. We get basis element 138 of 164.
+Doing product 169 of 816. We get basis element 139 of 164.
+Doing product 170 of 816. We get basis element 140 of 164.
+Doing product 171 of 816. We get basis element 141 of 164.
+Doing product 172 of 816. We get basis element 142 of 164.
+Doing product 173 of 816. We get basis element 143 of 164.
+Doing product 174 of 816. We didn't get anything new!
+Doing product 175 of 816. We get basis element 144 of 164.
+Doing product 176 of 816. We get basis element 145 of 164.
+Doing product 177 of 816. We didn't get anything new!
+Doing product 178 of 816. We get basis element 146 of 164.
+Doing product 179 of 816. We get basis element 147 of 164.
+Doing product 180 of 816. We get basis element 148 of 164.
+Doing product 181 of 816. We get basis element 149 of 164.
+Doing product 182 of 816. We get basis element 150 of 164.
+Doing product 183 of 816. We get basis element 151 of 164.
+Doing product 184 of 816. We get basis element 152 of 164.
+Doing product 185 of 816. We get basis element 153 of 164.
+Doing product 186 of 816. We get basis element 154 of 164.
+Doing product 187 of 816. We get basis element 155 of 164.
+Doing product 188 of 816. We get basis element 156 of 164.
+Doing product 189 of 816. We get basis element 157 of 164.
+Doing product 190 of 816. We get basis element 158 of 164.
+Doing product 191 of 816. We didn't get anything new!
+Doing product 192 of 816. We get basis element 159 of 164.
+Doing product 193 of 816. We didn't get anything new!
+Doing product 194 of 816. We didn't get anything new!
+Doing product 195 of 816. We get basis element 160 of 164.
+Doing product 196 of 816. We get basis element 161 of 164.
+Doing product 197 of 816. We get basis element 162 of 164.
+Doing product 198 of 816. We get basis element 163 of 164.
+Doing product 199 of 816. We didn't get anything new!
+Doing product 200 of 816. We get basis element 164 of 164.
+Applying T_109.
+Doing form 1. Form 1 hit with T_109 gives us a new basis element in weight 6.
+Doing form 2. Form 2 hit with T_109 gives us a new basis element in weight 6.
+Doing form 3. Form 3 hit with T_109 gives us a new basis element in weight 6.
+Doing form 4. Form 4 hit with T_109 gives us a new basis element in weight 6.
+Doing form 5. Form 5 hit with T_109 gives us a new basis element in weight 6.
+Doing form 6. Form 6 hit with T_109 gives us a new basis element in weight 6.
+Doing form 7. Form 7 hit with T_109 gives us a new basis element in weight 6.
+Doing form 8. Form 8 hit with T_109 gives us a new basis element in weight 6.
+Doing form 9. Form 9 hit with T_109 gives us a new basis element in weight 6.
+Doing form 10. Form 10 hit with T_109 gives us a new basis element in weight 6.
+Doing form 11. Form 11 hit with T_109 gives us a new basis element in weight 6.
+Doing form 12. Form 12 hit with T_109 gives us a new basis element in weight 6.
+Doing form 13. Form 13 hit with T_109 gives us a new basis element in weight 6.
+Doing form 14. Form 14 hit with T_109 gives us a new basis element in weight 6.
+Doing form 15. Form 15 hit with T_109 gives us a new basis element in weight 6.
+Doing form 16. Form 16 hit with T_109 gives us a new basis element in weight 6.
+Doing form 17. Form 17 hit with T_109 gives us a new basis element in weight 6.
+Doing form 18. Form 18 hit with T_109 gives us a new basis element in weight 6.
+Doing form 19. Form 19 hit with T_109 gives us a new basis element in weight 6.
+Doing form 20. Form 20 hit with T_109 gives us a new basis element in weight 6.
+Doing form 21. Form 21 hit with T_109 gives us a new basis element in weight 6.
+Doing form 22. Form 22 hit with T_109 gives us a new basis element in weight 6.
+Doing form 23. Form 23 hit with T_109 gives us a new basis element in weight 6.
+Doing form 24. Form 24 hit with T_109 gives us a new basis element in weight 6.
+Doing form 25. Form 25 hit with T_109 gives us a new basis element in weight 6.
+Doing form 26. Form 26 hit with T_109 gives us a new basis element in weight 6.
+Doing form 27. Form 27 hit with T_109 gives us a new basis element in weight 6.
+Doing form 28. Form 28 hit with T_109 gives us a new basis element in weight 6.
+Doing form 29. Form 29 hit with T_109 gives us a new basis element in weight 6.
+Doing form 30. Form 30 hit with T_109 gives us a new basis element in weight 6.
+Doing form 31. Form 31 hit with T_109 gives us a new basis element in weight 6.
+Doing form 32. Form 32 hit with T_109 gives us a new basis element in weight 6.
+Doing form 33. Form 33 hit with T_109 gives us a new basis element in weight 6.
+Doing form 34. Form 34 hit with T_109 gives us a new basis element in weight 6.
+Doing form 35. Form 35 hit with T_109 gives us a new basis element in weight 6.
+Doing form 36. Form 36 hit with T_109 gives us a new basis element in weight 6.
+Doing form 37. Form 37 hit with T_109 gives us a new basis element in weight 6.
+Doing form 38. Form 38 hit with T_109 gives us a new basis element in weight 6.
+Doing form 39. We didn't get anything new.
+Doing form 40. We didn't get anything new.
+Doing form 41. We didn't get anything new.
+Doing form 42. We didn't get anything new.
+Doing form 43. We didn't get anything new.
+Doing form 44. We didn't get anything new.
+Doing form 45. We didn't get anything new.
+Doing form 46. We didn't get anything new.
+Doing form 47. We didn't get anything new.
+Doing form 48. We didn't get anything new.
+Doing form 49. We didn't get anything new.
+Doing form 50. We didn't get anything new.
+Doing form 51. We didn't get anything new.
+Doing form 52. We didn't get anything new.
+Doing form 53. We didn't get anything new.
+Doing form 54. We didn't get anything new.
+Doing form 55. We didn't get anything new.
+Doing form 56. We didn't get anything new.
+Doing form 57. We didn't get anything new.
+Doing form 58. We didn't get anything new.
+Doing form 59. We didn't get anything new.
+Doing form 60. We didn't get anything new.
+Doing form 61. We didn't get anything new.
+Doing form 62. We didn't get anything new.
+Doing form 63. We didn't get anything new.
+Doing form 64. We didn't get anything new.
+Doing form 65. We didn't get anything new.
+Doing form 66. We didn't get anything new.
+Doing form 67. We didn't get anything new.
+Doing form 68. We didn't get anything new.
+Doing form 69. We didn't get anything new.
+Doing form 70. We didn't get anything new.
+Doing form 71. We didn't get anything new.
+Doing form 72. We didn't get anything new.
+Doing form 73. We didn't get anything new.
+Doing form 74. We didn't get anything new.
+Doing form 75. We didn't get anything new.
+Doing form 76. We didn't get anything new.
+Doing form 77. We didn't get anything new.
+Doing form 78. We didn't get anything new.
+Doing form 79. We didn't get anything new.
+Doing form 80. We didn't get anything new.
+Doing form 81. We didn't get anything new.
+Doing form 82. We didn't get anything new.
+Doing form 83. We didn't get anything new.
+Doing form 84. We didn't get anything new.
+Doing form 85. We didn't get anything new.
+Doing form 86. We didn't get anything new.
+Doing form 87. We didn't get anything new.
+Doing form 88. We didn't get anything new.
+Doing form 89. We didn't get anything new.
+Doing form 90. We didn't get anything new.
+Doing form 91. We didn't get anything new.
+Doing form 92. We didn't get anything new.
+Doing form 93. We didn't get anything new.
+Doing form 94. We didn't get anything new.
+Doing form 95. We didn't get anything new.
+Doing form 96. We didn't get anything new.
+Doing form 97. We didn't get anything new.
+Doing form 98. We didn't get anything new.
+Doing form 99. We didn't get anything new.
+Doing form 100. We didn't get anything new.
+Doing form 101. We didn't get anything new.
+Doing form 102. We didn't get anything new.
+Doing form 103. We didn't get anything new.
+Doing form 104. We didn't get anything new.
+Doing form 105. We didn't get anything new.
+Doing form 106. We didn't get anything new.
+Doing form 107. We didn't get anything new.
+Doing form 108. We didn't get anything new.
+Doing form 109. We didn't get anything new.
+Doing form 110. We didn't get anything new.
+Doing form 111. We didn't get anything new.
+Doing form 112. We didn't get anything new.
+Doing form 113. We didn't get anything new.
+Doing form 114. We didn't get anything new.
+Doing form 115. We didn't get anything new.
+Doing form 116. We didn't get anything new.
+Doing form 117. We didn't get anything new.
+Doing form 118. We didn't get anything new.
+Doing form 119. We didn't get anything new.
+Doing form 120. We didn't get anything new.
+Doing form 121. We didn't get anything new.
+Doing form 122. We didn't get anything new.
+Doing form 123. We didn't get anything new.
+Doing form 124. We didn't get anything new.
+Doing form 125. We didn't get anything new.
+Doing form 126. We didn't get anything new.
+Doing form 127. We didn't get anything new.
+Doing form 128. We didn't get anything new.
+Doing form 129. We didn't get anything new.
+Doing form 130. We didn't get anything new.
+Doing form 131. We didn't get anything new.
+Doing form 132. We didn't get anything new.
+Doing form 133. We didn't get anything new.
+Doing form 134. We didn't get anything new.
+Doing form 135. We didn't get anything new.
+Doing form 136. We didn't get anything new.
+Doing form 137. We didn't get anything new.
+Doing form 138. We didn't get anything new.
+Doing form 139. We didn't get anything new.
+Doing form 140. We didn't get anything new.
+Doing form 141. We didn't get anything new.
+Doing form 142. We didn't get anything new.
+Doing form 143. We didn't get anything new.
+Doing form 144. We didn't get anything new.
+Doing form 145. We didn't get anything new.
+Doing form 146. We didn't get anything new.
+Doing form 147. We didn't get anything new.
+Doing form 148. We didn't get anything new.
+Doing form 149. We didn't get anything new.
+Doing form 150. We didn't get anything new.
+Doing form 151. We didn't get anything new.
+Doing form 152. We didn't get anything new.
+Doing form 153. We didn't get anything new.
+Doing form 154. We didn't get anything new.
+Doing form 155. We didn't get anything new.
+Doing form 156. We didn't get anything new.
+Doing form 157. We didn't get anything new.
+Doing form 158. We didn't get anything new.
+Doing form 159. We didn't get anything new.
+Doing form 160. We didn't get anything new.
+Doing form 161. We didn't get anything new.
+Doing form 162. We didn't get anything new.
+Doing form 163. We didn't get anything new.
+Doing form 164. We didn't get anything new.
+Done. In the end we got 202 weight 6 forms.
+The dimension of M_6 is 101.
+Nicefying weight 6 forms.
+Nicefying 202x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Computing subspace fixed by HH0.
+The dimension of M_6 for HH0 is 64.
+We got 64 forms.
+Nicefying 64x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Working on forms of weight 8.
+Trying 4-tuples of the first 16 Eisenstein series.
+Multiplying. Choosing order randomly.
+Doing product 1 of 3876. We get basis element 1 of 226.
+Doing product 2 of 3876. We get basis element 2 of 226.
+Doing product 3 of 3876. We get basis element 3 of 226.
+Doing product 4 of 3876. We get basis element 4 of 226.
+Doing product 5 of 3876. We get basis element 5 of 226.
+Doing product 6 of 3876. We get basis element 6 of 226.
+Doing product 7 of 3876. We get basis element 7 of 226.
+Doing product 8 of 3876. We get basis element 8 of 226.
+Doing product 9 of 3876. We get basis element 9 of 226.
+Doing product 10 of 3876. We get basis element 10 of 226.
+Doing product 11 of 3876. We get basis element 11 of 226.
+Doing product 12 of 3876. We get basis element 12 of 226.
+Doing product 13 of 3876. We get basis element 13 of 226.
+Doing product 14 of 3876. We get basis element 14 of 226.
+Doing product 15 of 3876. We get basis element 15 of 226.
+Doing product 16 of 3876. We get basis element 16 of 226.
+Doing product 17 of 3876. We get basis element 17 of 226.
+Doing product 18 of 3876. We get basis element 18 of 226.
+Doing product 19 of 3876. We get basis element 19 of 226.
+Doing product 20 of 3876. We get basis element 20 of 226.
+Doing product 21 of 3876. We get basis element 21 of 226.
+Doing product 22 of 3876. We get basis element 22 of 226.
+Doing product 23 of 3876. We get basis element 23 of 226.
+Doing product 24 of 3876. We get basis element 24 of 226.
+Doing product 25 of 3876. We get basis element 25 of 226.
+Doing product 26 of 3876. We get basis element 26 of 226.
+Doing product 27 of 3876. We get basis element 27 of 226.
+Doing product 28 of 3876. We get basis element 28 of 226.
+Doing product 29 of 3876. We get basis element 29 of 226.
+Doing product 30 of 3876. We get basis element 30 of 226.
+Doing product 31 of 3876. We get basis element 31 of 226.
+Doing product 32 of 3876. We get basis element 32 of 226.
+Doing product 33 of 3876. We get basis element 33 of 226.
+Doing product 34 of 3876. We get basis element 34 of 226.
+Doing product 35 of 3876. We get basis element 35 of 226.
+Doing product 36 of 3876. We get basis element 36 of 226.
+Doing product 37 of 3876. We get basis element 37 of 226.
+Doing product 38 of 3876. We get basis element 38 of 226.
+Doing product 39 of 3876. We get basis element 39 of 226.
+Doing product 40 of 3876. We get basis element 40 of 226.
+Doing product 41 of 3876. We get basis element 41 of 226.
+Doing product 42 of 3876. We didn't get anything new!
+Doing product 43 of 3876. We get basis element 42 of 226.
+Doing product 44 of 3876. We get basis element 43 of 226.
+Doing product 45 of 3876. We get basis element 44 of 226.
+Doing product 46 of 3876. We get basis element 45 of 226.
+Doing product 47 of 3876. We get basis element 46 of 226.
+Doing product 48 of 3876. We get basis element 47 of 226.
+Doing product 49 of 3876. We get basis element 48 of 226.
+Doing product 50 of 3876. We get basis element 49 of 226.
+Doing product 51 of 3876. We didn't get anything new!
+Doing product 52 of 3876. We get basis element 50 of 226.
+Doing product 53 of 3876. We get basis element 51 of 226.
+Doing product 54 of 3876. We get basis element 52 of 226.
+Doing product 55 of 3876. We get basis element 53 of 226.
+Doing product 56 of 3876. We get basis element 54 of 226.
+Doing product 57 of 3876. We get basis element 55 of 226.
+Doing product 58 of 3876. We get basis element 56 of 226.
+Doing product 59 of 3876. We get basis element 57 of 226.
+Doing product 60 of 3876. We get basis element 58 of 226.
+Doing product 61 of 3876. We get basis element 59 of 226.
+Doing product 62 of 3876. We get basis element 60 of 226.
+Doing product 63 of 3876. We get basis element 61 of 226.
+Doing product 64 of 3876. We get basis element 62 of 226.
+Doing product 65 of 3876. We get basis element 63 of 226.
+Doing product 66 of 3876. We get basis element 64 of 226.
+Doing product 67 of 3876. We get basis element 65 of 226.
+Doing product 68 of 3876. We get basis element 66 of 226.
+Doing product 69 of 3876. We get basis element 67 of 226.
+Doing product 70 of 3876. We get basis element 68 of 226.
+Doing product 71 of 3876. We get basis element 69 of 226.
+Doing product 72 of 3876. We get basis element 70 of 226.
+Doing product 73 of 3876. We get basis element 71 of 226.
+Doing product 74 of 3876. We get basis element 72 of 226.
+Doing product 75 of 3876. We get basis element 73 of 226.
+Doing product 76 of 3876. We get basis element 74 of 226.
+Doing product 77 of 3876. We get basis element 75 of 226.
+Doing product 78 of 3876. We get basis element 76 of 226.
+Doing product 79 of 3876. We get basis element 77 of 226.
+Doing product 80 of 3876. We get basis element 78 of 226.
+Doing product 81 of 3876. We get basis element 79 of 226.
+Doing product 82 of 3876. We get basis element 80 of 226.
+Doing product 83 of 3876. We get basis element 81 of 226.
+Doing product 84 of 3876. We get basis element 82 of 226.
+Doing product 85 of 3876. We get basis element 83 of 226.
+Doing product 86 of 3876. We get basis element 84 of 226.
+Doing product 87 of 3876. We get basis element 85 of 226.
+Doing product 88 of 3876. We get basis element 86 of 226.
+Doing product 89 of 3876. We get basis element 87 of 226.
+Doing product 90 of 3876. We get basis element 88 of 226.
+Doing product 91 of 3876. We get basis element 89 of 226.
+Doing product 92 of 3876. We get basis element 90 of 226.
+Doing product 93 of 3876. We get basis element 91 of 226.
+Doing product 94 of 3876. We get basis element 92 of 226.
+Doing product 95 of 3876. We get basis element 93 of 226.
+Doing product 96 of 3876. We get basis element 94 of 226.
+Doing product 97 of 3876. We get basis element 95 of 226.
+Doing product 98 of 3876. We get basis element 96 of 226.
+Doing product 99 of 3876. We get basis element 97 of 226.
+Doing product 100 of 3876. We get basis element 98 of 226.
+Doing product 101 of 3876. We get basis element 99 of 226.
+Doing product 102 of 3876. We get basis element 100 of 226.
+Doing product 103 of 3876. We get basis element 101 of 226.
+Doing product 104 of 3876. We get basis element 102 of 226.
+Doing product 105 of 3876. We get basis element 103 of 226.
+Doing product 106 of 3876. We get basis element 104 of 226.
+Doing product 107 of 3876. We get basis element 105 of 226.
+Doing product 108 of 3876. We get basis element 106 of 226.
+Doing product 109 of 3876. We get basis element 107 of 226.
+Doing product 110 of 3876. We didn't get anything new!
+Doing product 111 of 3876. We get basis element 108 of 226.
+Doing product 112 of 3876. We didn't get anything new!
+Doing product 113 of 3876. We get basis element 109 of 226.
+Doing product 114 of 3876. We get basis element 110 of 226.
+Doing product 115 of 3876. We get basis element 111 of 226.
+Doing product 116 of 3876. We get basis element 112 of 226.
+Doing product 117 of 3876. We get basis element 113 of 226.
+Doing product 118 of 3876. We get basis element 114 of 226.
+Doing product 119 of 3876. We get basis element 115 of 226.
+Doing product 120 of 3876. We get basis element 116 of 226.
+Doing product 121 of 3876. We get basis element 117 of 226.
+Doing product 122 of 3876. We get basis element 118 of 226.
+Doing product 123 of 3876. We get basis element 119 of 226.
+Doing product 124 of 3876. We get basis element 120 of 226.
+Doing product 125 of 3876. We get basis element 121 of 226.
+Doing product 126 of 3876. We get basis element 122 of 226.
+Doing product 127 of 3876. We get basis element 123 of 226.
+Doing product 128 of 3876. We get basis element 124 of 226.
+Doing product 129 of 3876. We get basis element 125 of 226.
+Doing product 130 of 3876. We get basis element 126 of 226.
+Doing product 131 of 3876. We get basis element 127 of 226.
+Doing product 132 of 3876. We get basis element 128 of 226.
+Doing product 133 of 3876. We get basis element 129 of 226.
+Doing product 134 of 3876. We didn't get anything new!
+Doing product 135 of 3876. We get basis element 130 of 226.
+Doing product 136 of 3876. We get basis element 131 of 226.
+Doing product 137 of 3876. We get basis element 132 of 226.
+Doing product 138 of 3876. We get basis element 133 of 226.
+Doing product 139 of 3876. We get basis element 134 of 226.
+Doing product 140 of 3876. We get basis element 135 of 226.
+Doing product 141 of 3876. We get basis element 136 of 226.
+Doing product 142 of 3876. We get basis element 137 of 226.
+Doing product 143 of 3876. We get basis element 138 of 226.
+Doing product 144 of 3876. We get basis element 139 of 226.
+Doing product 145 of 3876. We get basis element 140 of 226.
+Doing product 146 of 3876. We get basis element 141 of 226.
+Doing product 147 of 3876. We get basis element 142 of 226.
+Doing product 148 of 3876. We get basis element 143 of 226.
+Doing product 149 of 3876. We get basis element 144 of 226.
+Doing product 150 of 3876. We get basis element 145 of 226.
+Doing product 151 of 3876. We get basis element 146 of 226.
+Doing product 152 of 3876. We get basis element 147 of 226.
+Doing product 153 of 3876. We get basis element 148 of 226.
+Doing product 154 of 3876. We didn't get anything new!
+Doing product 155 of 3876. We get basis element 149 of 226.
+Doing product 156 of 3876. We get basis element 150 of 226.
+Doing product 157 of 3876. We get basis element 151 of 226.
+Doing product 158 of 3876. We get basis element 152 of 226.
+Doing product 159 of 3876. We get basis element 153 of 226.
+Doing product 160 of 3876. We get basis element 154 of 226.
+Doing product 161 of 3876. We get basis element 155 of 226.
+Doing product 162 of 3876. We get basis element 156 of 226.
+Doing product 163 of 3876. We didn't get anything new!
+Doing product 164 of 3876. We get basis element 157 of 226.
+Doing product 165 of 3876. We get basis element 158 of 226.
+Doing product 166 of 3876. We get basis element 159 of 226.
+Doing product 167 of 3876. We get basis element 160 of 226.
+Doing product 168 of 3876. We get basis element 161 of 226.
+Doing product 169 of 3876. We get basis element 162 of 226.
+Doing product 170 of 3876. We get basis element 163 of 226.
+Doing product 171 of 3876. We get basis element 164 of 226.
+Doing product 172 of 3876. We get basis element 165 of 226.
+Doing product 173 of 3876. We get basis element 166 of 226.
+Doing product 174 of 3876. We get basis element 167 of 226.
+Doing product 175 of 3876. We get basis element 168 of 226.
+Doing product 176 of 3876. We get basis element 169 of 226.
+Doing product 177 of 3876. We get basis element 170 of 226.
+Doing product 178 of 3876. We get basis element 171 of 226.
+Doing product 179 of 3876. We get basis element 172 of 226.
+Doing product 180 of 3876. We didn't get anything new!
+Doing product 181 of 3876. We get basis element 173 of 226.
+Doing product 182 of 3876. We get basis element 174 of 226.
+Doing product 183 of 3876. We get basis element 175 of 226.
+Doing product 184 of 3876. We get basis element 176 of 226.
+Doing product 185 of 3876. We get basis element 177 of 226.
+Doing product 186 of 3876. We didn't get anything new!
+Doing product 187 of 3876. We get basis element 178 of 226.
+Doing product 188 of 3876. We get basis element 179 of 226.
+Doing product 189 of 3876. We didn't get anything new!
+Doing product 190 of 3876. We get basis element 180 of 226.
+Doing product 191 of 3876. We get basis element 181 of 226.
+Doing product 192 of 3876. We get basis element 182 of 226.
+Doing product 193 of 3876. We get basis element 183 of 226.
+Doing product 194 of 3876. We get basis element 184 of 226.
+Doing product 195 of 3876. We get basis element 185 of 226.
+Doing product 196 of 3876. We get basis element 186 of 226.
+Doing product 197 of 3876. We get basis element 187 of 226.
+Doing product 198 of 3876. We get basis element 188 of 226.
+Doing product 199 of 3876. We get basis element 189 of 226.
+Doing product 200 of 3876. We get basis element 190 of 226.
+Doing product 201 of 3876. We get basis element 191 of 226.
+Doing product 202 of 3876. We get basis element 192 of 226.
+Doing product 203 of 3876. We get basis element 193 of 226.
+Doing product 204 of 3876. We didn't get anything new!
+Doing product 205 of 3876. We didn't get anything new!
+Doing product 206 of 3876. We get basis element 194 of 226.
+Doing product 207 of 3876. We get basis element 195 of 226.
+Doing product 208 of 3876. We get basis element 196 of 226.
+Doing product 209 of 3876. We didn't get anything new!
+Doing product 210 of 3876. We didn't get anything new!
+Doing product 211 of 3876. We get basis element 197 of 226.
+Doing product 212 of 3876. We didn't get anything new!
+Doing product 213 of 3876. We get basis element 198 of 226.
+Doing product 214 of 3876. We didn't get anything new!
+Doing product 215 of 3876. We get basis element 199 of 226.
+Doing product 216 of 3876. We didn't get anything new!
+Doing product 217 of 3876. We get basis element 200 of 226.
+Doing product 218 of 3876. We get basis element 201 of 226.
+Doing product 219 of 3876. We get basis element 202 of 226.
+Doing product 220 of 3876. We get basis element 203 of 226.
+Doing product 221 of 3876. We get basis element 204 of 226.
+Doing product 222 of 3876. We didn't get anything new!
+Doing product 223 of 3876. We get basis element 205 of 226.
+Doing product 224 of 3876. We get basis element 206 of 226.
+Doing product 225 of 3876. We get basis element 207 of 226.
+Doing product 226 of 3876. We get basis element 208 of 226.
+Doing product 227 of 3876. We didn't get anything new!
+Doing product 228 of 3876. We get basis element 209 of 226.
+Doing product 229 of 3876. We get basis element 210 of 226.
+Doing product 230 of 3876. We get basis element 211 of 226.
+Doing product 231 of 3876. We get basis element 212 of 226.
+Doing product 232 of 3876. We get basis element 213 of 226.
+Doing product 233 of 3876. We get basis element 214 of 226.
+Doing product 234 of 3876. We get basis element 215 of 226.
+Doing product 235 of 3876. We get basis element 216 of 226.
+Doing product 236 of 3876. We get basis element 217 of 226.
+Doing product 237 of 3876. We get basis element 218 of 226.
+Doing product 238 of 3876. We get basis element 219 of 226.
+Doing product 239 of 3876. We get basis element 220 of 226.
+Doing product 240 of 3876. We get basis element 221 of 226.
+Doing product 241 of 3876. We get basis element 222 of 226.
+Doing product 242 of 3876. We get basis element 223 of 226.
+Doing product 243 of 3876. We didn't get anything new!
+Doing product 244 of 3876. We get basis element 224 of 226.
+Doing product 245 of 3876. We get basis element 225 of 226.
+Doing product 246 of 3876. We didn't get anything new!
+Doing product 247 of 3876. We get basis element 226 of 226.
+Applying T_109.
+Doing form 1. Form 1 hit with T_109 gives us a new basis element in weight 8.
+Doing form 2. Form 2 hit with T_109 gives us a new basis element in weight 8.
+Doing form 3. Form 3 hit with T_109 gives us a new basis element in weight 8.
+Doing form 4. Form 4 hit with T_109 gives us a new basis element in weight 8.
+Doing form 5. Form 5 hit with T_109 gives us a new basis element in weight 8.
+Doing form 6. Form 6 hit with T_109 gives us a new basis element in weight 8.
+Doing form 7. Form 7 hit with T_109 gives us a new basis element in weight 8.
+Doing form 8. Form 8 hit with T_109 gives us a new basis element in weight 8.
+Doing form 9. Form 9 hit with T_109 gives us a new basis element in weight 8.
+Doing form 10. Form 10 hit with T_109 gives us a new basis element in weight 8.
+Doing form 11. Form 11 hit with T_109 gives us a new basis element in weight 8.
+Doing form 12. Form 12 hit with T_109 gives us a new basis element in weight 8.
+Doing form 13. Form 13 hit with T_109 gives us a new basis element in weight 8.
+Doing form 14. Form 14 hit with T_109 gives us a new basis element in weight 8.
+Doing form 15. Form 15 hit with T_109 gives us a new basis element in weight 8.
+Doing form 16. Form 16 hit with T_109 gives us a new basis element in weight 8.
+Doing form 17. Form 17 hit with T_109 gives us a new basis element in weight 8.
+Doing form 18. Form 18 hit with T_109 gives us a new basis element in weight 8.
+Doing form 19. Form 19 hit with T_109 gives us a new basis element in weight 8.
+Doing form 20. Form 20 hit with T_109 gives us a new basis element in weight 8.
+Doing form 21. Form 21 hit with T_109 gives us a new basis element in weight 8.
+Doing form 22. Form 22 hit with T_109 gives us a new basis element in weight 8.
+Doing form 23. Form 23 hit with T_109 gives us a new basis element in weight 8.
+Doing form 24. Form 24 hit with T_109 gives us a new basis element in weight 8.
+Doing form 25. Form 25 hit with T_109 gives us a new basis element in weight 8.
+Doing form 26. Form 26 hit with T_109 gives us a new basis element in weight 8.
+Doing form 27. Form 27 hit with T_109 gives us a new basis element in weight 8.
+Doing form 28. Form 28 hit with T_109 gives us a new basis element in weight 8.
+Doing form 29. Form 29 hit with T_109 gives us a new basis element in weight 8.
+Doing form 30. Form 30 hit with T_109 gives us a new basis element in weight 8.
+Doing form 31. Form 31 hit with T_109 gives us a new basis element in weight 8.
+Doing form 32. Form 32 hit with T_109 gives us a new basis element in weight 8.
+Doing form 33. Form 33 hit with T_109 gives us a new basis element in weight 8.
+Doing form 34. Form 34 hit with T_109 gives us a new basis element in weight 8.
+Doing form 35. Form 35 hit with T_109 gives us a new basis element in weight 8.
+Doing form 36. Form 36 hit with T_109 gives us a new basis element in weight 8.
+Doing form 37. Form 37 hit with T_109 gives us a new basis element in weight 8.
+Doing form 38. Form 38 hit with T_109 gives us a new basis element in weight 8.
+Doing form 39. Form 39 hit with T_109 gives us a new basis element in weight 8.
+Doing form 40. Form 40 hit with T_109 gives us a new basis element in weight 8.
+Doing form 41. Form 41 hit with T_109 gives us a new basis element in weight 8.
+Doing form 42. Form 42 hit with T_109 gives us a new basis element in weight 8.
+Doing form 43. Form 43 hit with T_109 gives us a new basis element in weight 8.
+Doing form 44. Form 44 hit with T_109 gives us a new basis element in weight 8.
+Doing form 45. Form 45 hit with T_109 gives us a new basis element in weight 8.
+Doing form 46. Form 46 hit with T_109 gives us a new basis element in weight 8.
+Doing form 47. Form 47 hit with T_109 gives us a new basis element in weight 8.
+Doing form 48. Form 48 hit with T_109 gives us a new basis element in weight 8.
+Doing form 49. Form 49 hit with T_109 gives us a new basis element in weight 8.
+Doing form 50. Form 50 hit with T_109 gives us a new basis element in weight 8.
+Doing form 51. Form 51 hit with T_109 gives us a new basis element in weight 8.
+Doing form 52. Form 52 hit with T_109 gives us a new basis element in weight 8.
+Doing form 53. Form 53 hit with T_109 gives us a new basis element in weight 8.
+Doing form 54. Form 54 hit with T_109 gives us a new basis element in weight 8.
+Doing form 55. Form 55 hit with T_109 gives us a new basis element in weight 8.
+Doing form 56. Form 56 hit with T_109 gives us a new basis element in weight 8.
+Doing form 57. Form 57 hit with T_109 gives us a new basis element in weight 8.
+Doing form 58. Form 58 hit with T_109 gives us a new basis element in weight 8.
+Doing form 59. Form 59 hit with T_109 gives us a new basis element in weight 8.
+Doing form 60. Form 60 hit with T_109 gives us a new basis element in weight 8.
+Doing form 61. Form 61 hit with T_109 gives us a new basis element in weight 8.
+Doing form 62. Form 62 hit with T_109 gives us a new basis element in weight 8.
+Doing form 63. Form 63 hit with T_109 gives us a new basis element in weight 8.
+Doing form 64. Form 64 hit with T_109 gives us a new basis element in weight 8.
+Doing form 65. Form 65 hit with T_109 gives us a new basis element in weight 8.
+Doing form 66. Form 66 hit with T_109 gives us a new basis element in weight 8.
+Doing form 67. Form 67 hit with T_109 gives us a new basis element in weight 8.
+Doing form 68. Form 68 hit with T_109 gives us a new basis element in weight 8.
+Doing form 69. Form 69 hit with T_109 gives us a new basis element in weight 8.
+Doing form 70. Form 70 hit with T_109 gives us a new basis element in weight 8.
+Doing form 71. Form 71 hit with T_109 gives us a new basis element in weight 8.
+Doing form 72. Form 72 hit with T_109 gives us a new basis element in weight 8.
+Doing form 73. Form 73 hit with T_109 gives us a new basis element in weight 8.
+Doing form 74. Form 74 hit with T_109 gives us a new basis element in weight 8.
+Doing form 75. Form 75 hit with T_109 gives us a new basis element in weight 8.
+Doing form 76. Form 76 hit with T_109 gives us a new basis element in weight 8.
+Doing form 77. We didn't get anything new.
+Doing form 78. We didn't get anything new.
+Doing form 79. We didn't get anything new.
+Doing form 80. We didn't get anything new.
+Doing form 81. We didn't get anything new.
+Doing form 82. We didn't get anything new.
+Doing form 83. We didn't get anything new.
+Doing form 84. We didn't get anything new.
+Doing form 85. We didn't get anything new.
+Doing form 86. We didn't get anything new.
+Doing form 87. We didn't get anything new.
+Doing form 88. We didn't get anything new.
+Doing form 89. We didn't get anything new.
+Doing form 90. We didn't get anything new.
+Doing form 91. We didn't get anything new.
+Doing form 92. We didn't get anything new.
+Doing form 93. We didn't get anything new.
+Doing form 94. We didn't get anything new.
+Doing form 95. We didn't get anything new.
+Doing form 96. We didn't get anything new.
+Doing form 97. We didn't get anything new.
+Doing form 98. We didn't get anything new.
+Doing form 99. We didn't get anything new.
+Doing form 100. We didn't get anything new.
+Doing form 101. We didn't get anything new.
+Doing form 102. We didn't get anything new.
+Doing form 103. We didn't get anything new.
+Doing form 104. We didn't get anything new.
+Doing form 105. We didn't get anything new.
+Doing form 106. We didn't get anything new.
+Doing form 107. We didn't get anything new.
+Doing form 108. We didn't get anything new.
+Doing form 109. We didn't get anything new.
+Doing form 110. We didn't get anything new.
+Doing form 111. We didn't get anything new.
+Doing form 112. We didn't get anything new.
+Doing form 113. We didn't get anything new.
+Doing form 114. We didn't get anything new.
+Doing form 115. We didn't get anything new.
+Doing form 116. We didn't get anything new.
+Doing form 117. We didn't get anything new.
+Doing form 118. We didn't get anything new.
+Doing form 119. We didn't get anything new.
+Doing form 120. We didn't get anything new.
+Doing form 121. We didn't get anything new.
+Doing form 122. We didn't get anything new.
+Doing form 123. We didn't get anything new.
+Doing form 124. We didn't get anything new.
+Doing form 125. We didn't get anything new.
+Doing form 126. We didn't get anything new.
+Doing form 127. We didn't get anything new.
+Doing form 128. We didn't get anything new.
+Doing form 129. We didn't get anything new.
+Doing form 130. We didn't get anything new.
+Doing form 131. We didn't get anything new.
+Doing form 132. We didn't get anything new.
+Doing form 133. We didn't get anything new.
+Doing form 134. We didn't get anything new.
+Doing form 135. We didn't get anything new.
+Doing form 136. We didn't get anything new.
+Doing form 137. We didn't get anything new.
+Doing form 138. We didn't get anything new.
+Doing form 139. We didn't get anything new.
+Doing form 140. We didn't get anything new.
+Doing form 141. We didn't get anything new.
+Doing form 142. We didn't get anything new.
+Doing form 143. We didn't get anything new.
+Doing form 144. We didn't get anything new.
+Doing form 145. We didn't get anything new.
+Doing form 146. We didn't get anything new.
+Doing form 147. We didn't get anything new.
+Doing form 148. We didn't get anything new.
+Doing form 149. We didn't get anything new.
+Doing form 150. We didn't get anything new.
+Doing form 151. We didn't get anything new.
+Doing form 152. We didn't get anything new.
+Doing form 153. We didn't get anything new.
+Doing form 154. We didn't get anything new.
+Doing form 155. We didn't get anything new.
+Doing form 156. We didn't get anything new.
+Doing form 157. We didn't get anything new.
+Doing form 158. We didn't get anything new.
+Doing form 159. We didn't get anything new.
+Doing form 160. We didn't get anything new.
+Doing form 161. We didn't get anything new.
+Doing form 162. We didn't get anything new.
+Doing form 163. We didn't get anything new.
+Doing form 164. We didn't get anything new.
+Doing form 165. We didn't get anything new.
+Doing form 166. We didn't get anything new.
+Doing form 167. We didn't get anything new.
+Doing form 168. We didn't get anything new.
+Doing form 169. We didn't get anything new.
+Doing form 170. We didn't get anything new.
+Doing form 171. We didn't get anything new.
+Doing form 172. We didn't get anything new.
+Doing form 173. We didn't get anything new.
+Doing form 174. We didn't get anything new.
+Doing form 175. We didn't get anything new.
+Doing form 176. We didn't get anything new.
+Doing form 177. We didn't get anything new.
+Doing form 178. We didn't get anything new.
+Doing form 179. We didn't get anything new.
+Doing form 180. We didn't get anything new.
+Doing form 181. We didn't get anything new.
+Doing form 182. We didn't get anything new.
+Doing form 183. We didn't get anything new.
+Doing form 184. We didn't get anything new.
+Doing form 185. We didn't get anything new.
+Doing form 186. We didn't get anything new.
+Doing form 187. We didn't get anything new.
+Doing form 188. We didn't get anything new.
+Doing form 189. We didn't get anything new.
+Doing form 190. We didn't get anything new.
+Doing form 191. We didn't get anything new.
+Doing form 192. We didn't get anything new.
+Doing form 193. We didn't get anything new.
+Doing form 194. We didn't get anything new.
+Doing form 195. We didn't get anything new.
+Doing form 196. We didn't get anything new.
+Doing form 197. We didn't get anything new.
+Doing form 198. We didn't get anything new.
+Doing form 199. We didn't get anything new.
+Doing form 200. We didn't get anything new.
+Doing form 201. We didn't get anything new.
+Doing form 202. We didn't get anything new.
+Doing form 203. We didn't get anything new.
+Doing form 204. We didn't get anything new.
+Doing form 205. We didn't get anything new.
+Doing form 206. We didn't get anything new.
+Doing form 207. We didn't get anything new.
+Doing form 208. We didn't get anything new.
+Doing form 209. We didn't get anything new.
+Doing form 210. We didn't get anything new.
+Doing form 211. We didn't get anything new.
+Doing form 212. We didn't get anything new.
+Doing form 213. We didn't get anything new.
+Doing form 214. We didn't get anything new.
+Doing form 215. We didn't get anything new.
+Doing form 216. We didn't get anything new.
+Doing form 217. We didn't get anything new.
+Doing form 218. We didn't get anything new.
+Doing form 219. We didn't get anything new.
+Doing form 220. We didn't get anything new.
+Doing form 221. We didn't get anything new.
+Doing form 222. We didn't get anything new.
+Doing form 223. We didn't get anything new.
+Doing form 224. We didn't get anything new.
+Doing form 225. We didn't get anything new.
+Doing form 226. We didn't get anything new.
+Done. In the end we got 302 weight 8 forms.
+The dimension of M_8 is 151.
+Nicefying weight 8 forms.
+Nicefying 302x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Computing subspace fixed by HH0.
+The dimension of M_8 for HH0 is 104.
+We got 104 forms.
+Nicefying 104x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Nicefying 64x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Making weight 2 list 2.
+Nicefying 104x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+Nicefying 10x1350 matrix with denominator 1.
+Computing saturation.
+Done.
+Calling LLL.
+Done.
+The dimension of M_2 is 10. We got 10 forms in M_2.
+
+Total time: 58602.879 seconds, Total memory usage: 9175.69MB
