@@ -62,13 +62,20 @@ List of files:
         integration for curves`, Math. Comp. 
     Modifications made to make functions work over number fields, primarily due to Daniel Hast and Steffen Müller.
 -- string-replace.m: Intrinsics to replace strings, also in CHIMP. Useful for printing magma data. 
--- Examples: Contains code to find Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' in Theorem 1.1
+
+-- Examples: Contains code to compute Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' which appears as a 
+    quotient of Xns+(27) in Theorem 1.1
     `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  
-    Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller which appears as a quotient of Xns+(27). 
+    Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. 
+    
+    We also compute the j-invariants of all the points computed using code provided to us by Jeremy Rouse in Correctj.m . 
+
 -- data: Most of this is data for the smooth plane quartic X_H'. Contains  coleman_good_patch.m and 
    Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some files which we used to collect data,
-   and the misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed
-   to run QCModAffine. 
+   and the misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed to run QCModAffine. 
+   Curve_endos contains code to compute the geometric endomorphisms of the curve, and hence the Neron--Severi group as well. 
+   The folder XH model contains code provided by Jeremy Rouse which was used to compute the model of XH first presented in RSZB.
+
 --tests: Some tests while extending code to run for number fields. Used examples in QCMod on Steffen Müller's 
          GitHub. 
 
