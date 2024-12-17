@@ -934,8 +934,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     repeat 
       i0_2 +:= 1;
     until -Floor(log(p,i0_2)) le i0_threshold_2;
-    "i0_1", i0_1; 
-    "i0_2", i0_2; 
 
     function valF2(i) 
       // lower bound on valuations of coefficients in entries of F2_list
