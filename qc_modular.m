@@ -52,6 +52,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
 //    basis1 generate H^1_dR(X).
 //  * Together with basis0, basis1, the sequence basis2 forms a basis of H^1_dR(U), 
 //    where U is the affine patch we work on (bad disks removed).
+//  * data1 is precomputed Coleman data at v1 
+//  * data2 is precomputed Coleman data at v2 
+//  * symplectic is true iff the bases of H1 in data1 and data2 are
+//    symplectic wrt the cup product.
 //
 //  OUTPUT:
 //  ** good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, 
