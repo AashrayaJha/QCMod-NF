@@ -86,20 +86,20 @@ known_affine_points := [[P[1], P[2]] : P in known_points_C];
 print "starting QCModAffine";
 SetVerbose("QCMod",3);
 
-recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15, symplectic);
+recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local, bad_affine_K_pts, data1, data2 := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15, symplectic);
 
 /* 
  * Alternatively, use the following to run QC without precomputed Coleman
  * data.
  *
-recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: N := N);
+recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local, bad_affine_K_pts, data1, data2  := QCModAffine(Q,p, known_affine_points, correspondence_data: N := N);
  */
 
 // Qpts contains the images of the known points under the 2 embeddings.
 Qpts := [];
 for i := 1 to #global_pts_local do
-  pt1 := xy_coordinates(global_pts_local[i,1], data_1);
-  pt2 := xy_coordinates(global_pts_local[i,2], data_2);
+  pt1 := xy_coordinates(global_pts_local[i,1], data1);
+  pt2 := xy_coordinates(global_pts_local[i,2], data2);
   Append(~Qpts, [pt1, pt2]);
 end for;
 

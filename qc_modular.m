@@ -1155,7 +1155,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
      Check that both QC functions vanish at the images of the known K-points
    */
   global_pts_local := [* *];
-  vprintf QCMod, 2: "\n Check that QC-functionss vanish at known K-points.\n";
+  vprintf QCMod, 2: "\n Check that QC-functions vanish at known K-points.\n";
   for i := 1 to number_of_correspondences do
     F1_list := F1_lists[i];
     F2_list := F2_lists[i];
@@ -1192,13 +1192,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
 
 end intrinsic;
 
-intrinsic HeckeOperatorGenerates(S::ModSym, p::RngIntElt)
-  -> BoolElt
-  {Check that the Hecke operator Tp generates the Hecke algebra}
-  // S is a space of cusp forms
-  Tp := HeckeOperator(S, p);
-  return not IsDiagonal(Tp) and Degree(MinimalPolynomial(Tp)) eq Dimension(S) div 2;
-end intrinsic;
 
 
 
