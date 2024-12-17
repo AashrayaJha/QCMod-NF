@@ -17,6 +17,10 @@ L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. This follows
 for the Split Cartan Modular Curve of Level 13` by J.S. Balakrishnan, N. Dogra, J.S. Müller,
 J. Tuitman and J. Vonk.
 
+The main example is a quotient X_H' of the curve X+_ns(27), defined over
+F=Q(zeta3). To compute the F-points on X_H', run the code in the file
+Xns27/Fpoints_XH.m from the top level folder.
+
 Most of the code consists of wrappers around earlier version QCMod on Steffen 
 Müller's repository. A lot of the code is written so that previous computations of p-adic heights
 and power series can now be done over completions of number fields. 
@@ -34,7 +38,7 @@ List of files:
     Includes numerous optional arguments.    
 -- hodge.m: Computes the Hodge filtration using the algorithm described in section 4 of 
     `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13`
---hodge_generic.m: Wrapper of hodge.m, which enables us to do a lot of the linear algebra required to compute
+-- hodge_generic.m: Wrapper of hodge.m, which enables us to do a lot of the linear algebra required to compute
     the Hodge filtration in a smaller ground field.
 -- frobenius.m: Computes the Frobenius structure using the algorithm described in section 4 of 
     `Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13` extended to work over number fields
@@ -63,8 +67,8 @@ List of files:
     Modifications made to make functions work over number fields, primarily due to Daniel Hast and Steffen Müller.
 -- string-replace.m: Intrinsics to replace strings, also in CHIMP. Useful for printing magma data. 
 
--- Examples: Contains code to compute Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' which appears as a 
-    quotient of Xns+(27) in Theorem 1.1
+-- Xns27: Contains code to compute Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' which appears as a 
+    quotient of Xns+(27) in Theorem 1.1 of
     `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  
     Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. 
     
