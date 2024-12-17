@@ -4,16 +4,16 @@ AttachSpec("QCMod.spec");
 import "applications.m": Qp_points;
 import "singleintegrals.m": is_bad, xy_coordinates;
 
-// load precomputed Tuitman data -- this saves some time. Moreover, the bases 
+// load precomputed Coleman data -- this saves some time. Moreover, the bases 
 // of H1 are already symplectic.
-load "data/Coleman_good_patch.m";
+load "Xns27/PrecomputedData/coleman_data_precomputed.m";
 
 // load precomputed Hecke data (Hecke operator T_13 and associated nice
 // correspondences, encoded as matrices wrt symplectic basis of H1). We do 
 // this because a lot of precision was
 // necessary to recognize the entries as algebraic numbers, so computing
 // them takes very long.
-load "data/Hecke_good_patch_400.m";
+load "Xns27/PrecomputedData/hecke_data_precomputed.m";
 
 
 t1 := Cputime();
@@ -32,7 +32,7 @@ Qppoints_2 := Qp_points(data_2);
 assert &and[not(is_bad(P, data_2)) : P in Qppoints_2];
 
 /* 
- * Alternatively, can use the following, so that the Tuitman data gets
+ * Alternatively, can use the following, so that the Coleman data gets
  * computed inside the main function OCModAffine.
  *
 F<u> := CyclotomicField(3);
@@ -89,7 +89,7 @@ SetVerbose("QCMod",3);
 recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: data1:=data_1,data2:=data_2, N := 15, symplectic);
 
 /* 
- * Alternatively, use the following to run QC without precomputed Tuitman
+ * Alternatively, use the following to run QC without precomputed Coleman
  * data.
  *
 recovered_Kpts, done, sols, all_zeroes, double_zeroes, global_pts_local := QCModAffine(Q,p, known_affine_points, correspondence_data: N := N);
