@@ -14,7 +14,7 @@ declare verbose QCMod, 4;
 
 intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnum, 
   correspondence_data::List : N := 15, prec := 2*N, basis0 := [], basis1 := [], 
-  basis2 := [], data1:=0, data2:=0, base_point := 0, rho := 0)
+              basis2 := [], data1:=0, data2:=0, symplectic := false)
                 //      hecke_prime := 0, unit_root_splitting := false, eqsplit := 0,
                 //      height_coeffs := [], rho := 0, use_log_basis := false, use_polys:=[])
   -> SeqEnum, BoolElt, SeqEnum, SeqEnum, List, SeqEnum, Rec, Rec
@@ -52,9 +52,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
 //    basis1 generate H^1_dR(X).
 //  * Together with basis0, basis1, the sequence basis2 forms a basis of H^1_dR(U), 
 //    where U is the affine patch we work on (bad disks removed).
-//  * base_point is a pair [x,y] specifying a rational point on X to be used as a 
-//    base point for Abel Jacobi. If base_point = 0, the first good affine rational 
-//    point found is used.
 //
 //  OUTPUT:
 //  ** good_affine_K_pts_xy, complete, sol_list, zero_list, double_zero_list, 
@@ -79,8 +76,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
 //    These disks can be accessed using Qp_points(data_i).
 //  * bad_affine_K_pts_xy is a list of points (x,y) in Y(K) such that (x,y)
 //    is bad in Y(K_1) or Y(K_2).
-//  * data1 is the Coleman data at p1 used in the algorithm.
-//  * data2 is the Coleman data at p2 used in the algorithm.
+//  * data1 is the Coleman data at v1 used in the algorithm.
+//  * data2 is the Coleman data at v2 used in the algorithm.
 //  
 //
 
@@ -104,9 +101,13 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   K := BaseRing(BaseRing(Q));
   d := Degree(K);
   require d eq 2: "K must be quadratic"; // TODO: Generalize
-  v1 := data1`v;
-  require Norm(v1) eq p: "p should split in K.";
-  v2 := data2`v;
+  if Type(data1) eq RngIntElt or Type(data2) eq RngIntElt then
+    v1, v2 := Explode(PrimeIdealsOverPrime(K, p));                                            require Norm(v1) eq p: "p should split in K.";
+  else
+    assert data1`p eq p;    
+    v1 := data1`v;
+    v2 := data2`v;
+  end if;
   K1,loc1 := Completion(K,v1);
   K2,loc2 := Completion(K,v2);
   OK := MaximalOrder(K);
@@ -118,69 +119,70 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   // ===               SYMPLECTIC BASIS                  ===
   // ==========================================================
   vprint QCMod, 2: " Computing a symplectic basis of H^1";
+  if Type(data1) eq RngIntElt or Type(data2) eq RngIntElt or not symplectic then
   
-  h1basis, g, r, W0 := H1Basis(Q, v1); 
-  assert W0 eq IdentityMatrix(Rationals(), Degree(Q)); // TODO: Generalize
-  _,_,_,_ := H1Basis(Q,v2); 
-  //The second iteration is just a check for Tuitman's conditions being satisfied at both places.
+    h1basis, g, r, W0 := H1Basis(Q, v1); 
+    _,_,_,_ := H1Basis(Q,v2); 
+    //The second iteration is just a check for Tuitman's conditions being satisfied at both places.
 
-  if #basis0*#basis1 gt 0 then // Use the given basis
-    h1basis := basis0 cat basis1;
-  end if;
-  vprintf QCMod, 3: " genus = %o.\n", g;
-  if IsZero(rho) then 
-    rho := g;       //If not given, we assume that the Picard number is equal to the genus
-  end if;
-  
-  // h1basis is a basis of H^1 such that the first g elements span the regular
-  // differentials. Construct a symplectic basis by changing the last g elements of 
-  // h1basis.
-
-  standard_sympl_mat := ZeroMatrix(K,2*g,2*g);
-  for i in [1..g] do
-    standard_sympl_mat[i,g+i] := 1; standard_sympl_mat[g+i,i] := -1;
-  end for;
-
-  vprint QCMod, 3: " Computing the cup product matrix";
-  cpm_prec := 2*g;
-  if assigned cpm then delete cpm; end if;
-  repeat 
-    try 
-      // This takes too long, because it works over the splitting field at
-      // infinity
-      //cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec);
-      cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec, split := false);
-    catch e;
-      cpm_prec +:= g;
-      vprint QCMod, 4: "Precision %o too low for cup product computation. Increasing to %o", cpm_prec-g, cpm_prec;
-    end try;
-  until assigned cpm;
-  vprint QCMod, 3: " Cup product matrix", cpm;
-  if cpm ne standard_sympl_mat then 
-    coefficients := SymplecticBasisH1(cpm); // Create coefficients of a symplectic basis in terms of h1basis
-    new_complementary_basis := [&+[coefficients[i,j]*h1basis[j] : j in [1..2*g]] : i in [1..g]];
-    sympl_basis := [h1basis[i] : i in [1..g]] cat new_complementary_basis;
-    if not &and[&and[Valuation(c, v1) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
-      error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
-    end if; 
-    if not &and[&and[Valuation(c, v2) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
-      error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
+    if #basis0*#basis1 gt 0 then // Use the given basis
+      h1basis := basis0 cat basis1;
     end if;
-    vprintf QCMod, 3: " Symplectic basis of H^1:\n%o\n", sympl_basis;
-    basis0 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [1..g]]; // basis of regular differentials
-    basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basis of complementary subspace
+    vprintf QCMod, 3: " genus = %o.\n", g;
+      
+    // h1basis is a basis of H^1 such that the first g elements span the regular
+    // differentials. Construct a symplectic basis by changing the last g elements of 
+    // h1basis.
+
+    standard_sympl_mat := ZeroMatrix(K,2*g,2*g);
+    for i in [1..g] do
+      standard_sympl_mat[i,g+i] := 1; standard_sympl_mat[g+i,i] := -1;
+    end for;
+
+    vprint QCMod, 3: " Computing the cup product matrix";
+    cpm_prec := 2*g;
+    if assigned cpm then delete cpm; end if;
+    repeat 
+      try 
+        // This takes too long, because it works over the splitting field at
+        // infinity
+        //cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec);
+        cpm := CupProductMatrix(h1basis, Q, g, r, W0 : prec := cpm_prec, split := false);
+      catch e;
+        cpm_prec +:= g;
+        vprint QCMod, 4: "Precision %o too low for cup product computation. Increasing to %o", cpm_prec-g, cpm_prec;
+      end try;
+    until assigned cpm;
+    vprint QCMod, 3: " Cup product matrix", cpm;
+    if cpm ne standard_sympl_mat then 
+      coefficients := SymplecticBasisH1(cpm); // Create coefficients of a symplectic basis in terms of h1basis
+      new_complementary_basis := [&+[coefficients[i,j]*h1basis[j] : j in [1..2*g]] : i in [1..g]];
+      sympl_basis := [h1basis[i] : i in [1..g]] cat new_complementary_basis;
+      if not &and[&and[Valuation(c, v1) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
+        error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
+      end if; 
+      if not &and[&and[Valuation(c, v2) ge 0 : c in Coefficients(w[1])] : w in sympl_basis] then
+        error "The computed symplectic basis is not integral. Please try a different prime or a different basis.";
+      end if;
+      vprintf QCMod, 3: " Symplectic basis of H^1:\n%o\n", sympl_basis;
+      basis0 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [1..g]]; // basis of regular differentials
+      basis1 := [[sympl_basis[i,j] : j in [1..Degree(Q)]] : i in [g+1..2*g]];  // basis of complementary subspace
+    end if;
+    if Type(data1) eq RngIntElt then 
+      data1 := ColemanData(Q, v1, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
+    end  if;
+    vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v1, N;
+
+    if Type(data2) eq RngIntElt then 
+      data2:= ColemanData(Q, v2, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
+    end if;  
+    vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v2, N;
   end if;
-  if Type(data1) eq RngIntElt then 
-    // useY means we compute a basis of H1(Y), rather than H1(X) or H1(U)
-    data1 := ColemanData(Q, v1, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
-  end  if;
-  vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v1, N;
 
-  if Type(data2) eq RngIntElt then 
-    data2:= ColemanData(Q, v2, N : useY:=true,  basis0:=basis0, basis1:=basis1, basis2:=basis2);
-  end if;  
-  vprintf QCMod, 2: " Computed Coleman data at p=%o wrt symplectic basis to precision %o.\n", v2, N;
-
+  g := data1`g;
+  assert data1`W0 eq IdentityMatrix(Rationals(), Degree(Q)); // TODO: Generalize
+  assert data2`W0 eq IdentityMatrix(Rationals(), Degree(Q)); // TODO: Generalize
+  
   prec := Max([prec, 40, tadicprec(data1, 1)]);
   prec := Max(tadicprec(data2, 1), tadicprec(data1, 1));
   S<t>    := LaurentSeriesRing(Qp,prec);
@@ -256,17 +258,10 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   vprintf QCMod, 2: "\n Good affine K-points:\n%o\n", good_affine_K_pts_xy;
   vprintf QCMod, 2: "\n Bad affine K-points:\n%o\n", bad_affine_K_pts_xy;
 
-  //if ISA(Type(base_point), RngIntElt) and IsZero(base_point) then  // No base point given, take the first possible one.
-  assert ISA(Type(base_point), RngIntElt) and IsZero(base_point);  // No base point given, take the first possible one.
   global_base_point_index := 1;
   bK_1 := good_Kpoints_1[global_base_point_index];
   bK_2 := good_Kpoints_2[global_base_point_index]; // base point as Kpoint
   bK_xy := good_affine_K_pts_xy[global_base_point_index];  // xy-coordinates of base point
-  //else 
-  //  bQ := set_point(base_point[1], base_point[2], data1); // base point given
-  //  bK_xy := base_point;
-  //  global_base_point_index := Index(good_affine_K_pts_xy, base_point);
-  //end if;
   local_base_point_index_1 := FindQpointQp(bK_1,Qppoints_1);
   local_base_point_index_2 := FindQpointQp(bK_2,Qppoints_2);       // Index of global base point in list of local points.
 
@@ -292,40 +287,30 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   // ===                  CORRESPONDENCES                 ===
   // ==========================================================
 
-  vprint QCMod, 2: "\n Computing correspondences";
+  vprint QCMod, 2: "\n Correspondences";
 
-  // Want rho-1 independent `nice` correspondences.
-  // Construct them using powers of Hecke operator
-  //q := IsZero(hecke_prime) select p else hecke_prime;
-  // Commented out, since we always take q=p.
 
   //if Type(correspondence_data) eq RngIntElt  then 
   // TODO: Make this work.
   //  correspondences, Tq, corr_loss := HeckeCorrespondenceQC(data1,q,N : basis0:=basis0,basis1:=basis1,use_polys:=use_polys);
   //else
   correspondences := correspondence_data[2]; 
+  rho := #correspondences+1;
+  // Want rho-1 independent `nice` correspondences.
+  // We constructed them using powers of Hecke operator Tp.
   Tp:=correspondence_data[1];  
   corr_loss:=correspondence_data[3];
   //end if;
 
   Ncorr := N + Min(corr_loss, 0);
-  // correspondences and Tq are provably correct to O(p^Ncorr), at least if q = p. We
+  // correspondences and Tp are provably correct to O(p^Ncorr). We
   // represent them via rational approximations.
   Qpcorr := pAdicField(p, Ncorr);
   mat_space := KMatrixSpace(Qpcorr, 2*g, 2*g);
   vprintf QCMod, 3: "\nHecke operator at %o acting on H^1:\n%o\n", p, Tp;
-  //if IsDiagonal(Tq) or Degree(CharacteristicPolynomial(Tq)) lt 2*g then
-    //error "p-Adic approximation of Hecke operator does not generate the endomorphism algebra. Please pick a different prime. ";
-  //end if;
-  //if q ne p then
-    //printf "\n WARNING: Using Hecke operator T_%o, but %o isn't our working prime %o. The result will not be provably correct.\n", q, q, p; 
-  //end if;  
-
+  
   correspondences_Qp1:=[QpMatrix(M,N,v1): M in correspondences];  
-
   correspondences_Qp2:=[QpMatrix(M,N,v2): M in correspondences];
-  //if #use_polys eq 0 then
-  // Check if Hecke operator generates. Need to do this using p-adic arithmetic.
   if Dimension(sub<mat_space | ChangeUniverse(correspondences_Qp1, mat_space)>) lt rho-1 then
     error "Powers of Hecke operator don't suffice to generate the space of nice correspondences";
   end if;
@@ -356,7 +341,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   // Compute an End0(J)-equivariant splitting of the Hodge filtration.
   
   //if IsZero(eqsplit) then
-  /* TODO: Fix this
+  /* TODO: Fix this for examples with too few rational points
     if unit_root_splitting then 
       // Compute the unit root splitting 
       FQp := ChangeRing(ChangeRing(Submatrix(data1`F,1,1,2*g,2*g), Rationals()),Qp); // Frobenius over Qp
@@ -381,8 +366,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     //end if; // unit_root_splitting
   //end if; // IsZero(eqsplit)
 
-  //vprintf QCMod, 3: "eqsplit is %o", eqsplit;
-
   eqsplit1 := QpMatrix(eqsplit,Ncorr,v1);
   eqsplit2 := QpMatrix(eqsplit,Ncorr,v2);
   minvaleqsplit1 := minvalp(eqsplit, v1);
@@ -392,10 +375,8 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   big_split := BlockMatrix(1,2,[eqsplit,ZeroMatrix(Rationals(),2*g,g)]);
   assert IsZero(big_split*Transpose(Tp) - Transpose(Tp)*big_split);     // Test equivariance
   vprintf QCMod, 3: "\n equivariant splitting:\n%o\n", eqsplit;
-  
-  
 
-  //Sum of these quantiites below will need to account for both primes, we will fix them 
+  //Sum of these quantities below will need to account for both primes, we will fix them 
   //when they actually show up in Hodge/Frobenius/power series. 
 
   F1_lists := [* *]; // functions vanishing in rational points, one for each corresp
@@ -431,7 +412,6 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
   
 
   for l := 1 to number_of_correspondences do
-  //for l := 1 to 1 do
     Z := correspondences[l];
 
     // ==========================================================
@@ -444,23 +424,20 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     generic := false;
     if #infplaces eq 1 then
       finf := CharacteristicPolynomial(ResidueClassField(infplaces[1]).1);
-      split := SplittingField(finf);
-      finfsplit := ChangeRing(finf, split); 
-      if SymmetricGroup(Degree(finf)) eq GaloisGroup(finf) then
-        generic := true;
-      end if;
+      generic := SymmetricGroup(Degree(finf)) eq GaloisGroup(finf);
     end if;
-
 
 
     if assigned betafil1 then delete betafil1; end if;
     hodge_prec := 5; 
     repeat
       try
+        // Decide if we want to work over the splitting field at infinity
+        // or not
         if generic then
           eta1,betafil1,gammafil1,hodge_loss1 := HodgeDataGeneric(data1, Z, bpt, hodge_prec);
         else
-          eta1,betafil1,gammafil1,hodge_loss1 := HodgeDataSplittingField(Q,g,W0,data1`basis,Z,bpt : r:=r, prec:=hodge_prec);
+          eta1,betafil1,gammafil1,hodge_loss1 := HodgeDataSplittingField(Q,g,data1`W0,data1`basis,Z,bpt : r:=r, prec:=hodge_prec);
         end if;
       catch e;
         e;
@@ -473,7 +450,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
         if generic then
           eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataGeneric(data2, Z, bpt, hodge_prec);
         else
-          eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataSplittingField(Q,g,W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
+          eta2,betafil2,gammafil2,hodge_loss2 := HodgeDataSplittingField(Q,g,data2`W0,data2`basis,Z,bpt : r:=r, prec:=hodge_prec);
         end if;
       catch e;
         hodge_prec +:= 5;
