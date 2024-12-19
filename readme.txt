@@ -7,22 +7,21 @@ the following conditions :
 * p is a rational prime, which splits in K, and 
   * X has good reduction at all primes of K dividing p, and Assumption 1 in `Counting points 
     on curves using a map to P1`, Math. Comp. 2016 Tuitman is satisfied for all primes above p.
-  * the closure of Jac(X)(K) in Jac(X)(K\otimes Qp) has finite index
+  * the closure of Jac(X)(K) in Jac(X)(K \otimes Qp) has finite index
   * the Hecke operator at p generates the Hecke algebra.
 
 The theory is described in `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF
 LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  Jennifer S. Balakrishnan,
-L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. This follows the papers
+L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen Müller. This follows the papers
 `Quadratic Chabauty for modular curves: Algorithms and Examples` and `Explicit Chabauty-Kim 
 for the Split Cartan Modular Curve of Level 13` by J.S. Balakrishnan, N. Dogra, J.S. Müller,
 J. Tuitman and J. Vonk.
 
-The main example is a quotient X_H' of the curve X+_ns(27), defined over
-F=Q(zeta3). To compute the F-points on X_H', run the code in the file
+The main example is a quotient X_H' of the curve X^+_{ns}(27), defined over
+F = Q(zeta_3). To compute the F-points on X_H', run the code in the file
 Xns27/Fpoints_XH.m from the top level folder.
 
-Most of the code consists of wrappers around earlier version QCMod on Steffen 
-Müller's repository. A lot of the code is written so that previous computations of p-adic heights
+Most of the code consists of wrappers built on top of https://github.com/steffenmueller/QCMod/. Much of the code is written so that previous computations of p-adic heights
 and power series can now be done over completions of number fields. 
 
 Contributions were made by Jennifer Balakrishnan, Daniel Hast, Aashraya Jha, and Steffen Müller.
@@ -67,8 +66,8 @@ List of files:
     Modifications made to make functions work over number fields, primarily due to Daniel Hast and Steffen Müller.
 -- string-replace.m: Intrinsics to replace strings, also in CHIMP. Useful for printing magma data. 
 
--- Xns27: Contains code to compute Q(zeta_3) points of Xns+(27) and a smooth plane quartic X_H' which appears as a 
-    quotient of Xns+(27) in Theorem 1.1 of
+-- Xns27: Contains code to compute Q(zeta_3) points of X^+_{ns}(27) and a smooth plane quartic X_H' which appears as a 
+    quotient of X^+_{ns}(27) in Theorem 1.1 of
     `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  
     Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. 
     
@@ -80,8 +79,7 @@ List of files:
    Curve_endos contains code to compute the geometric endomorphisms of the curve, and hence the Neron--Severi group as well. 
    The folder XH model contains code provided by Jeremy Rouse which was used to compute the model of XH first presented in RSZB.
 
---tests: Some tests while extending code to run for number fields. Used examples in QCMod on Steffen Müller's 
-         GitHub. 
+--tests: Some tests while extending code to run for number fields. Used examples in https://github.com/steffenmueller/QCMod/. 
 
 If you have questions or suggestions or if you find bugs, let me know.
 
