@@ -71,7 +71,15 @@ List of files:
     `RATIONAL POINTS ON THE NON-SPLIT CARTAN MODULAR CURVE OF LEVEL 27 AND QUADRATIC CHABAUTY OVER NUMBER FIELDS' by  
     Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Hast, Aashraya Jha, J. Steffen M üller. 
     
-    We also compute the j-invariants of all the points computed using code provided to us by Jeremy Rouse in Correctj.m . 
+    We also compute the j-invariants of all the points computed using code provided to us by Jeremy Rouse in test_j_invariants.m . 
+
+    The PrecomputedData folder contains data required to run QCModAffine for the curve XH. It includes the action of the Hecke 
+    operator on the de-Rham cohomology of a prime above 13, and also some Coleman data required for computations in QCModAffine.
+
+    The misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed to run QCModAffine. 
+    Xns27/misc/Curve_endos.m contains code to compute the geometric endomorphisms of the curve, and hence the Neron--Severi group as well. The file 
+    Xns27/misc/Discoid.m contains a calculation which helps us determine the local heights at the prime above 3. The folder XHmodel contains code 
+    provided by Jeremy Rouse which was used to compute the model of XH first presented in RSZB.
 
 -- data: Most of this is data for the smooth plane quartic X_H'. Contains  coleman_good_patch.m and 
    Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some files which we used to collect data,

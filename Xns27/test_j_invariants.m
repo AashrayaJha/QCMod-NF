@@ -1,3 +1,6 @@
+//In this file, we check the values of the j-invarainats corresponding to the F-points of XH using maps between 
+//modular curves provided by Jeremy Rouse.
+
 K<zeta> := CyclotomicField(3);
 
 RR<A,B,C> := PolynomialRing(K,3);
@@ -56,5 +59,5 @@ if #RationalPoints(pt1@@phi3) eq 0 then
   "The j-invariant in RSZB does not lift to Xns+(9).";
 end if;
 
-j_inv:=[phi(pts): pts in points]; //Quickly checked other j-invaraints are correct.
+j_inv:=[phi(pts): pts in points]; //Checked other j-invaraints are correct.
 
