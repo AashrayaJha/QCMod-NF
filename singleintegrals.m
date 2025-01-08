@@ -1,6 +1,5 @@
 //freeze;
 
-//Use Qp instwad K for p-adic fields, since p is split.
 import "auxpolys.m": auxpolys, genus, is_integral, log, smooth;
 import "coho.m": ord_0_mat, ord_inf_mat, mat_W0, mat_Winf, con_mat, ddx_mat, jordan_inf, jordan_0, ram, basis_coho;
 import "reductions.m": convert_to_Kxzzinvd, reduce_with_fs, red_lists;
