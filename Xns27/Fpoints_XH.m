@@ -53,10 +53,9 @@ C_RSZB := CurveFromBivariate(Q_RSZB);
 bool, trans_seq := IsIsomorphicPlaneQuartics(C_RSZB,C);
 trans := trans_seq[1];
 a,b,c := GetVersion();
-if b lt 28 then
-  if c lt 10 then
-    trans:=trans^(-1);  
-  end if;
+if b lt 28 or (b eq 28 and c le 8) then
+  // The isomorphism code changed in 2.28-9
+  trans:=trans^(-1);  
 end if;
 known_points_RSZB := [C_RSZB!P : P in [
   [1,0,0], // j = 1728, D = -4
