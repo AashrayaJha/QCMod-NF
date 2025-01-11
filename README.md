@@ -71,11 +71,6 @@ Modifications made to make functions work over number fields, primarily due to D
     - The folder `XHmodel` contains code provided by Jeremy Rouse which was used to compute the model of $X_H'$ first presented by Rouse, Sutherland, and Zureick-Brown [\[5\]](#References).
    - `Curve_endos` contains code to compute the geometric endomorphisms of the curve, and hence the Neron–Severi group as well. 
 
-- `data`: Most of this is data for the smooth plane quartic $X_H'$. Contains  `coleman_good_patch.m` and 
-   `Hecke_good_patch_400` which are used in running `QCModAffine` for $X_H'$. Contains some files which we used to collect data.
-
-- `tests`: Some tests while extending code to run for number fields. Used examples in https://github.com/steffenmueller/QCMod/. 
-
 # References
 
 1. J. S. Balakrishnan, L. A. Betts, D. R. Hast, A. Jha, and J. S. Müller. "Rational points on the non-split Cartan modular curve of level 27 and quadratic Chabauty over number fields". In preparation.
