@@ -9,7 +9,7 @@ the following conditions:
   * the closure of $\operatorname{Jac}(X)(K)$ in $\operatorname{Jac}(X)(K \otimes \mathbf{Q}_p)$ has finite index;
   * the Hecke operator at p generates the Hecke algebra.
 
-The theory is described in the paper "Rational points on the non-split Cartan modular curve of level 27 and quadratic Chabauty over number fields" by Jennifer S. Balakrishnan, L. Alexander Betts, Daniel Rayor Hast, Aashraya Jha, and J. Steffen Müller [\[1\]](#References).
+The theory is described in the paper "Rational points on the non-split Cartan modular curve of level 27 and quadratic Chabauty over number fields" by [Jennifer S. Balakrishnan](https://math.bu.edu/people/jbala/), [L. Alexander Betts](https://lalexanderbetts.net/), [Daniel Rayor Hast](https://github.com/HastD), [Aashraya Jha](https://sites.google.com/view/aashrayajha), and [J. Steffen Müller](https://www.rug.nl/staff/steffen.muller/) [\[1\]](#References).
 
 This follows the papers
 "Explicit Chabauty-Kim for the Split Cartan Modular Curve of Level 13"
