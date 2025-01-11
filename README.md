@@ -58,7 +58,7 @@ Contributions were made by Jennifer Balakrishnan, Daniel Hast, Aashraya Jha, and
 Modifications made to make functions work over number fields, primarily due to Daniel Hast and Steffen Müller.
 - `string-replace.m`: Intrinsics to replace strings, also in [CHIMP](https://github.com/edgarcosta/CHIMP). Useful for printing Magma data. 
 
-- `Xns27`: Contains code to compute $\mathbf{Q}(\zeta_3)$ points of $X^+_{ns}(27)$ and a smooth plane quartic $X_H'$ which appears as a quotient of $X^+_{ns}(27)$ in Theorem 1.1 of our paper [\[1\]](#References).
+- `Xns27`: Contains code to compute $\mathbf{Q}(\zeta_3)$ points of $X^{+}_ {ns}(27)$ and a smooth plane quartic $X_H'$ which appears as a quotient of $X^{+}_{ns}(27)$ in Theorem 1.1 of our paper [\[1\]](#References).
     
     - We also compute the j-invariants of all the points computed using code provided to us by Jeremy Rouse in `test_j_invariants.m`. 
 
