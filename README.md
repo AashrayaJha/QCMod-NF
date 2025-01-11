@@ -6,7 +6,7 @@ the following conditions:
 * enough rational points on the curve to solve for the height pairing;
 * p is a rational prime, which splits in K, and 
   * X has good reduction at all primes of K dividing p, and Assumption 1 in Tuitman 2016 [\[6\]](#References) is satisfied for all primes above p;
-  * the closure of $\operatorname{Jac}(X)(K)$ in $\operatorname{Jac}(X)(K \otimes \mathbf{Q}_p)$ has finite index;
+  * the closure of $\mathrm{Jac}(X)(K)$ in $\mathrm{Jac}(X)(K \otimes \mathbf{Q}_p)$ has finite index;
   * the Hecke operator at p generates the Hecke algebra.
 
 The theory is described in the paper "Rational points on the non-split Cartan modular curve of level 27 and quadratic Chabauty over number fields" by [Jennifer S. Balakrishnan](https://math.bu.edu/people/jbala/), [L. Alexander Betts](https://lalexanderbetts.net/), [Daniel Rayor Hast](https://github.com/HastD), [Aashraya Jha](https://sites.google.com/view/aashrayajha), and [J. Steffen Müller](https://www.rug.nl/staff/steffen.muller/) [\[1\]](#References).
