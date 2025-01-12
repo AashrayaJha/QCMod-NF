@@ -78,8 +78,9 @@ List of files:
 
     The misc folder contains some facts about the curve which were used along the way in QC computations, but are not needed to run QCModAffine. 
     Xns27/misc/Curve_endos.m contains code to compute the geometric endomorphisms of the curve, and hence the Neron--Severi group as well. The file 
-    Xns27/misc/Discoid.m contains a calculation which helps us determine the local heights at the prime above 3. The folder XHmodel contains code 
-    provided by Jeremy Rouse which was used to compute the model of XH first presented in RSZB.
+    Xns27/misc/Discoid.m contains a calculation which helps us determine the local heights at the prime above 3. The file Xns27/Misc/Group_H.sage contains
+    a calculation comparing two different definitions of modular curve for the subgroup H, and show that in this case they are actually isomorphic.
+    The folder XHmodel contains code provided by Jeremy Rouse which was used to compute the model of XH first presented in RSZB.
 
 -- data: Most of this is data for the smooth plane quartic X_H'. Contains  coleman_good_patch.m and 
    Hecke_good_patch_400 which are used in running QCModAffine for X_H'. Contains some files which we used to collect data,
