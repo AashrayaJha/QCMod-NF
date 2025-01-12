@@ -68,6 +68,7 @@ Modifications made to make functions work over number fields, primarily due to D
     - The `misc` folder contains some facts about the curve which were used along the way in quadratic Chabauty computations, but are not needed to run `QCModAffine`.
     - `Xns27/misc/Curve_endos.m` contains code to compute the geometric endomorphisms of the curve, and hence the Neron–Severi group as well.
     - The file `Xns27/misc/Discoid.m` contains a calculation which helps us determine the local heights at the prime above 3.
+    -  The file Xns27/Misc/Group_H.sage contains a calculation comparing two different definitions of modular curve for the subgroup H, and show that in this case they are actually isomorphic.
     - The folder `XHmodel` contains code provided by Jeremy Rouse which was used to compute the model of $X_H'$ first presented by Rouse, Sutherland, and Zureick-Brown [\[5\]](#References).
    - `Curve_endos` contains code to compute the geometric endomorphisms of the curve, and hence the Neron–Severi group as well. 
 
