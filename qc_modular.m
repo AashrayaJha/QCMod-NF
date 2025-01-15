@@ -1000,7 +1000,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
     // - in the residue polydisk D(l) x D(m) 
 
     Nend := Integers()!Min(Nexpansions[k], Nhtcoeffs); // Precision used for root finding 
-    vprintf QCMod: " The quadratic Chabauty function for correspondence %o is correct to precision %o^%o.\n",  k, p, Nend;
+    vprintf QCMod: " The quadratic Chabauty functions for correspondence %o are correct to precision %o^%o.\n",  k, p, Nend;
     Qp_small   := pAdicField(p,Nend); 
     Qpt1<t1> := PowerSeriesRing(Qp_small,prec);
     Qpt12<t2> := PowerSeriesRing(Qpt1,prec);
@@ -1061,7 +1061,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
             if k eq 1 then  // first correspondence: compute roots
               g1_poly_1 := g1_poly;
               g1_poly_2 := g2_poly;
-              vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty function in the polydisk %o,%o\n", i,m;
+              vprintf QCMod, 3: " Find zeroes of the first quadratic Chabauty system in the polydisk %o,%o\n", i,m;
               roots, droots := two_variable_padic_system_solver(g1_poly, g2_poly, p, 
                                                         Nend-1, Nend-1 :safety :=1);
               zero_list[i,m] := roots;
@@ -1070,7 +1070,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
               end if;
             else // second correspondence
               // Check if functions vanish at zeroes of first function.
-              vprintf QCMod, 3: " Check which zeroes of the first quadratic Chabauty function in the polydisk %o,%o are also zeroes of the second quadratic Chabauty function \n", i,m;
+              vprintf QCMod, 3: " Check which zeroes of the first quadratic Chabauty system in the polydisk %o,%o are also zeroes of the second quadratic Chabauty system \n", i,m;
               if #zero_list[i,m] gt 0 then
 
                 if [k,i,m] notin double_zero_list  then  
@@ -1110,7 +1110,7 @@ intrinsic QCModAffine(Q::RngUPolElt[RngUPol], p::RngIntElt, known_points::SeqEnu
                 else
                   // multiple roots in this disc for correspondence 1. 
                   // find roots for correspondence 2. 
-                  vprintf QCMod, 3: " The QC functions wrt the first correspondence have a root in polydisk %o,%o not satisfying the Hensel condition. Find roots of QC functions wrt the second correspondence. \n", i,m;
+                  vprintf QCMod, 3: " The QC system wrt the first correspondence have a root in polydisk %o,%o not satisfying the Hensel condition. Find roots of the QC system wrt the second correspondence. \n", i,m;
                   roots2, droots2 := two_variable_padic_system_solver(
                                 g1_poly, g2_poly, p, Nend-1, Nend-1 :safety :=1);
                   assert droots2 eq 0; // Hensel condition satisfied
